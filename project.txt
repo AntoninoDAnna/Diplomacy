@@ -1,0 +1,59 @@
+DIPLOMACY DESIGN
+
+PROTOTYPE
+
+Welcome screen with following buttons: login / profile,  new game,  your games, sandbox
+|
+| new game screen, various option for the game (game map, time settings, ecc...), 
+| button to go back, button to start the game
+|
+| sandbox screen: list of all the sandbox game active, button to go back and button to add a new sandbox
+| | 
+| | new sandbox screen, varius option for the game, go back game and start game;
+
+===//=== 
+
+actual game progression:
+| load starting position
+|
+| assign playable country to players:
+|
+| game loop:
+| | start  diplomacy phase and recieve orders: (spring)
+| | end diplomacy phase, evaluate ordes, wait retreats (summer)
+| | start diplomacu phase and recieve order: (autumn)
+| | end diplomacy phase, evaluate order, wait retreat, buids (winter)
+
+
+===//===
+
+classes and structure design:
+
+region.cc:
+  attributes:
+    name(const string), 
+    id(const int), 
+    abbreviation(const char[3]), 
+    country_id(const int), 
+    neighborlist(const list<int>)
+
+Country.cc:
+  attributes:
+    name (const string),
+    id (const int),
+    home supply centers(const list<int>)
+    supply centers(list<int>)
+    troop number (int)
+    troop location (list<int territory id,int troop type>)
+
+Orders.cc
+  attributes:
+    order_type (int)
+    where (int): location of the troop subject to the order 
+    from (int): location of the troop supported/convoyed
+    to (int): if attack, destination, 
+              if support and convoy in attack, destination of the supported/covoyed troop
+    is_legal (bool)
+    succeded (bool)
+    user_order (string) // reconsidering whether to store it or not.
+
