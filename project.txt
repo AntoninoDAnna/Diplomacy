@@ -34,8 +34,24 @@ region.cc:
     name(const string), 
     id(const int), 
     abbreviation(const char[3]), 
-    country_id(const int), 
+    country_id(const int),      
     neighborlist(const list<int>)
+    is_ocupied (bool)
+    is_sc (const bool)
+    is_sea (const bool)
+    is_land (const bool)
+    unit_id (int)
+    new_\_id (int)
+  methods:
+    get_name
+    get_id
+    get_country_id
+    get_neighborlist
+    get_abbreviation
+    is_ocupied (maybe a conflic)
+    is_sea
+    is_land
+    is_coast
 
 Country.cc:
   attributes:
@@ -43,17 +59,262 @@ Country.cc:
     id (const int),
     home supply centers(const list<int>)
     supply centers(list<int>)
-    troop number (int)
-    troop location (list<int territory id,int troop type>)
+    unit number (int)
+    unit location (list<int territory id,int unit type>)
+    User (??) //once a user interface has been prepared
+    this_turn_orders (list<orders_id>)
+  method:
+    inser_orders
+    inser_one_order
+    confirm_single_order
+    view_order
+    change_order
+    send_orders
+    add_to_sc
+    remove_from_sc
 
 Orders.cc
   attributes:
+    order_id (const int)
     order_type (int)
-    where (int): location of the troop subject to the order 
-    from (int): location of the troop supported/convoyed
-    to (int): if attack, destination, 
-              if support and convoy in attack, destination of the supported/covoyed troop
+    where (int): location of the unit subject to the order 
+    from (int): location of the unit supported/convoyed
+    to (int): if move , destination, 
+              if support and convoy in move , destination of the supported/covoyed unit
     is_legal (bool)
     succeded (bool)
     user_order (string) // reconsidering whether to store it or not.
+    comment (string) // detail on why not legal/not succeded
+  methods
+    get_user_order
+    update_order
+
+struc convoy_line
+  id
+  list<int> // vector with convoyline
+struc unit
+  id
+  owner_id
+  type
+
+
+Game_function.cc (as I think they'll be called, and within which will be called)
+  prepare_game()
+  | prepare_table()
+  | assign_countries() //once a User interface has been developed
+  
+  game_on()
+  | loop as long as the game is running
+  | | spring()
+  | | | collect_orders()
+  | | | send_order()
+  | | | update_UI()
+  | | summer()
+  | | | evaluate_order()
+  | | | solve_orders()
+  | | | save_order()
+  | | | save_game()
+  | | | update_UI()
+  | | | retreat()
+  | | | | collect_retreats()
+  | | | | evaluate_retreat()
+  | | | | solve_retreat()  
+  | | | update_UI()
+  | | autumn()
+  | | | collect_order()
+  | | | send_order()
+  | | | update_UI()
+  | | winter()
+  | | | evaluate_order()
+  | | | solve_orders()
+  | | | save_order()
+  | | | save_game()
+  | | | update_UI()
+  | | | retreat()
+  | | | | collect_retreats()
+  | | | | evaluate_retreat()
+  | | | | solve_retreat()
+  | | | update_UI()
+  | | adjustments()
+  | | | check_conquest()
+  | | | check_build/destructions()
+  | | | collect_order()
+  | | | evaluate_order()
+  | | | solve_orders()
+  | | | save_game()
+  | | check_if_end()->false: keep looping, true break loop
+  | |
+  | end_game()
+
+  save_game()
+
+
+
+
+collect_order()
+| loop over countries // this loop will be removed once the ui  has been implemented. 
+| | insert_order() // not definitive
+| | | loop up to unit_num order
+| | | | insert_one_order()
+| | | | confirm_single_order()
+| | view_order() // and maybe give an initial feedback
+| | | print given orders 
+| | | change order(int order_id) // allow to change one order
+| | | confirm order()
+| | confirm order 
+| | | send_order with immediate adjudication or adjudication at the end // will do the same thing until the ui has been implemented
+| | | 
+
+confirm_single_order
+| check_legality
+| push_order // the order is pushed into the orderlist at this point, later may be modified
+
+print given orders
+| check for possible conflict (like auto bounce and double order to same unit)
+| print order with feedback (like illegal move or not enough strength)
+
+change_order(int order_id)
+| take the order from the orderlist
+| update(), if deleted the order, order removed from the list
+
+send_order()
+| technically the order are alredy in the list, just check whether the adjudication is immediate or at deadline
+
+
+
+evaluate_orders()
+| copy locally the order list // check whether we need it or not
+| loop over order in order list
+| | evaluate one order()
+| | check convoy_line()
+
+evaluate__one_order()
+| if !legal
+| | remove from oder list
+| | return
+| if hold set it succeded and remove it form order list, return
+| if support
+| | look for supported unit
+| | found it: evaluate_orderd(supported unit)
+| | | not foud: set it not succeded, and remove it from oder list, return
+| | check for move  on it:
+| | | found it: set it to not succeded and remove it from order list, return
+| if move : 
+| | check for suppoert
+| | | found them : evaluate(supporting unit)
+| | check 
+| if convoy:
+| | check if convoyed unit order: 
+| | | if not set to not succeded, remove from orderlist and return
+| | check for supports
+| | | found them: evaluate (supporting units)
+| | check for move  on them
+| | | found them: 
+| | | | evaluate(moving  unit) !!!
+| | | | if strenght move > move ing unit: 
+| | | | | set to !succeded and remove from orders list, 
+| | | | | set convoyed move  to !not succeded and remove it from order list, 
+| | | | | return
+| | return;
+
+check_convoyline()
+| loop over orderlist
+| | if !covoy_type continue
+| | determined the from and to region of the convoy
+| | find_convoy_line()
+
+find_convoy_line(from, to)
+| if from == to return 
+| loop over from.neighborlist
+| | if land continue
+| | search for convoy order in neighbor
+| | | found find_convoy_line(neighbor, to) and add to convoy_line
+| | | else continue
+| return false 
+
+
+solve_orders // only when evaluated and only move 
+| loop over orderlist
+| | if !succeded continue
+| | solve_move ()
+| | if win continue
+| | else set to !succeded and remove from oder_list
+| update_unit position();
+
+
+
+solve_move (move )
+| loop over orderlist 
+| | if order.to != move .to continue
+| | if order.strength > move .strength,
+| | | return false
+| | else set order to !succeded and remove from orderlist 
+| return true
+
+
+update_position()
+| loop over orderlist
+| | to.new_unit = unit_id
+| | where.unit = NO_unit and where.is_ocupied=false
+| loop over regions
+| | if new_unit = NO_unit continue
+| | if unit != NO_unit
+| | | add to retreat list add, troo.county.has_retreats=true continue
+| | move_unit(from,to)
+
+move_unit(from, to,unit)
+| from.unit_id = NO_unit
+| from.is_ocupied = false
+| to.unit_id = unit.id
+| | to.is_ocupied = true
+| to.new_unit_id =NO_unit
+| if to.country != unit.country && to.country.is_sc
+| | to.country.remove_from_sc(to.id)
+| | to.country = unit.country
+| | to.country.add_to_sc(to.id)
+| else to.country= unit.country
+
+
+
+
+collect_retreats()
+| loop over countries
+| | if has_retreats 
+| | | country.send_order and add them to retreat order list
+
+evalute_retreat()
+| loop over retreats_orders_list
+| | if !is_legal, set to !succeded and remove from list, return
+| | loop over retreats_orders_list
+| | | if retreat.to = order.to remove 
+| | | | set order to !succeded, removeform list
+| | | | set retreat to !succeded.
+| | if !succeded remove from list
+| | return 
+
+solve_retreat()
+| loop over retreats_orders_list
+| if !succeded continue
+| move_unit(from,to)
+
+buid_and_distruction()
+| loop over countries
+| if (nunit!=sc.length) collect_build_or_distruction_orders()
+| loop over orderlist
+| | if create
+| | | create_unit(hsc,type)
+| | | add unit to country
+| | else 
+| | | destroy_unit(where)
+
+create unit(hsc, type)
+| construct unit(hsc, type)
+| return id, 
+
+destroy_unit(where)
+| loop over units
+| | if unit == where.unit
+| | | remove destroy unit
+| | | where.unit_id == NO_unit
+| | | return
 

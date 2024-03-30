@@ -1,44 +1,75 @@
-#include <iostream>
-#include <string>
-#include "global_variables.h"
 #include "region.h"
+#include "global_variables.h"
+#include <string>
+#include <list>
 
-Region::Region(std::string name, std::string abb, 
-        bool is_SC, bool is_land, bool is_sea,
-        std::list<std::string>& neighbor_list)
+Region::Region(std::string name, std::string abb, std::list<int> neighbors, int id, bool is_sc, bool is_land, bool is_sea) :
+name(name),
+abbreviation(abb),
+neighbors_id(neighbors),
+id(id),
+sc(is_sc),
+land(is_land), 
+sea(is_sea),
+country_id(EMPTY_FIELD),
+occupied(false),
+new_unit_id(EMPTY_FIELD),
+unit_id(EMPTY_FIELD)
+{};
+
+std::string Region::get_abbreviation()
 {
-  name = name;
-  abbreviation = abb;
-  is_supply_center=is_SC;
-  is_land = is_land;
-  is_sea = is_sea;
-  for(std::string x : neighbor_list)
-      neighbors.push_back(x); 
-  owner = No_owner;
+  return abbreviation;
 }
 
-bool Region::are_neighbor(Region U)
+int Region::get_country_id()
 {
-  for(std::string x : this->neighbors)
-  for(std::string y : U.neighbors)
-      if(x.compare(y) == 0 ) return true; 
-  return false;
+  return country_id;
 }
 
-bool Region::can_go(int troop_type){
-  if(troop_type==Army) return is_land;
-  return is_sea;
+int Region::get_id()
+{
+  return id;
 }
 
-void Region::change_owner(std::string owner_name){
-  owner = owner_name;
+std::string Region::get_name(){
+  return name;
 }
-bool Region::get_coast(){
-  return is_land&&is_sea;
+
+const std::list<int>& Region::get_neighborlist()
+{
+  return neighbors_id;
 }
-bool Region::get_land(){
-  return is_land;
+
+bool Region::get_new_unit_id()
+{
+  return new_unit_id;
 }
-bool Region::get_sea(){
-  return is_sea;
+
+bool Region::get_unit_id()
+{
+  return unit_id;
+}
+
+bool Region::is_coast()
+{
+  return land&&sea;
+};
+
+bool Region::is_land() 
+{
+  return land;
+}
+
+bool Region::is_occupied()
+{
+  return occupied;
+}
+bool Region::is_sea()
+{
+  return sea;
+}
+
+bool Region::operator==(Region& r){
+  return this->id == r.id;
 }
