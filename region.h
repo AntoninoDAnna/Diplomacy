@@ -2,7 +2,9 @@
 #define REGION_H
 
 #include <list>
+#include <iostream>
 #include <string>
+#include <unordered_map>
 
 class Region{
 private:
@@ -10,7 +12,7 @@ private:
   int country_id;
   const int id;
   const bool land;
-  bool occupied;
+  bool _occupied;
   const bool sc;
   const bool sea;
   const std::string name;
@@ -20,6 +22,8 @@ private:
   
 public:
   Region(std::string name,std::string abb, std::list<int> neighbors, int id, bool is_sc, bool is_land, bool is_sea);
+  Region(const Region & R);
+  Region();
   std::string get_name();
   int get_id();
   int get_country_id();
@@ -29,13 +33,19 @@ public:
   bool is_sea();
   bool is_land();
   bool is_coast();
-  bool get_unit_id();
-  bool get_new_unit_id();
-
-  bool operator==(Region& r);
-
+  int get_unit_id();
+  int get_new_unit_id();
+  void occupied();
+  void update_unit_id(int id);
+  void update_country_id(int id);
+  bool operator==(const Region& r);
+  bool operator!=(const Region& r);
+  friend std::ostream& operator<<(std::ostream & os, const Region&);
+  
 };
 
 
+typedef std::pair<int,Region> Table_entry;
+typedef std::unordered_map<int,Region> Table;
 
 #endif

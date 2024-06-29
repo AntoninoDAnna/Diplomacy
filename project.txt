@@ -60,7 +60,7 @@ Country.cc:
     home supply centers(const list<int>)
     supply centers(list<int>)
     unit number (int)
-    unit location (list<int territory id,int unit type>)
+    unit location (list<pair(int territory id,int unit type)>)
     User (??) //once a user interface has been prepared
     this_turn_orders (list<orders_id>)
   method:
