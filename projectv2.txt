@@ -19,7 +19,7 @@ actual game progression:
 | assign playable country to players:
 |
 | game loop:
-| | start  diplomacy phase and recieve orders: (spring)
+| | start diplomacy phase and recieve orders: (spring)
 | | end diplomacy phase, evaluate ordes, wait retreats (summer)
 | | start diplomacu phase and recieve order: (autumn)
 | | end diplomacy phase, evaluate order, wait retreat, buids (winter)
@@ -27,9 +27,32 @@ actual game progression:
 
 ===//===
 
-classes and structure design:
+app structure
 
-region.cc:
+class App
+| This class is responsable for the rendering of the ui, settings, and start the game
+
+class Game
+| This class runs the game, keeps track of turns, collect users moves, computes the moves and 
+| udpdate the table 
+
+class User 
+| keeps track of the users, which game is playing and which country, statistics, elo (to be undestood), 
+| users settings ecc...
+  attributes:
+    game_list
+    : users_order
+  methods:
+    inser_one_order
+    confirm_single_order
+    view_order
+    change_order
+    send_orders
+    update_order
+
+
+class region
+| this class represent a single tile on the table. 
   attributes:
     name(const string), 
     id(const int), 
@@ -53,27 +76,29 @@ region.cc:
     is_land
     is_coast
 
-Country.cc:
+struct Unit_pos
+| represet the position of a unit
+  attributes:
+    unit_id
+    region_in
+
+class Country:
+| represet a single playable country in a game
   attributes:
     name (const string),
     id (const int),
     home supply centers(const list<int>)
     supply centers(list<int>)
     unit number (int)
-    unit location (list<pair(int territory id,int unit type)>)
+    unit location (list<Unit_loc >)
     User (??) //once a user interface has been prepared
     this_turn_orders (list<orders_id>)
   method:
-    inser_orders
-    inser_one_order
-    confirm_single_order
-    view_order
-    change_order
-    send_orders
     add_to_sc
     remove_from_sc
 
-Orders.cc
+struct Orders
+| (may change) represent one single order. It does not care of the country of the units involved.  
   attributes:
     order_id (const int)
     order_type (int)
@@ -83,21 +108,20 @@ Orders.cc
               if support and convoy in move , destination of the supported/covoyed unit
     is_legal (bool)
     succeded (bool)
-    user_order (string) // reconsidering whether to store it or not.
     comment (string) // detail on why not legal/not succeded
-  methods
-    get_user_order
-    update_order
 
 struc convoy_line
+| used to keep track of convoy line
   id
   list<int> // vector with convoyline
+
 struc unit
+| units
   id
   owner_id
   type
 
-
+## this may became method of the Game class.
 Game_function.cc (as I think they'll be called, and within which will be called)
   prepare_game()
   | prepare_table()

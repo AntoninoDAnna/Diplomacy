@@ -1,4 +1,4 @@
-#include "diplomacy.h"
+#include "../include/diplomacy.h"
 #include <iostream>
 #include <string>
 #include <list>
@@ -7,7 +7,7 @@
 
 Table table_game;
 using std::cout, std::endl;
-typedef std::pair<int,int> unit_loc;
+// typedef std::pair<int,int> unit_loc;
 
 int main(){
   std::random_device rd;
@@ -29,6 +29,8 @@ int main(){
   int spa_army_id = id_gen();
   int Iberia_id = id_gen();
   cout << "gonna construct iberia"<<endl;
-  Country Iberia = Country("Iberia",std::list<int>{por_id,spa_id},Iberia_id,std::list<unit_loc>{unit_loc{por_fleet_id,por_id},unit_loc{spa_army_id, spa_id}},table_game);
+  Country Iberia = Country("Iberia",std::list<int>{por_id,spa_id},Iberia_id,std::list<Unit_position>{Unit_position(por_fleet_id,por_id),Unit_position(spa_army_id, spa_id)});
+  cout << Iberia<< endl;
+  
   return 0;
 }

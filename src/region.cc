@@ -1,25 +1,24 @@
-#include "region.h"
-#include "global_variables.h"
+#include "../include/region.h"
 #include <string>
 #include <list>
 
 Region::Region() : 
   abbreviation(""),
-  country_id(EMPTY_FIELD),
-  id(EMPTY_FIELD),
+  country_id(NONE),
+  id(NONE),
   land(false), 
   _occupied(false),
   sc(),
   sea(false),
   name(""),
   neighbors_id(),
-  new_unit_id(EMPTY_FIELD),
-  unit_id(EMPTY_FIELD)
+  new_unit_id(NONE),
+  unit_id(NONE)
 {};
 
 Region::Region(std::string name, std::string abb, std::list<int> neighbors, int id, bool is_sc, bool is_land, bool is_sea) :
   abbreviation(abb),
-  country_id(EMPTY_FIELD),
+  country_id(NONE),
   id(id),
   land(is_land), 
   _occupied(false),
@@ -27,8 +26,8 @@ Region::Region(std::string name, std::string abb, std::list<int> neighbors, int 
   sea(is_sea),
   name(name),
   neighbors_id(neighbors),
-  new_unit_id(EMPTY_FIELD),
-  unit_id(EMPTY_FIELD)
+  new_unit_id(NONE),
+  unit_id(NONE)
 {};
 
 Region::Region(const Region &R) :
