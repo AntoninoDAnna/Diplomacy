@@ -1,22 +1,43 @@
-#include "game.h"
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <vector>
+#include <list>
+#include "global_variables.h"
+#include "troop.h"
 #include "region.h"
-#include "string"
-#include "fstream"
-#include "chrono"
+#include "player.h"
+#include "diplomacy_functions.h"
+#include "utilities.h"
 
-Game::Game(std::string game)
-{
-  std::string filename = "";
-  LOG.open()
-  start_game(game);
+
+void collect_orders(){
+  // da cambiare quando gui implementata
+  std::map<std::string, std::list<Troop>> players_troop;
+  for(auto p : players){
+
+  }
+  for(Troop T : troops){
+
+  }
+
+  for(auto [play_name, pla_obj]:players){
+    std::cout << play_name << " this are your troops"<< std::endl;
+  }
+
 }
 
-Game::~Game()
-{
+Troop find_troop(std::string region_abb){
+  for(auto T: troops){
+    if(region_abb.compare(T.get_region())==0) return T;
+  }
+  logfile << "ERROR: Troop in region " << region_abb << "not found"<< std::endl;
+  exit(Troop_not_found);
 }
 
-void Game::start_game(std::string game){
 
+void  prepare_table(int game)
+{
   std::fstream game_file;
   logfile << "Preparing table ..." << std::endl;
   switch (game)
@@ -113,6 +134,13 @@ void Game::start_game(std::string game){
     temp_split_line.clear();
   }
   game_file.close();
+}
 
+void print_table(){
+  std::cout << "The map is in this status: \n";
+
+  for(Troop T:troops){
+    std::cout << T.get_troop() << " in " << T.get_region() << " owned by " << T.get_owner() << std::endl;
+  }
 
 }

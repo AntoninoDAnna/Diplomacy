@@ -36,6 +36,6 @@ std::ostream& operator<<(std::ostream & os , const Country& C){
   os << "The country has " << C.n_unit<< " units"<<std::endl;
     os << "Unit location:       "<< std::endl;
   for(auto  U: C.unit_position)
-    os << "         unit:       "<< U.unit_id << "in "<< U.region_id<< std::endl;
+    os << "         unit:       "<< U.unit_id << " in "<< U.region_id<< std::endl;
   return os;
 }

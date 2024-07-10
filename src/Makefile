@@ -1,4 +1,5 @@
 OBJECT_DIR= ../bin
+OBJ_DEBUG_DIR = ../bin/Debug
 
 SRC_DIR = ./
 H_DIR = ../include
@@ -21,7 +22,7 @@ H_FILES = diplomacy.h \
 SRC = $(SRC_FILES:%.cc= $(SRC_DIR)/%.cc)
 HRS = $(H_FILES:%.h= $(H_DIR)/%.h)
 OBJ = $(SRC:%.cc= $(OBJECT_DIR)/%.o)
-
+DOBJ = $(SRC:%.cc= $(OBJ_DEBUG_DIR)/%.o)
 
 CXX = g++ 
 CFLAGS = -c
@@ -33,13 +34,17 @@ diplomacy.x: $(MAIN) $(OBJ) $(HRS)
 test.x: $(TEST) $(OBJ) $(HRS)
 	$(CXX) $(LDFLAGS) $(TEST) $(OBJ) $(HRS) -o $@
 
-debug_test.x: $(TEST) $(OBJ) $(HRS)
+debug_test.x: $(TEST) $(DOBJ) $(HRS)
 	LSAN_OPTIONS=verbosity=1:log_threads=1;
-	$(CXX) -g $(LDFLAGS) $(TEST) $(OBJ) $(HRS) -o $@ 
+	$(CXX) -g3 $(LDFLAGS) $(TEST) $(OBJ) $(HRS) -o $@ 
 
 $(OBJ): $(OBJECT_DIR)/%.o: %.cc 
 	@if [ ! -d $(OBJECT_DIR) ]; then mkdir $(OBJECT_DIR); fi
 	$(CXX) $(CFLAGS) $(LDFLAGS) $< -o $@
+
+$(DOBJ): $(OBJ_DEBUG_DIR)/%.o: %.cc 
+	$(CXX) -g3 $(CFLAGS) $(LDFLAGS) $< -o $@
+
 
 clean:
 	@rm -f $(OBJECT_DIR)/*.o
