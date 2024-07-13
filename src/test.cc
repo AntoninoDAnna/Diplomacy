@@ -4,6 +4,7 @@
 #include <list>
 #include <unordered_map>
 #include <random>
+#include "../../SDL/include/SDL.h"
 
 Table table_game;
 using std::cout, std::endl;
