@@ -1,5 +1,5 @@
 #include <iostream>
-#include "diplomacy.h"
+#include "../include/diplomacy.h"
 
 Table table_game;
 

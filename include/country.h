@@ -1,5 +1,4 @@
-#ifndef COUNTRY_H
-#define COUNTRY_H
+#pragma once
 #include <string>
 #include <list>
 // #include "region.h"
@@ -26,8 +25,3 @@ private:
   std::list<Unit_position> unit_position; //
   int n_unit;
 };
-
-
-
-
-#endif

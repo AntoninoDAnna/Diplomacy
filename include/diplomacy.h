@@ -1,8 +1,4 @@
-#ifndef DIPLOMACY_H
-#define DIPLOMACY_H
+#pragma once
 
 #include "region.h"
 #include "country.h"
-
-#endif
-
