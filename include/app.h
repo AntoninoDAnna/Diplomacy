@@ -5,7 +5,7 @@
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_ttf.h"
 
-enum class Scene_id{NONE, MAIN_MENU};
+enum class Scene_id{NONE, MAIN_MENU, NEW_GAME};
 
 class App{
 public: 
@@ -17,10 +17,16 @@ private:
   int const m_HEIGHT = 960;
   int const m_SCALE = 1;
   SDL_Event m_event;
-  SDL_Window* m_window;
-  SDL_Renderer* m_renderer;
+  SDL_Window *m_window;
+  SDL_Renderer *m_renderer;
   TTF_Font *m_font;
   Scene_id m_current_scene{Scene_id::NONE};
-  
+  std::vector<Button> m_buttons{};
+
+  void get_window_center(int& x, int& y);
+  void get_input();
+  void reset_rendering();
   void render_main_menu();
+  void render_new_game();
+
 };

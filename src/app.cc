@@ -3,6 +3,8 @@
 #include <vector>
 #include <memory>
 #include "../include/app.h"
+#include "../include/button.h"
+#include "../include/text.h"
 #include "SDL2/SDL_image.h"
 #include "SDL2/SDL_ttf.h"
 
@@ -32,10 +34,12 @@ App::App(){
   }
   SDL_RenderSetScale(m_renderer,m_SCALE,m_SCALE);
   show(Scene_id::MAIN_MENU);
+  get_input();
 }
 
 App::~App(){
   std::cout << "Deleting app" << std::endl;
+  reset_rendering();
   SDL_DestroyWindow(m_window);
   TTF_CloseFont(m_font);
   SDL_DestroyRenderer(m_renderer);
@@ -54,28 +58,19 @@ void App::show(Scene_id scene_id){
   }
 }
 
-void App::render_main_menu(){
-  std::cout << "rendering main menu"<< std::endl;
-  SDL_SetRenderDrawColor(m_renderer,BACKGROUND.r,BACKGROUND.b,BACKGROUND.g,BACKGROUND.a);
-  SDL_RenderClear(m_renderer);
- 
-  SDL_Surface* surfaceMessage = TTF_RenderText_Solid(m_font,"DIPLOMACY",BLACK);
-  SDL_Texture* message = SDL_CreateTextureFromSurface(m_renderer,surfaceMessage);
-  SDL_Rect  message_rect = SDL_Rect{100,100,200,300};
-  Button button = Button(200,200,20,20,"./Images/Button.jpg",m_renderer);
-  SDL_RenderCopy(m_renderer,message,NULL,&message_rect);
-  SDL_RenderPresent(m_renderer);
+void App::get_input(){
   while(SDL_WaitEvent(&m_event)){
     switch (m_event.type)
     {
     case SDL_MOUSEBUTTONDOWN:
       int x,y;
       SDL_GetMouseState(&x,&y);
-      if(button.pressed(x,y)){
-        SDL_FreeSurface(surfaceMessage);
-        SDL_DestroyTexture(message);
-        SDL_Quit();
-      }
+      for(auto b : m_buttons)
+        if(b.pressed(x,y)) b.action();   
+      break;
+    case SDL_WINDOWEVENT:
+      if (m_event.window.event == SDL_WINDOWEVENT_RESIZED)  
+        show(m_current_scene);
       break;
     case SDL_QUIT:
       SDL_Quit();
@@ -84,6 +79,81 @@ void App::render_main_menu(){
       break;
     }
   }
+}
+
+void App::get_window_center(int& x, int& y){
+  int w,h;
+  SDL_GetWindowSize(m_window,&w,&h);
+  x = w/(2*m_SCALE);
+  y = h/(2*m_SCALE);
+}
+
+void App::reset_rendering(){
+  m_buttons.clear();
+  SDL_RenderClear(m_renderer);
+}
+
+
+void App::render_main_menu(){
+  reset_rendering();  
+  SDL_SetRenderDrawColor(m_renderer,BACKGROUND.r,BACKGROUND.b,BACKGROUND.g,BACKGROUND.a);
+  int w,h;
+  SDL_GetWindowSize(m_window,&w,&h);
+  // title 
+  SDL_Rect Title_box{w/4,static_cast<int>(h*(1./5 - 1./14)),w/2,h/7};
+  Text title{m_font,"BETRAYAL",BLACK,Title_box,m_renderer};
+  // menu parameters
+  /*
+    your games
+    new game
+    profile <-- this is anchored to the center of the screen
+    statistic
+    settings
+    close
+  */
+  int menu_box_w = w/4,menu_box_h=h/30,menu_x = static_cast<int>(w*(0.5-0.125));
+  float my_profile_y = h*(1./2-1./20); 
+
+  // my profile box  
+  SDL_Rect temp_box{menu_x,static_cast<int>(my_profile_y),menu_box_w,menu_box_h};
+  Text my_profile{m_font,"My Profile",BLACK,temp_box,m_renderer};
+  m_buttons.push_back(Button(temp_box,"../Images/button.png",m_renderer,[]()->void {std::cout << "My profile" << std::endl;}));
+
+  // new game
+  temp_box.y = static_cast<int>(my_profile_y-h*(0.06));
+  Text new_game{m_font,"New Game",BLACK,temp_box,m_renderer};
+  m_buttons.push_back(Button(temp_box,"../Images/button.png",m_renderer,[this]()->void {this->show(Scene_id::NEW_GAME);}));
+ 
+  // your Games
+  temp_box.y = static_cast<int>(my_profile_y-h*(0.12));
+  Text your_game{m_font,"Your Games",BLACK,temp_box,m_renderer};
+  m_buttons.push_back(Button(temp_box,"../Images/button.png",m_renderer,[]()->void {std::cout << "Your Game" << std::endl;}));
+
+  // statistic
+  temp_box.y = static_cast<int>(my_profile_y+h*(0.06));
+  Text statistic{m_font,"Statistic",BLACK,temp_box,m_renderer};
+  m_buttons.push_back(Button(temp_box,"../Images/button.png",m_renderer,[]()->void {std::cout << "Statistic" << std::endl;}));
+
+  // settings
+  temp_box.y = static_cast<int>(my_profile_y+h*(0.12));
+  Text setting{m_font,"setting",BLACK,temp_box,m_renderer};
+  m_buttons.push_back(Button(temp_box,"../Images/button.png",m_renderer,[]()->void {std::cout << "Setting" << std::endl;}));
+
+  // close
+  temp_box.y = static_cast<int>(my_profile_y+h*(0.18));
+  Text close{m_font,"exit",BLACK,temp_box,m_renderer};
+  m_buttons.push_back(Button(temp_box,"../Images/button.png",m_renderer,SDL_Quit));
+
+  SDL_RenderPresent(m_renderer);
   return;
 }   
 
+void App::render_new_game(){
+  reset_rendering();
+  SDL_SetRenderDrawColor(m_renderer,BACKGROUND.r,BACKGROUND.b,BACKGROUND.g,BACKGROUND.a);
+  int w,h;
+  SDL_GetWindowSize(m_window,&w,&h);
+
+  SDL_RenderPresent(m_renderer);
+  return;
+}
