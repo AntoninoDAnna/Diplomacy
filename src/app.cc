@@ -94,6 +94,7 @@ void App::reset_rendering(){
 }
 
 
+
 void App::render_main_menu(){
   reset_rendering();  
   SDL_SetRenderDrawColor(m_renderer,BACKGROUND.r,BACKGROUND.b,BACKGROUND.g,BACKGROUND.a);
@@ -120,9 +121,9 @@ void App::render_main_menu(){
   m_buttons.push_back(Button(temp_box,"../Images/button.png",m_renderer,[]()->void {std::cout << "My profile" << std::endl;}));
 
   // new game
-  temp_box.y = static_cast<int>(my_profile_y-h*(0.06));
-  Text new_game{m_font,"New Game",BLACK,temp_box,m_renderer};
-  m_buttons.push_back(Button(temp_box,"../Images/button.png",m_renderer,[this]()->void {this->show(Scene_id::NEW_GAME);}));
+  // temp_box.y = static_cast<int>(my_profile_y-h*(0.06));
+  // Text new_game{m_font,"New Game",BLACK,temp_box,m_renderer};
+  // m_buttons.push_back(Button(temp_box,"../Images/button.png",m_renderer,[this]()->void {this->show(Scene_id::NEW_GAME);}));
  
   // your Games
   temp_box.y = static_cast<int>(my_profile_y-h*(0.12));
