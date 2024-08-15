@@ -4,6 +4,8 @@
 #include <vector>
 #include <iostream>
 #include <string>
+
+namespace Util{
 void parse_tile(std::filesystem::path filepath,std::vector<bool>& outline,std::vector<bool>&inside){
   std::ifstream file(filepath,std::ios::in);
   outline.clear();
@@ -25,4 +27,5 @@ void parse_tile(std::filesystem::path filepath,std::vector<bool>& outline,std::v
       }
     }
   }
+}
 }

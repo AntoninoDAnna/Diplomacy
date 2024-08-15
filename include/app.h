@@ -4,6 +4,7 @@
 #include "button.h" 
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_ttf.h"
+#include "texture_manager.h"
 
 enum class Scene_id{NONE, MAIN_MENU, NEW_GAME};
 
@@ -12,6 +13,13 @@ public:
   App();
   ~App();
   void show(Scene_id scene_id);
+
+private:
+  void get_window_center(int& x, int& y);
+  void get_input();
+  void reset_rendering();
+  void render_main_menu();
+  void render_new_game();
 private:
   int const m_WIDTH = 1280;
   int const m_HEIGHT = 960;
@@ -22,11 +30,4 @@ private:
   TTF_Font *m_font;
   Scene_id m_current_scene{Scene_id::NONE};
   std::vector<Button> m_buttons{};
-
-  void get_window_center(int& x, int& y);
-  void get_input();
-  void reset_rendering();
-  void render_main_menu();
-  void render_new_game();
-
 };

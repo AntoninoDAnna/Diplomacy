@@ -7,8 +7,8 @@ MAIN = main.cc
 TEST = test.cc
 TEST_APP = test_app.cc
 
-SRC_FILES = app.cc button.cc country.cc region.cc text.cc utilities.cc 
-H_FILES = app.h button.h country.h region.h text.h utilities.h 
+SRC_FILES = app.cc button.cc country.cc region.cc text.cc texture_manager.cc utilities.cc 
+H_FILES = app.h button.h country.h region.h text.h texture_manager.h utilities.h 
 
 
 SRC = $(SRC_FILES:%.cc= $(SRC_DIR)/%.cc)
@@ -39,7 +39,7 @@ debug_test_app.x: $(TEST_APP) $(DOBJ) $(HRS) $(SDL_H)
 
 $(OBJ): $(OBJECT_DIR)/%.o: %.cc 
 	@if [ ! -d $(OBJECT_DIR) ]; then mkdir $(OBJECT_DIR); fi
-	$(CXX) $(CFLAGS) $(LDFLAGS)  -lSDL2 -lSDL2_image -lSDL2_ttf $< -o $@
+	$(CXX) $(CFLAGS) $(LDFLAGS)   $< -o $@
 
 $(DOBJ): $(OBJ_DEBUG_DIR)/%.o: %.cc 
 	$(CXX) -g3 $(CFLAGS) $(LDFLAGS) $< -o $@
