@@ -1,144 +1,80 @@
 #include "../include/region.h"
+#include "../include/log.h"
+#include "../include/file_manager.h"
 #include <string>
 #include <list>
 
-Region::Region() : 
-  abbreviation(""),
-  country_id(NONE),
-  id(NONE),
-  land(false), 
-  _occupied(false),
-  sc(),
-  sea(false),
-  name(""),
-  neighbors_id(),
-  new_unit_id(NONE),
-  unit_id(NONE)
-{};
-
-Region::Region(std::string name, std::string abb, std::list<int> neighbors, int id, bool is_sc, bool is_land, bool is_sea) :
-  abbreviation(abb),
-  country_id(NONE),
-  id(id),
-  land(is_land), 
-  _occupied(false),
-  sc(is_sc),
-  sea(is_sea),
-  name(name),
-  neighbors_id(neighbors),
-  new_unit_id(NONE),
-  unit_id(NONE)
-{};
-
-Region::Region(const Region &R) :
-  abbreviation(R.abbreviation),
-  country_id(R.country_id),
-  id(R.id),
-  land(R.land), 
-  _occupied(R._occupied),
-  sc(R.sc),
-  sea(R.sc),
-  name(R.name),
-  neighbors_id(R.neighbors_id),
-  new_unit_id(R.new_unit_id),
-  unit_id(R.unit_id)
-{};
-
-std::string Region::get_abbreviation()
+Region::Region(const std::string& name,const std::string& abb, bool sc, bool land, bool sea, ID id):
+ m_abbr(abb),
+ m_id(id),
+ m_land(land),
+ m_sc(sc),
+ m_sea(sea),
+ m_name(name)
 {
-  return abbreviation;
+
 }
 
-int Region::get_country_id()
-{
-  return country_id;
-}
-
-int Region::get_id()
-{
-  return id;
-}
-
-std::string Region::get_name(){
-  return name;
-}
-
-const std::list<int>& Region::get_neighborlist()
-{
-  return neighbors_id;
-}
-
-int Region::get_new_unit_id()
-{
-  return new_unit_id;
-}
-
-int Region::get_unit_id()
-{
-  return unit_id;
-}
-
-bool Region::is_coast()
-{
-  return land&&sea;
-};
-
-bool Region::is_land() 
-{
-  return land;
-}
-
-bool Region::is_occupied()
-{
-  return _occupied;
-}
-bool Region::is_sea()
-{
-  return sea;
+Region::~Region(){
+  g_FILES.remove(m_abbr);
 }
 
 bool Region::operator==(const Region& r){
-  return this->id == r.id;
+  return this->m_id == r.m_id;
 }
 
 bool Region::operator!=(const Region& r){
   return !(this->operator==(r));
 }
 
-void Region::update_unit_id(int id){
-  this->unit_id = id;
-}
-void Region::update_country_id(int id){
-  this->country_id = id;
-}
-
-void Region::occupied(){ _occupied = true;};
 
 std::ostream& operator<<(std::ostream & os , const Region& R){
-  os << "Region name:         "<< R.name <<std::endl;
-  os << "Region abbreviation: "<< R.abbreviation<< std::endl;
-  os << "Region ID:           "<< R.id << std::endl;        
+  os << "Region name:         "<< R.m_name <<std::endl;
+  os << "Region abbreviation: "<< R.m_abbr<< std::endl;
+  os << "Region ID:           "<< R.m_id << std::endl;        
+  
+  if(R.m_sc)
+    os << "Is supply center"<<std::endl;
+  else
+    os << "Is NOT supply center"<<std::endl;
+
   os << "Country:             ";
-  if(R.country_id)
-    os << R.country_id << std::endl;
+  if(R.m_country_id)
+    os << R.m_country_id << std::endl;
   else
     os << "None"<< std::endl;
-  os << "Geography            ";
-
-  if(R.land){
-    if(R.sea) os << "Coast" << std::endl;
-    else os << "Land"<<std::endl;
-  }else if(R.sea) os << "Sea"<< std::endl;
-  else os << "Non accessible region" << std::endl;
-  
+  os << "Geography:           " << std::endl;
+  os << "  coast:             " << R.is_coast() << std::endl;
+  os << "  land:              " << R.m_land     << std::endl;
+  os << "  sea:               " << R.m_sea      << std::endl;
   os << "Neighbors list:      ";
-  for(int id : R.neighbors_id) 
+  for(int id : R.m_neighbors) 
     os << id << " ";
   os << std::endl;
 
-  if(R._occupied)
-    os<< "The region is ocupied by: " << R.unit_id << std::endl;
+  if(R.m_occupied)
+    os<< "The region is ocupied by: " << R.m_unit_id << std::endl;
   else
     os<< "The region is free"<< std::endl;
   return os;
+}
+
+void Region::set_neighbors(const std::list<ID>& neighbors){
+  for(ID n : neighbors)
+    m_neighbors.push_back(n);
+}
+
+void Region::occupy(ID id){
+  m_occupied = true;
+  m_unit_id = id;
+}
+
+void Region::liberate(){
+  m_occupied=false;
+  m_unit_id=NONE;
+}
+
+void Region::set_vertex(int x, int y){
+  tile_vertex.x =x;
+  tile_vertex.y =y;
 }

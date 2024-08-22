@@ -2,6 +2,7 @@
 
 #include <filesystem>
 #include <vector>
+#include "globals.h"
 /* 
   parse a tile txt file. the file is a representation in '0' '1' '2' of the tile's pixels.
   it is better to make a png file of the tile and the generate the txt file automatically with
@@ -12,4 +13,7 @@
 
 namespace Util{
   void parse_tile(std::filesystem::path filepath,std::vector<bool>& outline,std::vector<bool>&inside);
+  std::string strip_trailing_ws(std::string t);
+  std::vector<std::string> split_line(const std::string& line, const char separator=';');
+  void next_line(std::ifstream& file, int nline=1);
 }

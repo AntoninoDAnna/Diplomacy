@@ -7,8 +7,8 @@ MAIN = main.cc
 TEST = test.cc
 TEST_APP = test_app.cc
 
-SRC_FILES = app.cc button.cc country.cc region.cc text.cc texture_manager.cc utilities.cc 
-H_FILES = app.h button.h country.h region.h text.h texture_manager.h utilities.h 
+SRC_FILES = app.cc button.cc country.cc file_manager.cc game.cc region.cc text.cc texture_manager.cc unit.cc utilities.cc 
+H_FILES = app.h button.h country.h file_manager.h game.h region.h text.h texture_manager.h unit.h utilities.h 
 
 
 SRC = $(SRC_FILES:%.cc= $(SRC_DIR)/%.cc)

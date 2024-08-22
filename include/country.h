@@ -1,27 +1,21 @@
 #pragma once
 #include <string>
 #include <list>
-// #include "region.h"
-
-struct Unit_position{
-  int unit_id;
-  int region_id;
-  Unit_position(int, int);
-};
+#include "globals.h"
+#include "unit.h"
 
 class Country{
 public:
-  Country(std::string name,std::list<int> hsc,int id, std::list<Unit_position> unit_loc);
+  Country(std::string name,std::list<int> hsc,int id, std::list<ID> unit_it);
   void add_sc(int region_id);
   void remove_sc(int region_id); 
   friend std::ostream& operator<<(std::ostream & os , const Country& );
-
+  size_t get_nunits()const{return m_unit_id.size();}
 private:
-  const int id; //
-  const std::list<int> hsc; //
-  const std::string name; //
-  std::list<int> sc; // 
-  std::list<int> this_turn_orders; // non in creation
-  std::list<Unit_position> unit_position; //
-  int n_unit;
+  const int m_id; //
+  const std::list<int> m_hsc; //
+  const std::string m_name; //
+  std::list<int> m_sc; // 
+  std::list<int> m_this_turn_orders; // non in creation
+  std::list<ID> m_unit_id; //
 };

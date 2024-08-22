@@ -1,9 +1,6 @@
-
-#include "../include/diplomacy.h"
-
-Table table_game;
+#include "../include/app.h"
 
 int main(){
-  
+  App app;
   return 0;
 }

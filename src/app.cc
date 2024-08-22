@@ -42,6 +42,7 @@ App::App(){
     std::cerr << SDL_GetError() << std::endl;  
     exit(1);
   }
+  m_game.set_renderer(m_renderer);
   m_font = TTF_OpenFont("./fonts/chailce-noggin-font/ChailceNogginRegular.ttf",16 );
   if(m_font==NULL){
     std::cout << "Error: Font not loaded"<< std::endl;
@@ -71,8 +72,10 @@ void App::show(Scene_id scene_id){
     render_main_menu();
     break;
   case Scene_id::NEW_GAME:
-    std::cout << "New game rendering"<< std::endl;
+    render_new_game();
     break;
+  case Scene_id::GAME:
+    render_game();
   default:
     break;
   }
@@ -115,7 +118,6 @@ void App::reset_rendering(){
 }
 
 void App::render_main_menu(){
-  LOG("rendering main menu");
   reset_rendering();  
   SDL_SetRenderDrawColor(m_renderer,BACKGROUND.r,BACKGROUND.b,BACKGROUND.g,BACKGROUND.a);
   SDL_RenderClear(m_renderer);
@@ -171,12 +173,30 @@ void App::render_main_menu(){
   return;
 }   
 
-// void App::render_new_game(){
-//   reset_rendering();
-//   SDL_SetRenderDrawColor(m_renderer,BACKGROUND.r,BACKGROUND.b,BACKGROUND.g,BACKGROUND.a);
-//   int w,h;
-//   SDL_GetWindowSize(m_window,&w,&h);
+void App::render_new_game(){
+  reset_rendering();
+  SDL_SetRenderDrawColor(m_renderer,BACKGROUND.r,BACKGROUND.b,BACKGROUND.g,BACKGROUND.a);
+  SDL_RenderClear(m_renderer);
+  int w,h;
+  SDL_GetWindowSize(m_window,&w,&h);
+  SDL_Rect box{w/2-100,h/2-50,200,100};
+  Text game{m_font,"Ancient Mediterrean",BLACK,box,m_renderer};
+  m_buttons.push_back(Button("Ancient Mediterrean",box,m_renderer,[this]()->void {this->start_game(Game_map::ANCIENT_MEDITERREAN);}));
+  box.x=0;
+  box.y=0;
+  Text back{m_font, "BACK", BLACK,box,m_renderer};
+  m_buttons.push_back(Button("BACK",box,m_renderer,[this]()->void {m_game.close_game(); show(Scene_id::MAIN_MENU);}));
 
-//   SDL_RenderPresent(m_renderer);
-//   return;
-// }
+  SDL_RenderPresent(m_renderer);
+  return;
+}
+
+void App::start_game(Game_map game){
+  m_current_scene = Scene_id::GAME;
+  m_game.start_game(game);
+  m_game.render_table();
+}
+
+void App::render_game(){
+  m_game.render_table();
+}
