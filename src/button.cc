@@ -7,18 +7,31 @@
 
 
 
-Button::Button(const std::string& key, SDL_Rect rect,SDL_Renderer* r, std::function<void()> action) : 
+template <class ReturnType>
+_Button<ReturnType>::_Button(const std::string& key, SDL_Rect& rect,SDL_Renderer* r, std::function<ReturnType()> action) : 
 action(action),m_texture_key(key), m_rect(rect){
-  if(g_TEXTURE.haskey(m_texture_key)){
-    SDL_RenderCopy(r,g_TEXTURE.get(key),NULL,&m_rect);
-  }
+  SDL_RenderCopy(r,g_TEXTURE.get(key),NULL,&m_rect);
+}
+
+template <class ReturnType>
+_Button<ReturnType>::_Button(const _Button<ReturnType>& B) :
+action(B.action),m_texture_key(B.m_texture_key),m_rect(B.m_rect){}
+
+template <class ReturnType>
+void _Button<ReturnType>::operator=(const _Button<ReturnType>& B){
+  this->m_texture_key = B.m_texture_key;
+  this->m_rect = B.m_rect;
+  this->action = B.action;
 }
 
 
-bool Button::pressed(int mouse_x, int mouse_y){
+template <class ReturnType>
+bool _Button<ReturnType>::pressed(int mouse_x, int mouse_y){
   if(mouse_x< m_rect.x) return false;
   if(mouse_x> m_rect.x+m_rect.w) return false;
   if(mouse_y< m_rect.y) return false;
   if(mouse_y> m_rect.y+ m_rect.h) return false;
   return true;
 }
+
+template class _Button<void>;

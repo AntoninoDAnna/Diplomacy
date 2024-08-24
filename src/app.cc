@@ -14,6 +14,8 @@ constexpr SDL_Color WHITE{255,255,255,255};
 constexpr SDL_Color BLACK{0,0,0,255};
 constexpr char TITLE[] = "BETRAYAL"; 
 
+
+
 App::App(){  
   if(SDL_Init(SDL_INIT_VIDEO) <0) {
     std::cerr <<"Error in initiating SDL, aborting" << std::endl;
@@ -53,7 +55,6 @@ App::App(){
   SDL_RenderSetScale(m_renderer,m_SCALE,m_SCALE);
   
   show(Scene_id::MAIN_MENU);
-  get_input();
 }
 
 App::~App(){
@@ -65,14 +66,15 @@ App::~App(){
 }
 
 void App::show(Scene_id scene_id){
-  m_current_scene = scene_id;
+  if(m_scenes.back()!=scene_id) 
+    m_scenes.push_back(scene_id);
   switch (scene_id)
   {
   case Scene_id::MAIN_MENU :
-    render_main_menu();
+    main_menu();
     break;
   case Scene_id::NEW_GAME:
-    render_new_game();
+    new_game();
     break;
   case Scene_id::GAME:
     render_game();
@@ -88,12 +90,18 @@ void App::get_input(){
     case SDL_MOUSEBUTTONDOWN:
       int x,y;
       SDL_GetMouseState(&x,&y);
+      if(m_exit_button.pressed(x,y)){
+        m_exit_button.action();
+        m_scenes.pop_back();
+        return;
+      } 
       for(auto b : m_buttons)
-        if(b.pressed(x,y)) b.action();   
+        if(b.pressed(x,y)) b.action(); 
+      show(m_scenes.back());  
       break;
     case SDL_WINDOWEVENT:
       if (m_event.window.event == SDL_WINDOWEVENT_RESIZED)  
-        show(m_current_scene);
+        show(m_scenes.back());
       break;
     case SDL_QUIT:
       SDL_Quit();
@@ -114,7 +122,14 @@ void App::get_window_center(int& x, int& y){
 
 void App::reset_rendering(){
   m_buttons.clear();
-  // SDL_RenderClear(m_renderer);
+  SDL_RenderClear(m_renderer);
+}
+
+
+
+void App::main_menu(){
+  render_main_menu();
+  get_input();
 }
 
 void App::render_main_menu(){
@@ -162,16 +177,21 @@ void App::render_main_menu(){
   // settings
   temp_box.y = static_cast<int>(my_profile_y+h*(0.12));
   Text setting{m_font,"Settings",BLACK,temp_box,m_renderer};
-   m_buttons.push_back(Button("Settings",temp_box,m_renderer,[]()->void {std::cout << "Setting" << std::endl;}));
+  m_buttons.push_back(Button("Settings",temp_box,m_renderer,[]()->void {std::cout << "Setting" << std::endl;}));
 
   // close
   temp_box.y = static_cast<int>(my_profile_y+h*(0.18));
   Text close{m_font,"Exit",BLACK,temp_box,m_renderer};
-  m_buttons.push_back(Button("Exit",temp_box,m_renderer,SDL_Quit));
+  m_exit_button= Button("Exit",temp_box,m_renderer,[]()->void {SDL_Quit() ;});
   SDL_RenderPresent(m_renderer);
   
   return;
 }   
+
+void App::new_game(){
+  render_new_game();
+  get_input();
+}
 
 void App::render_new_game(){
   reset_rendering();
@@ -185,14 +205,14 @@ void App::render_new_game(){
   box.x=0;
   box.y=0;
   Text back{m_font, "BACK", BLACK,box,m_renderer};
-  m_buttons.push_back(Button("BACK",box,m_renderer,[this]()->void {m_game.close_game(); show(Scene_id::MAIN_MENU);}));
+  m_exit_button = Button("BACK",box,m_renderer,[this]()->void {m_game.close_game();});
 
   SDL_RenderPresent(m_renderer);
   return;
 }
 
 void App::start_game(Game_map game){
-  m_current_scene = Scene_id::GAME;
+  m_scenes.push_back(Scene_id::GAME);
   m_game.start_game(game);
   m_game.render_table();
 }

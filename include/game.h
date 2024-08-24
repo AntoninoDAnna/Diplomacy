@@ -10,7 +10,7 @@
 #include "globals.h"
 #include "country.h"
 #include "unit.h"
-
+#include "button.h"
 
 
 class Game
@@ -30,10 +30,16 @@ private:
   std::unordered_map<ID,Unit> m_units;
   std::fstream m_LOG;
   std::string m_gamename;
-  /*
-   * Game does not own the pointer. App does;
-   */
+  
+  //Game does not own the pointer. App does;
   SDL_Renderer*  m_r;
+  //Game does not own the pointer. App does;
+  SDL_Window* m_w;
+  SDL_Event m_event;
+
+  std::vector<Button> m_buttons;
+  Button m_exit_button;
+
 };
 
 

@@ -17,7 +17,9 @@ private:
   void get_window_center(int& x, int& y);
   void get_input();
   void reset_rendering();
+  void main_menu();
   void render_main_menu();
+  void new_game();
   void render_new_game();
   void start_game(Game_map game);
   void render_game();
@@ -29,7 +31,8 @@ private:
   SDL_Window *m_window;
   SDL_Renderer *m_renderer;
   TTF_Font *m_font;
-  Scene_id m_current_scene{Scene_id::NONE};
-  std::vector<Button> m_buttons{};
+  std::vector<Scene_id> m_scenes{Scene_id::NONE};
   Game m_game = Game();
+  std::vector<Button> m_buttons;
+  Button m_exit_button;
 };
