@@ -9,7 +9,7 @@
    viewBox="0 0 1300 835"
    sodipodi:docname="sampleMapLarge.svg"
    inkscape:version="1.3.2 (091e20e, 2023-11-25, custom)"
-   inkscape:export-filename="Ancient_Mediterrean.png"
+   inkscape:export-filename="Ancient_Mediterrean.svg"
    inkscape:export-xdpi="96"
    inkscape:export-ydpi="96"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
@@ -798,14 +798,14 @@
      inkscape:deskcolor="#505050"
      showgrid="false"
      inkscape:zoom="0.70710678"
-     inkscape:cx="697.20729"
-     inkscape:cy="522.55191"
-     inkscape:window-width="1292"
-     inkscape:window-height="981"
-     inkscape:window-x="-8"
-     inkscape:window-y="0"
-     inkscape:window-maximized="0"
-     inkscape:current-layer="layer45"
+     inkscape:cx="660.43773"
+     inkscape:cy="457.49809"
+     inkscape:window-width="1920"
+     inkscape:window-height="991"
+     inkscape:window-x="-9"
+     inkscape:window-y="-9"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer54"
      showguides="true" />
   <g
      inkscape:groupmode="layer"
@@ -1813,21 +1813,21 @@
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Times New Roman';-inkscape-font-specification:'Times New Roman, ';white-space:pre;shape-inside:url(#rect83);display:inline;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-dasharray:none;stroke-opacity:1"><tspan
          x="240.5"
          y="671.15145"
-         id="tspan1">Sahara</tspan></text>
+         id="tspan4">Sahara</tspan></text>
     <text
        xml:space="preserve"
        id="text84"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Times New Roman';-inkscape-font-specification:'Times New Roman, ';white-space:pre;shape-inside:url(#rect84);display:inline;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-dasharray:none;stroke-opacity:1"><tspan
          x="294.5"
          y="551.65145"
-         id="tspan2">Cirta</tspan></text>
+         id="tspan5">Cirta</tspan></text>
     <text
        xml:space="preserve"
        id="text85"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Times New Roman';-inkscape-font-specification:'Times New Roman, ';white-space:pre;shape-inside:url(#rect85);display:inline;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-dasharray:none;stroke-opacity:1"><tspan
          x="336.5"
          y="479.15145"
-         id="tspan3">Carthage</tspan></text>
+         id="tspan6">Carthage</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Times New Roman';-inkscape-font-specification:'Times New Roman, ';fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-dasharray:none;stroke-opacity:1"
