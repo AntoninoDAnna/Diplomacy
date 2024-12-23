@@ -52,9 +52,9 @@ void Game::start_game(Game_map game){
       break;
   }
   g_FILES.replace(g_TILES,img_folder/m_gamename/tiles_file);
-  g_FILES.replace(g_MAP,img_folder/m_gamename/(m_gamename+".svg"));
+  g_FILES.replace(g_MAP,img_folder/m_gamename/(m_gamename+".png"));
   g_TEXTURE.replace(g_MAP,g_FILES.get(g_MAP),m_r);
-  read_map(g_FILES.get(m_gamename));
+  //read_map(g_FILES.get(m_gamename));
 }
 
 void Game::read_map(std::filesystem::path filename){

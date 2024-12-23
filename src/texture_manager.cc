@@ -49,8 +49,6 @@ SDL_Texture* Texture_Manager::get(const std::string& key){
 void Texture_Manager::replace(const std::string& key, SDL_Texture* t){
   if(haskey(key)){
     SDL_DestroyTexture(m_texture_map.at(key));
-    m_texture_map[key]=t;
-    return;
   }
   _add(key,t);
 }
@@ -64,5 +62,6 @@ void Texture_Manager::replace(const std::string& key, const std::string& filenam
   SDL_Surface *s = IMG_Load(filename.c_str());
   if( s==NULL) LOG << SDL_GetError() <<std::endl;  
   replace(key,s,r);
+  LOG << "Replaced!"<<std::endl;
   SDL_FreeSurface(s);
 }
