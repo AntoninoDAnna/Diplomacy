@@ -1,0 +1,79 @@
+ADR 484 140 184 182
+AEG 763 310 147 180 
+ale 827 596 222 96
+ant 1122 354 77 78
+apu 503 233 142 106 
+ara 1150 449 151 171
+arm 1170 201 130 127
+ath 695 352 119 68
+AUS 486 
+bal 
+bay 
+BER 
+bit 
+BLA 
+byz 
+cap 
+car 
+che 
+CIL 
+cir 
+cyr 
+cor 
+cre 
+cyp 
+dac 
+dal 
+dam 
+EGY 
+epi 
+etr 
+gal 
+gau 
+GOP 
+GOS 
+GOT 
+IBE 
+ill 
+ION 
+isa 
+jer 
+lep 
+LIG 
+lus 
+LYB 
+mac 
+mar 
+mau 
+mas 
+mem 
+MES 
+mil 
+MIN 
+nab 
+nea 
+num 
+pet 
+pha 
+PUN 
+rav 
+rha 
+RED 
+rom 
+sag 
+sah 
+sad 
+sam 
+sic 
+sid 
+sii 
+sip 
+spa 
+SYR 
+tar 
+tha 
+the 
+tye 
+TYN 
+ven 
+vin 
