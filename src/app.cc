@@ -28,7 +28,7 @@ App::App(){
     exit(1);
   };
   if(IMG_Init(IMG_INIT_PNG) ==0){
-    std::cerr << "Error in initiationg TTF, aborting"<< std::endl;
+    std::cerr << "Error in initiationg PNG, aborting"<< std::endl;
     std::cout << IMG_GetError() << std::endl;
     exit(1);
   }
@@ -214,9 +214,11 @@ void App::render_new_game(){
 void App::start_game(Game_map game){
   m_scenes.push_back(Scene_id::GAME);
   m_game.start_game(game);
-  m_game.render_table();
+  this->render_game();
 }
 
 void App::render_game(){
+  reset_rendering();
   m_game.render_table();
+
 }

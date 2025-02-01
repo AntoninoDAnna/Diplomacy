@@ -10,12 +10,11 @@ inline std::filesystem::path img_folder = "Images";
 inline std::filesystem::path tiles_folder = "Tiles";
 inline std::filesystem::path tiles_file = tiles_folder/"tiles.txt";
 
-
 class File_Manager{
   public:
     File_Manager();
     ~File_Manager()=default;
-    std::filesystem::path get(const std::string& key){return m_files.at(key);}
+    std::filesystem::path get(const std::string& key);
     void add(const std::string& key, const std::filesystem::path& filename);
     void replace(const std::string& key, const std::filesystem::path& filename);
     bool haskey(const std::string& key){return m_files.find(key) != m_files.end();}
@@ -25,4 +24,3 @@ class File_Manager{
 };
 
 inline File_Manager g_FILES;
-

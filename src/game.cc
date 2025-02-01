@@ -8,6 +8,8 @@
 #include "../include/unit.h"
 #include "../include/globals.h"
 #include "../include/button.h"
+#include "../include/text.h"
+#include "SDL2/SDL_ttf.h"
 #include <string>
 #include <fstream>
 #include <chrono>
@@ -54,7 +56,8 @@ void Game::start_game(Game_map game){
   g_FILES.replace(g_TILES,img_folder/m_gamename/tiles_file);
   g_FILES.replace(g_MAP,img_folder/m_gamename/(m_gamename+".png"));
   g_TEXTURE.replace(g_MAP,g_FILES.get(g_MAP),m_r);
-  //read_map(g_FILES.get(m_gamename));
+  read_map(g_FILES.get(m_gamename));
+
 }
 
 void Game::read_map(std::filesystem::path filename){
@@ -79,8 +82,7 @@ void Game::read_map(std::filesystem::path filename){
     sea  = std::stoi(fields_name[4]);
     m_table.emplace(id,Region(fields_name[0],fields_name[1],sc,land,sea,id));
     abb_to_ID.emplace(fields_name[1],id);
-    if(!(sea && !land))
-      g_FILES.add(fields_name[1],img_folder/m_gamename/tiles_folder/(fields_name[0]+".png"));
+    g_FILES.add(fields_name[1],img_folder/m_gamename/tiles_folder/(fields_name[0]+".png"));
   }
   // read the neigbhors.
   Util::next_line(file);
@@ -122,14 +124,19 @@ void Game::read_map(std::filesystem::path filename){
 
 
   }
+  
   file.close();
+  
   file.open(g_FILES.get(g_TILES),std::ios::in);
+  
   std::string abb;
-  int x,y;
+  
+  int x,y,w,h;
+  
   while(!file.eof()){
-    file >> abb >> x >> y;
+    file >> abb >> x >> y >> w >> h;
     id = abb_to_ID.at(abb);
-    m_table.at(id).set_vertex(x,y);
+    m_table.at(id).set_region_on_map(x,y,w,h,m_r);
   }
   file.close();
   return;
@@ -145,6 +152,7 @@ void Game::close_game(){
 
 void Game::render_table(){
   LOG << "rendering table"<<std::endl;
+  m_buttons.clear();
   if(SDL_RenderClear(m_r)<0) LOG << SDL_GetError() << std::endl;
   SDL_Texture *map = g_TEXTURE.get(g_MAP);
   int win_w,win_h;
@@ -152,13 +160,50 @@ void Game::render_table(){
   if(SDL_RenderCopy(m_r,map,NULL,NULL)<0)
     LOG << SDL_GetError() << std::endl;
   SDL_RenderPresent(m_r);
-  for(auto [id,tile] :  m_table)
+  for(auto [id,tile] :  m_table){
     m_LOG << tile << std::endl;
+    // tile.render_region(m_r);
+    // m_buttons.push_back(tile.make_button(m_r));
+  }
 
-  for(auto [id,country] :  m_countries)
+  for(auto [id,country] : m_countries)
     m_LOG << country << std::endl;
 
   for(auto [id,unit] : m_units)
     m_LOG << unit << std::endl;
+  
+  SDL_Rect box{100,100,0,0};
+  Text back{m_font, "BACK", SDL_Color{0,0,0,255},box,m_r};
+  m_exit_button = Button("BACK",box,m_r,[this]()->void {this->close_game();});  
+  SDL_RenderPresent(m_r);
+  get_input();
+}
 
+void Game::get_input(){
+  while(SDL_WaitEvent(&m_event)){
+    LOG << "inside game input" << std::endl;      
+    switch (m_event.type)
+    {
+    case SDL_MOUSEBUTTONDOWN:
+      int x,y;
+      SDL_GetMouseState(&x,&y);
+      if(m_exit_button.pressed(x,y)){
+        m_exit_button.action();
+        return;
+      } 
+      for(auto b : m_buttons)
+        if(b.pressed(x,y)) b.action(); 
+      render_table();  
+      break;
+    case SDL_WINDOWEVENT:
+      if (m_event.window.event == SDL_WINDOWEVENT_RESIZED)  
+        render_table();
+      break;
+    case SDL_QUIT:
+      SDL_Quit();
+      break;
+    default:
+      break;
+    }
+  }
 }

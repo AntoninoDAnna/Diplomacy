@@ -8,8 +8,7 @@
 
 
 File_Manager::File_Manager(){
-  m_files[g_AM] = map_folder /"Ancient_mediterrean.txt";
-
+  m_files[g_AM] = map_folder /"Ancient_mediterranean.txt";
 } 
 
 void File_Manager::add(const std::string& key, const std::filesystem::path& filename){
@@ -41,3 +40,10 @@ void File_Manager::remove(const std::string& key){
 }
 
 
+std::filesystem::path File_Manager::get(const std::string& key){
+    if(!haskey(key)){
+      LOG << key << " is not in file manager"<<std::endl;
+      exit(EXIT_FAILURE);
+    }
+    return m_files.at(key);
+}

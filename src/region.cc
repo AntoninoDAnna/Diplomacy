@@ -1,6 +1,10 @@
 #include "../include/region.h"
 #include "../include/log.h"
 #include "../include/file_manager.h"
+#include "../include/texture_manager.h"
+#include "../include/button.h"
+#include "SDL2/SDL.h"
+#include "SDL2/SDL_image.h"
 #include <string>
 #include <list>
 
@@ -74,7 +78,38 @@ void Region::liberate(){
   m_unit_id=NONE;
 }
 
-void Region::set_vertex(int x, int y){
-  tile_vertex.x =x;
-  tile_vertex.y =y;
+
+void Region::set_region_on_map(int x, int y, int w, int h,SDL_Renderer* r){
+  region_box.x =x;
+  region_box.y = y;
+  region_box.w = w;
+  region_box.h = h;
+  g_TEXTURE.replace(m_abbr,g_FILES.get(m_abbr),r);
 }
+
+void Region::render_region(SDL_Renderer*r){
+  SDL_RenderCopy(r,g_TEXTURE.get(m_abbr),NULL,&region_box);
+}
+
+
+void Region::pressed(){
+  LOG << m_abbr << std::endl;
+}
+
+bool Region::is_selected(int& x, int& y){
+  if(x<=region_box.x)              return false;
+  if(x>=region_box.x+region_box.w) return false;
+  if(y<=region_box.y)              return false;
+  if(y>=region_box.y+region_box.h) return false;
+  return true;
+}
+
+Button Region::make_button(SDL_Renderer* r){
+  return Button(m_abbr,region_box,r,[this]()-> void {LOG << m_abbr << std::endl;});
+}
+
+SDL_Rect Region::get_box(){
+  return region_box;
+}
+
+

@@ -1,79 +1,81 @@
-ADR 484 140 184 182
-AEG 763 310 147 180 
-ale 827 596 222 96
-ant 1122 354 77 78
-apu 503 233 142 106 
-ara 1150 449 151 171
-arm 1170 201 130 127
-ath 695 352 119 68
-AUS 486 
-bal 
-bay 
-BER 
-bit 
-BLA 
-byz 
-cap 
-car 
-che 
-CIL 
-cir 
-cyr 
-cor 
-cre 
-cyp 
-dac 
-dal 
-dam 
-EGY 
-epi 
-etr 
-gal 
-gau 
-GOP 
-GOS 
-GOT 
-IBE 
-ill 
-ION 
-isa 
-jer 
-lep 
-LIG 
-lus 
-LYB 
-mac 
-mar 
-mau 
-mas 
-mem 
-MES 
-mil 
-MIN 
-nab 
-nea 
-num 
-pet 
-pha 
-PUN 
-rav 
-rha 
-RED 
-rom 
-sag 
-sah 
-sad 
-sam 
-sic 
-sid 
-sii 
-sip 
-spa 
-SYR 
-tar 
-tha 
-the 
-tye 
-TYN 
-ven 
-vin 
+# view_box
+0 0 1300 1300
+Vindobona; 490 42 86 89
+Venetia; 433 102 88 67
+Tyrrhenean Sea; 400 225 188 193
+Tyre; 1128 475 62 55
+Thebes; 1044 608 185 227
+Thapsus; 351 483 98 81
+Tarraconensis; 76 231 189 105
+Syrian Sea; 1010 446 132 97
+Sparta; 728 401 60 61
+Sinope; 1031 187 196 108
+Sinai; 1055 572 85 100
+Sidon; 1133 423 69 59
+Sicily; 487 408 83 58
+Sarmatia; 526 0 324 149
+Sardinia; 373 302 49 82
+Sahara; 0 593 610 242
+Saguntum; 0 327 178 114
+Roma; 435 190 79 108
+Red Sea; 1070 613 224 221
+Rhaetia; 372 1 162 140
+Ravenna; 443 153 91 89
+Punic Sea; 344 360 168 149
+Phazania; 338 603 286 168
+Petra; 1135 595 74 88
+Numidia; 353 549 150 81
+Neapolis; 506 275 109 141
+Nabatea; 1135 594 74 88
+Minoan Sea; 864 426 106 73
+Miletus; 850 349 131 92
+Messenian Sea; 656 423 160 99
+Memphis; 839 637 248 144
+Massilia; 214 120 173 118
+Mauretania; 0 439 308 222
+Marmarica; 615 673 229 110
+Macedonia; 708 252 148 109
+Lybian Sea; 649 499 221 109
+Lusitania; 0 205 188 169
+Ligurian Sea; 257 186 181 446
+Leptis; 462 606 228 115
+Jerusalem; 1116 523 45 76
+Isauria; 960 361 112 69
+Ionian Sea; 598 318 176 118
+Illyria; 561 109 198 187
+Iberian Sea; 0 412 200 540
+Gulf of Tacape; 427 492 233 121
+Gulf of Syrtis; 542 583 181 96
+Gulf of Pelusium; 1001 537 128 67
+Gaul; 103 1 296 231
+Galatia; 910 256 156 129
+Etruria; 368 128 86 78
+Epirus; 667 282 64 93
+Egyptian Sea; 853 487 173 131
+Damascus; 1152 314 147 149
+Dalmatia; 516 115 182 173
+Dacia; 671 64 226 215
+Cyprus; 1007 460 68 41
+Crete; 812 484 77 22
+Corsica; 388 242 29 56
+Cyrene; 687 580 178 127
+Cirta; 260 485 124 133
+Cilician Strait; 956 381 183 115
+Chersonesus; 815 0 484 206
+Carthage; 297 436 157 65
+Cappadocia; 1046 260 141 150
+Byzanthium; 837 257 127 97
+Black Sea; 861 36 340 240
+Bithynia; 942 216 107 96
+Berber Sea; 156 323 226 126
+Bayuda; 584 734 488 100
+Baleares; 166 262 138 112
+Ausonian Sea; 487 403 177 119
+Athens; 697 352 118 67
+Armenia; 1169 201 130 128
+Arabia; 1151 449 148 169
+Apulia; 503 233 141 107
+Antioch; 1123 355 75 76
+Alexandria; 828 596 221 94
+Aegean Sea; 765 312 144 179
+Adriatic Sea; 486 140 182 181

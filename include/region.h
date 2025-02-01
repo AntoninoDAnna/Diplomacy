@@ -6,6 +6,7 @@
 #include <vector>
 #include <unordered_map>
 #include "globals.h"
+#include "../include/button.h"
 #include <SDL2/SDL.h>
 class Region{
 public:
@@ -30,7 +31,12 @@ public:
   bool operator!=(const Region& r);
   friend std::ostream& operator<<(std::ostream & os, const Region&);
   void set_neighbors(const std::list<ID>& neigbors_id);
-  void set_vertex(int x, int y);
+  void set_region_on_map(int x, int y, int w, int h, SDL_Renderer *r);
+  void render_region(SDL_Renderer*r);
+  Button make_button(SDL_Renderer *r);
+  bool is_selected(int& x, int& y);
+  void pressed();
+  SDL_Rect get_box();
 private:
   const int NONE = 0;
   const std::string m_abbr;
@@ -43,6 +49,6 @@ private:
   const std::string m_name;
   std::list<ID> m_neighbors;
   ID m_unit_id = NONE;
-  SDL_FPoint tile_vertex{0,0};
+  SDL_Rect region_box{0,0,0,0};
 };
 
