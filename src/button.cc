@@ -3,14 +3,20 @@
   #include "SDL2/SDL.h"
   #include "SDL2/SDL_image.h"
   #include "../include/log.h"
-  #include "../include/texture_manager.h"
+  #include "../include/resources_manager.h"
 
 
 
 template <class ReturnType>
-_Button<ReturnType>::_Button(const std::string& key, SDL_Rect& rect,SDL_Renderer* r, std::function<ReturnType()> action) : 
+_Button<ReturnType>::_Button(const std::string& key, SDL_Rect& rect,SDL_Renderer* r, std::function<ReturnType()> action,Resources_Manager& rm) : 
 action(action),m_texture_key(key), m_rect(rect){
-  SDL_RenderCopy(r,g_TEXTURE.get(key),NULL,&m_rect);
+  SDL_RenderCopy(r,rm.get_texture(key),NULL,&m_rect);
+}
+
+template <class ReturnType>
+_Button<ReturnType>::_Button(const std::string& key, SDL_Rect& rect,SDL_Renderer* r, std::function<ReturnType()> action,Resources_Manager* rm) : 
+action(action),m_texture_key(key), m_rect(rect){
+  SDL_RenderCopy(r,rm->get_texture(key),NULL,&m_rect);
 }
 
 template <class ReturnType>

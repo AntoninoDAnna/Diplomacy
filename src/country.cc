@@ -12,9 +12,11 @@ Country::Country(std::string name,std::list<int> hsc, int id,std::list<ID>unit_i
   m_this_turn_orders(),
   m_unit_id(unit_id)
 {};
+
 void Country::add_sc(int region_id){
   m_sc.push_back(region_id);
 }
+
 void Country::remove_sc(int region_id){
   m_sc.remove(region_id);
 }
@@ -37,3 +39,4 @@ std::ostream& operator<<(std::ostream & os , const Country& C){
   os<< std::endl;
   return os;
 }
+

@@ -1,8 +1,7 @@
 #include "../include/game.h"
 #include "../include/region.h"
 #include "../include/country.h"
-#include "../include/file_manager.h"
-#include "../include/texture_manager.h"
+#include "../include/resources_manager.h"
 #include "../include/log.h"
 #include "../include/utilities.h"
 #include "../include/unit.h"
@@ -32,18 +31,22 @@ class ID_gen{
 
 ID_gen g_id = ID_gen();
 
-Game::~Game(){
-  if(m_LOG.is_open()){
-    m_LOG<< "closing for destruction of Game instance"<<std::endl;
-    m_LOG.close();
-  }
-}
-void Game::start_game(Game_map game){
-  m_LOG.open("../bin/log/logfile.log",std::fstream::out);
+Game::Game(){
+  m_log.open("../bin/log/game_log.log", std::ios_base::out);
   if(!m_LOG.is_open()){
-    std::cout << "cannot_open log file"<<std::endl;
-    exit(1);
+    std::cerr << "cannot_open log file. ABORTING"<<std::endl;
+    exit(EXIT_FAILURE);
   }
+  m_log << "Openning game log"<<std::endl;
+}
+
+Game::~Game(){
+  m_log << "closing for destruction of Game instance"<<std::endl;
+  m_log.close();
+}
+
+void Game::start_game(Game_map game){
+  
   switch(game){
     case Game_map::ANCIENT_MEDITERREAN:
       m_gamename = g_AM;
@@ -53,10 +56,10 @@ void Game::start_game(Game_map game){
       exit(1);
       break;
   }
-  g_FILES.replace(g_TILES,img_folder/m_gamename/tiles_file);
-  g_FILES.replace(g_MAP,img_folder/m_gamename/(m_gamename+".png"));
-  g_TEXTURE.replace(g_MAP,g_FILES.get(g_MAP),m_r);
-  read_map(g_FILES.get(m_gamename));
+  m_resources->replace_file(g_TILES,img_folder/m_gamename/tiles_file);
+  m_resources->replace_file(g_MAP,img_folder/m_gamename/(m_gamename+".png"));
+  m_resources->replace_texture(g_MAP,m_resources->get_file(g_MAP),m_r);
+  read_map(m_resources->get_file(m_gamename));
 
 }
 
@@ -82,7 +85,7 @@ void Game::read_map(std::filesystem::path filename){
     sea  = std::stoi(fields_name[4]);
     m_table.emplace(id,Region(fields_name[0],fields_name[1],sc,land,sea,id));
     abb_to_ID.emplace(fields_name[1],id);
-    g_FILES.add(fields_name[1],img_folder/m_gamename/tiles_folder/(fields_name[0]+".png"));
+    m_resources->add_file(fields_name[1],img_folder/m_gamename/tiles_folder/(fields_name[0]+".png"));
   }
   // read the neigbhors.
   Util::next_line(file);
@@ -127,7 +130,7 @@ void Game::read_map(std::filesystem::path filename){
   
   file.close();
   
-  file.open(g_FILES.get(g_TILES),std::ios::in);
+  file.open(m_resources->get_file(g_TILES),std::ios::in);
   
   std::string abb;
   
@@ -136,7 +139,7 @@ void Game::read_map(std::filesystem::path filename){
   while(!file.eof()){
     file >> abb >> x >> y >> w >> h;
     id = abb_to_ID.at(abb);
-    m_table.at(id).set_region_on_map(x,y,w,h,m_r);
+    m_table.at(id).set_region_on_map(x,y,w,h,m_r,m_resources);
   }
   file.close();
   return;
@@ -154,7 +157,7 @@ void Game::render_table(){
   LOG << "rendering table"<<std::endl;
   m_buttons.clear();
   if(SDL_RenderClear(m_r)<0) LOG << SDL_GetError() << std::endl;
-  SDL_Texture *map = g_TEXTURE.get(g_MAP);
+  SDL_Texture *map = m_resources->get_texture(g_MAP);
   int win_w,win_h;
   SDL_GetRendererOutputSize(m_r,&win_w,&win_h);
   if(SDL_RenderCopy(m_r,map,NULL,NULL)<0)
@@ -173,8 +176,8 @@ void Game::render_table(){
     m_LOG << unit << std::endl;
   
   SDL_Rect box{100,100,0,0};
-  Text back{m_font, "BACK", SDL_Color{0,0,0,255},box,m_r};
-  m_exit_button = Button("BACK",box,m_r,[this]()->void {this->close_game();});  
+  Text back{m_font, "BACK", SDL_Color{0,0,0,255},box,m_r,m_resources};
+  m_exit_button = Button("BACK",box,m_r,[this]()->void {this->close_game();},m_resources);  
   SDL_RenderPresent(m_r);
   get_input();
 }

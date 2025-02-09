@@ -1,7 +1,6 @@
 #include "../include/region.h"
 #include "../include/log.h"
-#include "../include/file_manager.h"
-#include "../include/texture_manager.h"
+#include "../include/resources_manager.h"
 #include "../include/button.h"
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_image.h"
@@ -20,7 +19,6 @@ Region::Region(const std::string& name,const std::string& abb, bool sc, bool lan
 }
 
 Region::~Region(){
-  g_FILES.remove(m_abbr);
 }
 
 bool Region::operator==(const Region& r){
@@ -79,16 +77,16 @@ void Region::liberate(){
 }
 
 
-void Region::set_region_on_map(int x, int y, int w, int h,SDL_Renderer* r){
+void Region::set_region_on_map(int x, int y, int w, int h,SDL_Renderer* r,Resources_Manager* rm){
   region_box.x =x;
   region_box.y = y;
   region_box.w = w;
   region_box.h = h;
-  g_TEXTURE.replace(m_abbr,g_FILES.get(m_abbr),r);
+  rm->replace_texture(m_abbr,rm->get_file(m_abbr),r);
 }
 
-void Region::render_region(SDL_Renderer*r){
-  SDL_RenderCopy(r,g_TEXTURE.get(m_abbr),NULL,&region_box);
+void Region::render_region(SDL_Renderer*r,Resources_Manager* rm){
+  SDL_RenderCopy(r,rm->get_texture(m_abbr),NULL,&region_box);
 }
 
 
@@ -104,8 +102,8 @@ bool Region::is_selected(int& x, int& y){
   return true;
 }
 
-Button Region::make_button(SDL_Renderer* r){
-  return Button(m_abbr,region_box,r,[this]()-> void {LOG << m_abbr << std::endl;});
+Button Region::make_button(SDL_Renderer* r, Resources_Manager* rm){
+  return Button(m_abbr,region_box,r,[this]()-> void {LOG << m_abbr << std::endl;}, rm);
 }
 
 SDL_Rect Region::get_box(){

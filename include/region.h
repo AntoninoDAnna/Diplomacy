@@ -6,7 +6,8 @@
 #include <vector>
 #include <unordered_map>
 #include "globals.h"
-#include "../include/button.h"
+#include "button.h"
+#include "resources_manager.h"
 #include <SDL2/SDL.h>
 class Region{
 public:
@@ -31,9 +32,9 @@ public:
   bool operator!=(const Region& r);
   friend std::ostream& operator<<(std::ostream & os, const Region&);
   void set_neighbors(const std::list<ID>& neigbors_id);
-  void set_region_on_map(int x, int y, int w, int h, SDL_Renderer *r);
-  void render_region(SDL_Renderer*r);
-  Button make_button(SDL_Renderer *r);
+  void set_region_on_map(int x, int y, int w, int h, SDL_Renderer *r, Resources_Manager* rm);
+  void render_region(SDL_Renderer*r, Resources_Manager* rm);
+  Button make_button(SDL_Renderer *r,Resources_Manager* rm);
   bool is_selected(int& x, int& y);
   void pressed();
   SDL_Rect get_box();

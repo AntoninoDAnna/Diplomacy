@@ -7,6 +7,7 @@
 #include "SDL2/SDL_image.h"
 #include "SDL2/SDL_ttf.h"
 #include "../include/log.h"
+#include "../include/resources_manager.h"
 
 constexpr SDL_Color BACKGROUND{54,220,215,255};
 constexpr SDL_Color MENU_COLOR{54,121,220,255};
@@ -17,43 +18,57 @@ constexpr char TITLE[] = "BETRAYAL";
 
 
 App::App(){  
+  m_log.open("../bin/log/logfile.log",std::ios_base::out);
+  if(!m_log.is_open()){
+    std::cerr << "cannot open app log file. ABORTING"<<std::endl;
+    exit(EXIT_FAILURE);
+  }
+  m_log << "Opening log file"<< std::endl;
+
   if(SDL_Init(SDL_INIT_VIDEO) <0) {
     std::cerr <<"Error in initiating SDL, aborting" << std::endl;
-    std::cout << SDL_GetError()<< std::endl;
-    exit(1);
+    m_log << SDL_GetError()<< std::endl;
+    exit(EXIT_FAILURE);
   }
   if(TTF_Init() == -1){
-    std::cerr << "Error in initiationg TTF, aborting"<< std::endl;
-    std::cout << TTF_GetError() << std::endl;
-    exit(1);
+    std::cerr << "Error in initializing TTF, aborting"<< std::endl;
+    m_log << TTF_GetError() << std::endl;
+    exit(EXIT_FAILURE);
   };
   if(IMG_Init(IMG_INIT_PNG) ==0){
-    std::cerr << "Error in initiationg PNG, aborting"<< std::endl;
-    std::cout << IMG_GetError() << std::endl;
-    exit(1);
+    std::cerr << "Error in initializing PNG, aborting"<< std::endl;
+    m_log << IMG_GetError() << std::endl;
+    exit(EXIT_FAILURE);
   }
 
   // SDL_CreateWindowAndRenderer(WIDTH*SCALE,HEIGHT*SCALE,0,&window,&renderer);
   m_window = SDL_CreateWindow("Diplomacy",SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,m_WIDTH*m_SCALE,m_HEIGHT*m_SCALE,SDL_WINDOW_RESIZABLE);
   if(m_window==NULL){
-    std::cerr << SDL_GetError() << std::endl;  
-    exit(1);
+    std::cerr << "Error in creating window, aborting" << std::endl;
+    m_log << SDL_GetError() << std::endl;  
+    exit(EXIT_FAILURE);
   }
   m_renderer =SDL_CreateRenderer(m_window,1,0);
   if(m_renderer==NULL){
-    std::cerr << SDL_GetError() << std::endl;  
-    exit(1);
+    std::cerr << "Error in creating renderer, aborting" << std::endl;
+    m_log << SDL_GetError() << std::endl;  
+    exit(EXIT_FAILURE);
   }
-  m_game.set_renderer(m_renderer);
   m_font = TTF_OpenFont("./fonts/chailce-noggin-font/ChailceNogginRegular.ttf",16 );
   if(m_font==NULL){
-    std::cout << "Error: Font not loaded"<< std::endl;
-    std::cout << TTF_GetError()<< std::endl;
-    exit(1);
+    std::cerr << "Error: Font not loaded. Aborting"<< std::endl;
+    m_log << TTF_GetError()<< std::endl;
+    exit(EXIT_FAILURE);
   }
 
   SDL_RenderSetScale(m_renderer,m_SCALE,m_SCALE);
   
+  //share pointers with Game 
+  m_game.set_renderer(m_renderer);
+  m_game.set_font(m_font);
+  m_game.set_resources_manager(&m_resources);
+  m_game.set_window(m_window);
+
   show(Scene_id::MAIN_MENU);
 }
 
@@ -63,6 +78,10 @@ App::~App(){
   TTF_CloseFont(m_font);
   SDL_DestroyRenderer(m_renderer);
   SDL_Quit();
+  if(m_log.is_open()){
+    m_log << "Closing log file"<< std::endl;
+    m_log.close();
+  }
 }
 
 void App::show(Scene_id scene_id){
@@ -142,7 +161,7 @@ void App::render_main_menu(){
 
   // title 
   SDL_Rect Title_box{w/4,static_cast<int>(h*(1./5 - 1./14)),w/2,h/7};
-  Text title{m_font,TITLE,BLACK,Title_box,m_renderer};
+  Text title{m_font,TITLE,BLACK,Title_box,m_renderer,m_resources};
   // menu parameters
   // 
   // your games
@@ -157,32 +176,32 @@ void App::render_main_menu(){
 
   // my profile box  
   SDL_Rect temp_box{menu_x,static_cast<int>(my_profile_y),menu_box_w,menu_box_h};
-  Text my_profile{m_font,"My Profile",BLACK,temp_box,m_renderer};
-  m_buttons.push_back(Button("My Profile",temp_box,m_renderer,[]()-> void {std::cout << "my Profile"<< std::endl;}));
+  Text my_profile{m_font,"My Profile",BLACK,temp_box,m_renderer,m_resources};
+  m_buttons.push_back(Button("My Profile",temp_box,m_renderer,[]()-> void {std::cout << "my Profile"<< std::endl;},m_resources));
   // new game
   temp_box.y = static_cast<int>(my_profile_y-h*(0.06));
-  Text new_game{m_font,"New Game",BLACK,temp_box,m_renderer};
-  m_buttons.push_back(Button("New Game",temp_box,m_renderer, [this]()->void {this->show(Scene_id::NEW_GAME);}));
+  Text new_game{m_font,"New Game",BLACK,temp_box,m_renderer,m_resources};
+  m_buttons.push_back(Button("New Game",temp_box,m_renderer, [this]()->void {this->show(Scene_id::NEW_GAME);},m_resources));
 
   // your Games
   temp_box.y = static_cast<int>(my_profile_y-h*(0.12));
-  Text your_game{m_font,"Your Games",BLACK,temp_box,m_renderer};
-  m_buttons.push_back(Button("Your Games",temp_box,m_renderer,[]()->void {std::cout << "Your Game" << std::endl;}));
+  Text your_game{m_font,"Your Games",BLACK,temp_box,m_renderer,m_resources};
+  m_buttons.push_back(Button("Your Games",temp_box,m_renderer,[]()->void {std::cout << "Your Game" << std::endl;},m_resources));
 
   // statistic
   temp_box.y = static_cast<int>(my_profile_y+h*(0.06));
-  Text statistic{m_font,"Statistic",BLACK,temp_box,m_renderer};
-  m_buttons.push_back(Button("Statistic",temp_box,m_renderer,[]()->void {std::cout << "Statistic" << std::endl;}));
+  Text statistic{m_font,"Statistic",BLACK,temp_box,m_renderer,m_resources};
+  m_buttons.push_back(Button("Statistic",temp_box,m_renderer,[]()->void {std::cout << "Statistic" << std::endl;},m_resources));
 
   // settings
   temp_box.y = static_cast<int>(my_profile_y+h*(0.12));
-  Text setting{m_font,"Settings",BLACK,temp_box,m_renderer};
-  m_buttons.push_back(Button("Settings",temp_box,m_renderer,[]()->void {std::cout << "Setting" << std::endl;}));
+  Text setting{m_font,"Settings",BLACK,temp_box,m_renderer,m_resources};
+  m_buttons.push_back(Button("Settings",temp_box,m_renderer,[]()->void {std::cout << "Setting" << std::endl;},m_resources));
 
   // close
   temp_box.y = static_cast<int>(my_profile_y+h*(0.18));
-  Text close{m_font,"Exit",BLACK,temp_box,m_renderer};
-  m_exit_button= Button("Exit",temp_box,m_renderer,[]()->void {SDL_Quit() ;});
+  Text close{m_font,"Exit",BLACK,temp_box,m_renderer,m_resources};
+  m_exit_button= Button("Exit",temp_box,m_renderer,[]()->void {SDL_Quit() ;},m_resources);
   SDL_RenderPresent(m_renderer);
   
   return;
@@ -200,13 +219,12 @@ void App::render_new_game(){
   int w,h;
   SDL_GetWindowSize(m_window,&w,&h);
   SDL_Rect box{w/2-100,h/2-50,200,100};
-  Text game{m_font,"Ancient Mediterrean",BLACK,box,m_renderer};
-  m_buttons.push_back(Button("Ancient Mediterrean",box,m_renderer,[this]()->void {this->start_game(Game_map::ANCIENT_MEDITERREAN);}));
+  Text game{m_font,"Ancient Mediterrean",BLACK,box,m_renderer,m_resources};
+  m_buttons.push_back(Button("Ancient Mediterrean",box,m_renderer,[this]()->void {this->start_game(Game_map::ANCIENT_MEDITERREAN);},m_resources));
   box.x=0;
   box.y=0;
-  Text back{m_font, "BACK", BLACK,box,m_renderer};
-  m_exit_button = Button("BACK",box,m_renderer,[this]()->void {m_game.close_game();});
-
+  Text back{m_font, "BACK", BLACK,box,m_renderer,m_resources};
+  m_exit_button = Button("BACK",box,m_renderer,[this]()->void {m_game.close_game();},m_resources);
   SDL_RenderPresent(m_renderer);
   return;
 }

@@ -1,10 +1,11 @@
 #pragma once
+#include <fstream>
 #include <vector>
 #include <memory>   
 #include "button.h" 
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_ttf.h"
-#include "texture_manager.h"
+#include "resources_manager.h"
 #include "game.h"
 #include "globals.h"
 
@@ -13,6 +14,7 @@ public:
   App();
   ~App();
   void show(Scene_id scene_id);
+
 private:
   void get_window_center(int& x, int& y);
   void get_input();
@@ -23,16 +25,19 @@ private:
   void render_new_game();
   void start_game(Game_map game);
   void render_game();
+
 private:
   int const m_WIDTH = 1280;
   int const m_HEIGHT = 960;
   int const m_SCALE = 1;
   SDL_Event m_event;
-  SDL_Window *m_window;
-  SDL_Renderer *m_renderer;
-  TTF_Font *m_font;
+  SDL_Window *m_window = nullptr;
+  SDL_Renderer *m_renderer = nullptr;
+  TTF_Font *m_font = nullptr;
   std::vector<Scene_id> m_scenes{Scene_id::NONE};
   Game m_game = Game();
-  std::vector<Button> m_buttons;
+  std::vector<Button> m_buttons{};
   Button m_exit_button;
+  Resources_Manager m_resources = Resources_Manager();
+  std::fstream m_log;
 };
