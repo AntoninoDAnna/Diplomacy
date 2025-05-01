@@ -238,5 +238,5 @@ void App::start_game(Game_map game){
 void App::render_game(){
   reset_rendering();
   m_game.render_table();
-
+  show(Scene_id::MAIN_MENU);
 }

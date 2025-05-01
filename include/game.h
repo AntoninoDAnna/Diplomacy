@@ -35,9 +35,8 @@ private:
   std::unordered_map<ID,Region> m_table;
   std::unordered_map<ID,Country> m_countries;
   std::unordered_map<ID,Unit> m_units;
-  std::fstream m_LOG;
   std::string m_gamename;
-
+  int board_w{}, board_h{};
   
   //Game does not own these pointers. App does;
   SDL_Renderer*  m_r = nullptr;

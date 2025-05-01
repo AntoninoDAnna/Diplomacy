@@ -32,12 +32,18 @@ public:
   bool operator!=(const Region& r);
   friend std::ostream& operator<<(std::ostream & os, const Region&);
   void set_neighbors(const std::list<ID>& neigbors_id);
-  void set_region_on_map(int x, int y, int w, int h, SDL_Renderer *r, Resources_Manager* rm);
-  void render_region(SDL_Renderer*r, Resources_Manager* rm);
-  Button make_button(SDL_Renderer *r,Resources_Manager* rm);
+  void set_region_on_map(int x, int y, int w, int h, SDL_Renderer *r, Resources_Manager* rm, std::ostream &log = std::cout);
+  /* 
+   * render the region rescaling the box to the window size. 
+   * rw and rh are the scaling factor respectively for width and heigh.  
+   */
+  void render_region(SDL_Renderer*r, Resources_Manager* rm,double rw, double rh,std::ostream &log = std::cout);
+  Button make_button(SDL_Renderer *r,Resources_Manager* rm,double rw, double rh);
   bool is_selected(int& x, int& y);
   void pressed();
   SDL_Rect get_box();
+private: 
+  SDL_Rect rescale_box(double rw, double rh);
 private:
   const int NONE = 0;
   const std::string m_abbr;

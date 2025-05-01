@@ -16,6 +16,8 @@
 #include <iostream>
 #include <vector>
 #include <iomanip>
+#include <functional>
+// #include <print>
 class ID_gen{
   public:
     ID_gen(int seed) : m_seed(seed){}
@@ -33,11 +35,11 @@ ID_gen g_id = ID_gen();
 
 Game::Game(){
   m_log.open("../bin/log/game_log.log", std::ios_base::out);
-  if(!m_LOG.is_open()){
-    std::cerr << "cannot_open log file. ABORTING"<<std::endl;
+  if(!m_log.is_open()){
+    std::cerr << "[Game(): cannot open log file. ABORTING"<<std::endl;
     exit(EXIT_FAILURE);
   }
-  m_log << "Openning game log"<<std::endl;
+  m_log << "Opening game log"<<std::endl;
 }
 
 Game::~Game(){
@@ -52,15 +54,16 @@ void Game::start_game(Game_map game){
       m_gamename = g_AM;
       break;
     default:
-      LOG<<"Error: Undefined game map"<<std::endl;
+      std::cerr<<"Game error: Undefined game map"<<std::endl;
+      m_log<<"Game error: Undefined game map"<<std::endl;
       exit(1);
       break;
   }
-  m_resources->replace_file(g_TILES,img_folder/m_gamename/tiles_file);
-  m_resources->replace_file(g_MAP,img_folder/m_gamename/(m_gamename+".png"));
-  m_resources->replace_texture(g_MAP,m_resources->get_file(g_MAP),m_r);
-  read_map(m_resources->get_file(m_gamename));
-
+  m_log << "[Game] starting game: "<< m_gamename<<std::endl;
+  m_resources->replace_file(g_TILES,img_folder/m_gamename/tiles_file,m_log);
+  m_resources->replace_file(g_MAP,img_folder/m_gamename/(m_gamename+".png"),m_log);
+  m_resources->replace_texture(g_MAP,m_resources->get_file(g_MAP),m_r,m_log);
+  read_map(m_resources->get_file(m_gamename,m_log));
 }
 
 void Game::read_map(std::filesystem::path filename){
@@ -74,7 +77,7 @@ void Game::read_map(std::filesystem::path filename){
   ID id;
   std::unordered_map<std::string, ID> abb_to_ID;
   // fill the table
-  LOG << std::boolalpha;
+  m_log << std::boolalpha;
   for(int i=0; i<n_tile; i++){
     std::getline(file,file_line); 
     // name abbreviation sc land sea   
@@ -85,8 +88,9 @@ void Game::read_map(std::filesystem::path filename){
     sea  = std::stoi(fields_name[4]);
     m_table.emplace(id,Region(fields_name[0],fields_name[1],sc,land,sea,id));
     abb_to_ID.emplace(fields_name[1],id);
-    m_resources->add_file(fields_name[1],img_folder/m_gamename/tiles_folder/(fields_name[0]+".png"));
+    m_resources->add_file(fields_name[1],img_folder/m_gamename/tiles_folder/(fields_name[0]+".png"),m_log);
   }
+  m_log << "[Game] all Regions read" << std::endl;
   // read the neigbhors.
   Util::next_line(file);
   std::list<ID> neighbors;
@@ -100,6 +104,7 @@ void Game::read_map(std::filesystem::path filename){
     current_R->set_neighbors(neighbors);
     neighbors.clear();
   }
+  m_log << "[Game] all neighbors set"<< std::endl;
   // read the Country
   int n_country;
   file >> n_country;
@@ -124,22 +129,22 @@ void Game::read_map(std::filesystem::path filename){
     m_countries.emplace(id,Country(fields_name[0],hsc,id,units));
     hsc.clear();
     units.clear();
-
-
   }
+  m_log << "[Game] All Countries set" << std::endl;
   
   file.close();
   
-  file.open(m_resources->get_file(g_TILES),std::ios::in);
-  
+  file.open(m_resources->get_file(g_TILES,m_log),std::ios::in);
+  Util::next_line(file);
+  int x,y,w,h;
+  file >> x >> x >> board_w >> board_h;
   std::string abb;
   
-  int x,y,w,h;
   
   while(!file.eof()){
     file >> abb >> x >> y >> w >> h;
     id = abb_to_ID.at(abb);
-    m_table.at(id).set_region_on_map(x,y,w,h,m_r,m_resources);
+    m_table.at(id).set_region_on_map(x,y,w,h,m_r,m_resources, m_log);
   }
   file.close();
   return;
@@ -149,54 +154,63 @@ void Game::close_game(){
   m_table.clear();
   m_countries.clear();
   m_units.clear();
-  m_LOG<< "closing game" << std::endl;
-  m_LOG.close();
+  m_log<< "[Game] closing game" << std::endl;
+  m_log.close();
 };
 
 void Game::render_table(){
-  LOG << "rendering table"<<std::endl;
+  m_log << "[Game] rendering table"<<std::endl;
   m_buttons.clear();
-  if(SDL_RenderClear(m_r)<0) LOG << SDL_GetError() << std::endl;
+  if(SDL_RenderClear(m_r)<0) m_log << SDL_GetError() << std::endl;
   SDL_Texture *map = m_resources->get_texture(g_MAP);
-  int win_w,win_h;
-  SDL_GetRendererOutputSize(m_r,&win_w,&win_h);
   if(SDL_RenderCopy(m_r,map,NULL,NULL)<0)
-    LOG << SDL_GetError() << std::endl;
-  SDL_RenderPresent(m_r);
-  for(auto [id,tile] :  m_table){
-    m_LOG << tile << std::endl;
-    // tile.render_region(m_r);
-    // m_buttons.push_back(tile.make_button(m_r));
-  }
+    m_log << SDL_GetError() << std::endl;
+  
+  int w,h;
+  SDL_GetRendererOutputSize(m_r,&w,&h);
+  
+  double rw = static_cast<double>(w)/board_w;
+  double rh = static_cast<double>(h)/board_h;
+  // for(auto [id,tile] :  m_table){
+  //   tile.render_region(m_r,m_resources,rw,rh,m_log);
+  //   m_buttons.push_back(tile.make_button(m_r,m_resources,rw,rh));
+  //   break;
+  // }
+
+  Region& tile = m_table.at(3);//alessandria (?)
+  tile.render_region(m_r,m_resources,rw,rh,m_log);
+  m_buttons.push_back(tile.make_button(m_r,m_resources,rw,rh));
 
   for(auto [id,country] : m_countries)
-    m_LOG << country << std::endl;
+    m_log << country << std::endl;
 
   for(auto [id,unit] : m_units)
-    m_LOG << unit << std::endl;
-  
-  SDL_Rect box{100,100,0,0};
+    m_log << unit << std::endl;
+  int aux =static_cast<int>(100*rw);
+  std::cout << "aux = "<< aux << std::endl;
+  SDL_Rect box{aux,aux,2*aux,aux};
   Text back{m_font, "BACK", SDL_Color{0,0,0,255},box,m_r,m_resources};
-  m_exit_button = Button("BACK",box,m_r,[this]()->void {this->close_game();},m_resources);  
+  // m_exit_button = Button("BACK",box,m_r,[this]()->void {this->close_game();},m_resources);  
+  m_exit_button = Button("BACK",box,m_r,[]()->void{},m_resources);  
   SDL_RenderPresent(m_r);
-  get_input();
+    get_input();
 }
 
 void Game::get_input(){
+  m_log << "inside game input" << std::endl;      
   while(SDL_WaitEvent(&m_event)){
-    LOG << "inside game input" << std::endl;      
     switch (m_event.type)
     {
     case SDL_MOUSEBUTTONDOWN:
       int x,y;
       SDL_GetMouseState(&x,&y);
       if(m_exit_button.pressed(x,y)){
-        m_exit_button.action();
+        close_game();
         return;
       } 
       for(auto b : m_buttons)
         if(b.pressed(x,y)) b.action(); 
-      render_table();  
+      // render_table();  
       break;
     case SDL_WINDOWEVENT:
       if (m_event.window.event == SDL_WINDOWEVENT_RESIZED)  
