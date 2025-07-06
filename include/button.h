@@ -6,8 +6,7 @@
 #include <string>
 #include "resources_manager.h"
 
-
-template <class ReturnType,class... ArgsType> 
+template <class ReturnType,class... ArgsType>
 class _Button{
   public:
     _Button(const std::string& key, SDL_Rect& rect, SDL_Renderer* r, std::function<ReturnType(ArgsType...)> action, Resources_Manager& rm);

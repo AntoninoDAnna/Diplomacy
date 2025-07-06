@@ -1,15 +1,12 @@
-  #include <iostream>
-  #include "../include/button.h"
-  #include "SDL2/SDL.h"
-  #include "SDL2/SDL_image.h"
-  #include "../include/log.h"
-  #include "../include/resources_manager.h"
-
-
-
+#include <iostream>
+#include "../include/button.h"
+#include "SDL2/SDL.h"
+#include "SDL2/SDL_image.h"
+#include "../include/log.h"
+#include "../include/resources_manager.h"
 template <class ReturnType, class... ArgsType>
-_Button<ReturnType,ArgsType...>::_Button(const std::string& key, SDL_Rect& rect,SDL_Renderer* r, std::function<ReturnType(ArgsType...)> action,Resources_Manager& rm) : 
-action(action),m_texture_key(key), m_rect(rect){
+_Button<ReturnType,ArgsType...>::_Button(const std::string& key, SDL_Rect& rect, SDL_Renderer* r, std::function<ReturnType(ArgsType...)> action, Resources_Manager& rm) :
+  action(action), m_texture_key(key), m_rect(rect){
   SDL_RenderCopy(r,rm.get_texture(key),NULL,&m_rect);
 }
 
@@ -55,4 +52,3 @@ bool _Button<ReturnType,ArgsType...>::pressed(int mouse_x, int mouse_y){
 }
 
 template class _Button<void>;
-template class _Button<void,void>;
