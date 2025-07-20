@@ -12,6 +12,22 @@
 
 
 namespace Util{
+
+  template <class T>
+  struct is_smart_pointer : std::false_type {};
+
+  template <class T>
+  struct is_smart_pointer<std::unique_ptr<T>> : std::true_type{};
+
+  template <class T>
+  struct is_smart_pointer<std::shared_ptr<T>> : std::true_type{};
+
+  template <class T>
+  struct is_smart_pointer<std::weak_ptr<T>> : std::true_type{};
+
+  template <class T>
+  constexpr bool is_smart_pointer_v = is_smart_pointer<T>::value;
+
   void parse_tile(std::filesystem::path filepath,std::vector<bool>& outline,std::vector<bool>&inside);
   std::string strip_trailing_ws(std::string t);
   std::vector<std::string> split_line(const std::string& line, const char separator=';');

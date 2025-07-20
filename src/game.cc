@@ -8,6 +8,7 @@
 #include "../include/globals.h"
 #include "../include/button.h"
 #include "../include/text.h"
+#include "../include/window.h"
 #include "SDL2/SDL_ttf.h"
 #include <string>
 #include <fstream>
@@ -47,8 +48,9 @@ Game::~Game(){
   m_log.close();
 }
 
-void Game::start_game(Game_map game){
-  
+void Game::start_game(Game_map game, std::shared_ptr<Window>& w, std::shared_ptr<Resources_Manager>& r){
+  m_window = w;
+  m_resources = r;
   switch(game){
     case Game_map::ANCIENT_MEDITERREAN:
       m_gamename = g_AM;
@@ -62,7 +64,7 @@ void Game::start_game(Game_map game){
   m_log << "[Game] starting game: "<< m_gamename<<std::endl;
   m_resources->replace_file(g_TILES,img_folder/m_gamename/tiles_file,m_log);
   m_resources->replace_file(g_MAP,img_folder/m_gamename/(m_gamename+".png"),m_log);
-  m_resources->replace_texture(g_MAP,m_resources->get_file(g_MAP),m_r,m_log);
+  m_resources->replace_texture(g_MAP,m_resources->get_file(g_MAP),m_window,m_log);
   read_map(m_resources->get_file(m_gamename,m_log));
 }
 
@@ -144,8 +146,9 @@ void Game::read_map(std::filesystem::path filename){
   while(!file.eof()){
     file >> abb >> x >> y >> w >> h;
     id = abb_to_ID.at(abb);
-    m_table.at(id).set_region_on_map(x,y,w,h,m_r,m_resources, m_log);
+    m_table.at(id).set_region_on_map(x,y,w,h,m_window,m_resources, m_log);
   }
+
   file.close();
   return;
 }
@@ -161,13 +164,11 @@ void Game::close_game(){
 void Game::render_table(){
   m_log << "[Game] rendering table"<<std::endl;
   m_buttons.clear();
-  if(SDL_RenderClear(m_r)<0) m_log << SDL_GetError() << std::endl;
-  SDL_Texture *map = m_resources->get_texture(g_MAP);
-  if(SDL_RenderCopy(m_r,map,NULL,NULL)<0)
-    m_log << SDL_GetError() << std::endl;
-  
+  m_window->reset_rendering();
+  m_window->render_copy(m_resources->get_texture(g_MAP),NULL,NULL,m_log);
+
   int w,h;
-  SDL_GetRendererOutputSize(m_r,&w,&h);
+  m_window->get_renderer_size(w,h);
   
   double rw = static_cast<double>(w)/board_w;
   double rh = static_cast<double>(h)/board_h;
@@ -178,8 +179,8 @@ void Game::render_table(){
   // }
 
   Region& tile = m_table.at(3);//alessandria (?)
-  tile.render_region(m_r,m_resources,rw,rh,m_log);
-  m_buttons.push_back(tile.make_button(m_r,m_resources,rw,rh));
+  tile.render_region(m_window,m_resources,rw,rh,m_log);
+  m_buttons.push_back(tile.make_button(m_window,m_resources,rw,rh));
 
   for(auto [id,country] : m_countries)
     m_log << country << std::endl;
@@ -189,11 +190,11 @@ void Game::render_table(){
   int aux =static_cast<int>(100*rw);
   std::cout << "aux = "<< aux << std::endl;
   SDL_Rect box{aux,aux,2*aux,aux};
-  Text back{m_font, "BACK", SDL_Color{0,0,0,255},box,m_r,m_resources};
+  Text back{m_font, "BACK", SDL_Color{0,0,0,255},box,m_window,m_resources};
   // m_exit_button = Button("BACK",box,m_r,[this]()->void {this->close_game();},m_resources);  
-  m_exit_button = Button("BACK",box,m_r,[]()->void{},m_resources);  
-  SDL_RenderPresent(m_r);
-    get_input();
+  m_exit_button = Button("BACK",box,m_window,[]()->void{},m_resources);
+  m_window->present();
+  get_input();
 }
 
 void Game::get_input(){

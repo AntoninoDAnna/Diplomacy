@@ -5,29 +5,11 @@
 #include "../include/log.h"
 #include "../include/resources_manager.h"
 template <class ReturnType, class... ArgsType>
-_Button<ReturnType,ArgsType...>::_Button(const std::string& key, SDL_Rect& rect, SDL_Renderer* r, std::function<ReturnType(ArgsType...)> action, Resources_Manager& rm) :
+_Button<ReturnType,ArgsType...>::_Button(const std::string& key, SDL_Rect& rect, std::shared_ptr<Window>& w, std::function<ReturnType(ArgsType...)> action, std::shared_ptr<Resources_Manager>& rm) :
   action(action), m_texture_key(key), m_rect(rect){
-  SDL_RenderCopy(r,rm.get_texture(key),NULL,&m_rect);
+
+  w->render_copy(rm->get_texture(key),NULL,&m_rect,LOG);
 }
-
-/* template <class ReturnType, class... ArgsType>
-_Button<ReturnType,ArgsType...>::_Button(const std::string& key, SDL_Rect& rect, SDL_Renderer* r, ReturnType (*action)(ArgsType...), Resources_Manager& rm) : 
-action(action), m_texture_key(key), m_rect(rect)
-{
-  SDL_RenderCopy(r,rm.get_texture(key),NULL,&m_rect);
-} */
-
-template <class ReturnType, class... ArgsType>
-_Button<ReturnType,ArgsType...>::_Button(const std::string& key, SDL_Rect& rect,SDL_Renderer* r, std::function<ReturnType(ArgsType...)> action,Resources_Manager* rm) : 
-action(action),m_texture_key(key), m_rect(rect){
-  SDL_RenderCopy(r,rm->get_texture(key),NULL,&m_rect);
-}
-
-/* template <class ReturnType, class... ArgsType>
-_Button<ReturnType,ArgsType...>::_Button(const std::string& key, SDL_Rect& rect,SDL_Renderer* r, ReturnType (*action)(ArgsType...),Resources_Manager* rm) : 
-action(&action),m_texture_key(key), m_rect(rect){
-  SDL_RenderCopy(r,rm->get_texture(key),NULL,&m_rect);
-} */
 
 
 template <class ReturnType,class... ArgsType>

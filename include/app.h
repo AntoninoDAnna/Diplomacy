@@ -8,6 +8,9 @@
 #include "resources_manager.h"
 #include "game.h"
 #include "globals.h"
+#include "window.h"
+
+enum class Scene_id{NONE, MAIN_MENU, NEW_GAME,GAME};
 
 class App{
 public: 
@@ -16,10 +19,9 @@ public:
   void show(Scene_id scene_id);
 
 private:
-  void get_window_center(int& x, int& y);
   void get_input();
-  void reset_rendering();
   void main_menu();
+  void reset();
   void render_main_menu();
   void new_game();
   void render_new_game();
@@ -27,17 +29,13 @@ private:
   void render_game();
 
 private:
-  int const m_WIDTH = 1280;
-  int const m_HEIGHT = 960;
-  int const m_SCALE = 1;
+  std::shared_ptr<Window> m_window = std::make_shared<Window>();
   SDL_Event m_event;
-  SDL_Window *m_window = nullptr;
-  SDL_Renderer *m_renderer = nullptr;
   TTF_Font *m_font = nullptr;
   std::vector<Scene_id> m_scenes{Scene_id::NONE};
   Game m_game = Game();
   std::vector<Button> m_buttons{};
   Button m_exit_button;
-  Resources_Manager m_resources = Resources_Manager();
+  std::shared_ptr<Resources_Manager> m_resources = std::make_shared<Resources_Manager>();
   std::fstream m_log;
 };

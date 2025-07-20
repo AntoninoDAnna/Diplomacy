@@ -1,5 +1,4 @@
 #pragma once
-
 #include <unordered_map>
 #include <filesystem>
 #include <SDL2/SDL.h>
@@ -13,21 +12,19 @@
 #include "unit.h"
 #include "button.h"
 #include "resources_manager.h"
-
+#include "window.h"
+#include <memory>
 
 class Game
 {
 public:
   Game();
   ~Game();
-  void start_game(Game_map game);
+  void start_game(Game_map game,std::shared_ptr<Window>& window, std::shared_ptr<Resources_Manager>& res);
   void close_game();
   void render_table();
-  Region* get_region(ID id){return &m_table.at(id);} 
-  void set_renderer(SDL_Renderer *r){m_r =r;}
+  Region* get_region(ID id){return &m_table.at(id);}
   void set_font(TTF_Font* f){m_font =f;}
-  void set_resources_manager(Resources_Manager* r){m_resources = r;}
-  void set_window(SDL_Window *w){m_w = w;}
   void get_input();
 
 private:
@@ -37,11 +34,9 @@ private:
   std::unordered_map<ID,Unit> m_units;
   std::string m_gamename;
   int board_w{}, board_h{};
-  
-  //Game does not own these pointers. App does;
-  SDL_Renderer*  m_r = nullptr;
-  SDL_Window* m_w = nullptr;
-  Resources_Manager* m_resources = nullptr;
+
+  std::shared_ptr<Window> m_window = nullptr;
+  std::shared_ptr<Resources_Manager> m_resources = nullptr;
   TTF_Font *m_font = nullptr;
   std::fstream m_log;
   // 

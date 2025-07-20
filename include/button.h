@@ -3,14 +3,16 @@
 #include "SDL2/SDL_image.h"
 #include "SDL2/SDL_ttf.h"
 #include <functional>
+#include <memory>
 #include <string>
 #include "resources_manager.h"
+#include "window.h"
 
 template <class ReturnType,class... ArgsType>
 class _Button{
   public:
-    _Button(const std::string& key, SDL_Rect& rect, SDL_Renderer* r, std::function<ReturnType(ArgsType...)> action, Resources_Manager& rm);
-    _Button(const std::string& key, SDL_Rect& rect, SDL_Renderer* r, std::function<ReturnType(ArgsType...)> action, Resources_Manager* rm);
+    _Button(const std::string& key, SDL_Rect& rect, std::shared_ptr<Window>& w, std::function<ReturnType(ArgsType...)> action, std::shared_ptr<Resources_Manager>& rm);
+
     //_Button(const std::string& key, SDL_Rect& rect, SDL_Renderer* r, ReturnType (*action)(ArgsType...), Resources_Manager& rm);
     //_Button(const std::string& key, SDL_Rect& rect, SDL_Renderer* r, ReturnType (*action)(ArgsType...), Resources_Manager *rm);
     _Button() = default;

@@ -77,27 +77,12 @@ void Region::liberate(){
   m_unit_id=NONE;
 }
 
-
-void Region::set_region_on_map(int x, int y, int w, int h,SDL_Renderer* r,Resources_Manager* rm, std::ostream &log){
-  region_box.x =x;
-  region_box.y = y;
-  region_box.w = w;
-  region_box.h = h;
-  rm->replace_texture(m_abbr,rm->get_file(m_abbr),r, log);
-}
-
 SDL_Rect Region::rescale_box(double rw, double rh){
   return SDL_Rect{static_cast<int>(region_box.x*rw),
                   static_cast<int>(region_box.y*rh),
                   static_cast<int>(region_box.w*rw),
                   static_cast<int>(region_box.h*rh)};
 }
-
-void Region::render_region(SDL_Renderer*r,Resources_Manager* rm, double rw, double rh,std::ostream&log){
-  SDL_Rect box = rescale_box(rw,rh);
-  SDL_RenderCopy(r,rm->get_texture(m_abbr,log),NULL,&box);
-}
-
 
 void Region::pressed(){
   std::cout << m_abbr << std::endl;
@@ -111,10 +96,6 @@ bool Region::is_selected(int& x, int& y){
   return true;
 }
 
-Button Region::make_button(SDL_Renderer* r, Resources_Manager* rm, double rw, double rh){
-  SDL_Rect box = rescale_box(rw,rh);
-  return Button(m_abbr,box,r,[]()-> void {std::cout <<"region" << std::endl;}, rm);
-}
 
 SDL_Rect Region::get_box(){
   return region_box;
