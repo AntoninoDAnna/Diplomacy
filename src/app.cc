@@ -15,31 +15,29 @@ constexpr SDL_Color WHITE{255,255,255,255};
 constexpr SDL_Color BLACK{0,0,0,255};
 constexpr char TITLE[] = "BETRAYAL"; 
 
-
-
-App::App(){  
+void App::start(){
   m_log.open("../bin/log/logfile.log",std::ios_base::out);
   if(!m_log.is_open()){
     std::cerr << "cannot open app log file. ABORTING"<<std::endl;
     exit(EXIT_FAILURE);
   }
-  m_log << "[App] Opening log file"<< std::endl;
+  m_log << "[App: start()] Opening log file"<< std::endl;
 
   if(SDL_Init(SDL_INIT_VIDEO) <0) {
     std::cerr <<"Error in initiating SDL, aborting" << std::endl;
-    m_log << "[App]" << SDL_GetError()<< std::endl;
+    m_log << "[App: start()]" << SDL_GetError()<< std::endl;
     exit(EXIT_FAILURE);
   }
 
   if(TTF_Init() == -1){
     std::cerr << "Error in initializing TTF, aborting"<< std::endl;
-    m_log << "[App]" << TTF_GetError() << std::endl;
+    m_log << "[App: start()]" << TTF_GetError() << std::endl;
     exit(EXIT_FAILURE);
   };
 
   if(IMG_Init(IMG_INIT_PNG) ==0){
     std::cerr << "Error in initializing PNG, aborting"<< std::endl;
-    m_log << "[App]" << IMG_GetError() << std::endl;
+    m_log << "[App: start()]" << IMG_GetError() << std::endl;
     exit(EXIT_FAILURE);
   }
 
@@ -47,19 +45,14 @@ App::App(){
   m_font = TTF_OpenFont("./fonts/chailce-noggin-font/ChailceNogginRegular.ttf",16 );
   if(m_font==NULL){
     std::cerr << "Error: Font not loaded. Aborting"<< std::endl;
-    m_log << "[App]"<< TTF_GetError()<< std::endl;
+    m_log << "[App: start()]"<< TTF_GetError()<< std::endl;
     exit(EXIT_FAILURE);
   }
-
-
-  //share pointers with Game
-  m_game.set_font(m_font);
-
   show(Scene_id::MAIN_MENU);
 }
 
-App::~App(){
-  m_log << "[App] destroying app" << std::endl;
+void App::close(){
+  m_log << "[App] closing app" << std::endl;
   reset();
   m_log << "[App: ~App()] closing font" << std::endl;
   TTF_CloseFont(m_font);
@@ -78,7 +71,7 @@ void App::show(Scene_id scene_id){
   if(m_scenes.back()!=scene_id) 
     m_scenes.push_back(scene_id);
 
-  m_log << "[App] Showing scene: ";
+  m_log << "[App: show()] Showing scene: ";
   switch (scene_id)
   {
   case Scene_id::MAIN_MENU :
@@ -95,10 +88,11 @@ void App::show(Scene_id scene_id){
   default:
     break;
   }
+  get_input();
 }
 
 void App::get_input(){
-  m_log << "[App] Getting input" << std::endl;
+  m_log << "[App: get_input()] Getting input" << std::endl;
   while(SDL_WaitEvent(&m_event)){
     switch (m_event.type)
     {
@@ -130,18 +124,18 @@ void App::get_input(){
 
 
 void App::reset(){
-  m_log << "[App] resetting window"<< std::endl;
+  m_log << "[App: reset()] resetting window"<< std::endl;
   m_buttons.clear();
   m_window->reset_rendering();
 }
 
 void App::main_menu(){
   render_main_menu();
-  get_input();
+  m_log << "[App: main_menu()] main menu renderered"<<  std::endl;
 }
 
 void App::render_main_menu(){
-  m_log << "[App] rendering main menu" << std::endl;
+  m_log << "[App: render_main_menu] rendering main menu" << std::endl;
   reset();
   m_window->set_render_draw_color(BACKGROUND);
 
@@ -190,17 +184,16 @@ void App::render_main_menu(){
   // close
   temp_box.y = static_cast<int>(my_profile_y+h*(0.18));
   Text close{m_font,"Exit",BLACK,temp_box,m_window,m_resources};
-  m_exit_button= Button("Exit",temp_box,m_window,[]()->void {SDL_Quit() ;},m_resources);
+  m_exit_button= Button("Exit",temp_box,m_window,[this]()->void {this->close();},m_resources);
   m_window->present();
 }   
 
 void App::new_game(){
   render_new_game();
-  get_input();
 }
 
 void App::render_new_game(){
-  m_log << "[App] rendering new game screen"<<std::endl;
+  m_log << "[App: render_new_game] rendering new game screen"<<std::endl;
   reset();
   m_window->set_render_draw_color(BACKGROUND);
   int w,h;
@@ -216,14 +209,14 @@ void App::render_new_game(){
 }
 
 void App::start_game(Game_map game){
-  m_log << "[App] starting game"<< std::endl;
+  m_log << "[App: start_game()] starting game"<< std::endl;
   m_scenes.push_back(Scene_id::GAME);
   m_game.start_game(game,m_window,m_resources);
   render_game();
 }
 
 void App::render_game(){
-  m_log << "[App] rendering game: "<<std::endl;
+  m_log << "[App: render_game()] rendering game: "<<std::endl;
   reset();
   m_game.render_table();
   show(Scene_id::MAIN_MENU);
