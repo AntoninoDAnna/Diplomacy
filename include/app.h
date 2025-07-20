@@ -14,9 +14,11 @@ enum class Scene_id{NONE, MAIN_MENU, NEW_GAME,GAME};
 
 class App{
 public: 
-  App();
-  ~App();
+  App() = default;
+  ~App() = default;
   void show(Scene_id scene_id);
+  void start();
+  void close();
 
 private:
   void get_input();

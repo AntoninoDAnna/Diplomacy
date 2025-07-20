@@ -49,6 +49,7 @@ Game::~Game(){
 }
 
 void Game::start_game(Game_map game, std::shared_ptr<Window>& w, std::shared_ptr<Resources_Manager>& r){
+  m_log << "[Game: start_game()] starting game" << std::endl;
   m_window = w;
   m_resources = r;
   switch(game){
@@ -61,14 +62,28 @@ void Game::start_game(Game_map game, std::shared_ptr<Window>& w, std::shared_ptr
       exit(1);
       break;
   }
-  m_log << "[Game] starting game: "<< m_gamename<<std::endl;
+  m_log << "[Game: start_game()] game: "<< m_gamename<<std::endl;
+  m_log << "[Game: start_game()] updatig g_TILES file in m_resources"<< std::endl;
   m_resources->replace_file(g_TILES,img_folder/m_gamename/tiles_file,m_log);
+  m_log << "[Game: start_game()] updatig g_MAP file in m_resources"<< std::endl;
   m_resources->replace_file(g_MAP,img_folder/m_gamename/(m_gamename+".png"),m_log);
+  m_log << "[Game: start_game()] updatig g_MAP texture in m_resources"<< std::endl;
   m_resources->replace_texture(g_MAP,m_resources->get_file(g_MAP),m_window,m_log);
   read_map(m_resources->get_file(m_gamename,m_log));
 }
 
-void Game::read_map(std::filesystem::path filename){
+ID Game::get_region_ID(const std::string& abb){
+  m_log << "[Game: get_region_ID()] searcing for region " << abb << std::endl;
+  for(auto& [ID,R] : m_table){
+    if(R.get_abbreviation().compare(abb)==0)
+      return ID;
+  }
+  m_log << "[Game: get_region_ID()] search failed "<< std::endl;
+  exit(1);
+}
+
+void Game::read_map(const std::filesystem::path& filename){
+  m_log << "[Game: read_map()] reading map in path "<< filename << std::endl;
   std::ifstream file(filename,std::ios::in);
   int n_tile;
   file >> n_tile;  
@@ -77,7 +92,6 @@ void Game::read_map(std::filesystem::path filename){
   std::vector<std::string> fields_name;
   bool sc,land,sea;
   ID id;
-  std::unordered_map<std::string, ID> abb_to_ID;
   // fill the table
   m_log << std::boolalpha;
   for(int i=0; i<n_tile; i++){
@@ -89,24 +103,25 @@ void Game::read_map(std::filesystem::path filename){
     land = std::stoi(fields_name[3]);
     sea  = std::stoi(fields_name[4]);
     m_table.emplace(id,Region(fields_name[0],fields_name[1],sc,land,sea,id));
-    abb_to_ID.emplace(fields_name[1],id);
+
     m_resources->add_file(fields_name[1],img_folder/m_gamename/tiles_folder/(fields_name[0]+".png"),m_log);
   }
-  m_log << "[Game] all Regions read" << std::endl;
+  m_log << "[Game: read_map()] All Regions read" << std::endl;
   // read the neigbhors.
   Util::next_line(file);
   std::list<ID> neighbors;
   for(int i=0; i<n_tile; i++){
     std::getline(file, file_line);
     fields_name = Util::split_line(file_line);
-    Region* current_R = &m_table.at(abb_to_ID.at(fields_name[0]));
+    Region* current_R = &m_table.at(get_region_ID(fields_name[0]));
+    
     for(size_t i=1; i<fields_name.size(); i++){
-      neighbors.push_back(abb_to_ID.at(fields_name[i]));
+      neighbors.push_back(get_region_ID(fields_name[i]));
     }
     current_R->set_neighbors(neighbors);
     neighbors.clear();
   }
-  m_log << "[Game] all neighbors set"<< std::endl;
+  m_log << "[Game: read_map()] All neighbors set"<< std::endl;
   // read the Country
   int n_country;
   file >> n_country;
@@ -120,7 +135,7 @@ void Game::read_map(std::filesystem::path filename){
     id = g_id();
     ID id_r, unit_id;
     for(size_t i=1; i<fields_name.size(); i+=2){
-      id_r = abb_to_ID.at(fields_name[i]);
+      id_r = get_region_ID(fields_name[i]);
       hsc.push_back(id_r);
       type = fields_name[i+1] == "Army" ? Units_types::ARMY : Units_types::FLEET;
       unit_id = g_id();
@@ -132,7 +147,7 @@ void Game::read_map(std::filesystem::path filename){
     hsc.clear();
     units.clear();
   }
-  m_log << "[Game] All Countries set" << std::endl;
+  m_log << "[Game: read_map()] All Countries set" << std::endl;
   
   file.close();
   
@@ -145,7 +160,7 @@ void Game::read_map(std::filesystem::path filename){
   
   while(!file.eof()){
     file >> abb >> x >> y >> w >> h;
-    id = abb_to_ID.at(abb);
+    id = get_region_ID(abb);
     m_table.at(id).set_region_on_map(x,y,w,h,m_window,m_resources, m_log);
   }
 
@@ -154,17 +169,22 @@ void Game::read_map(std::filesystem::path filename){
 }
 
 void Game::close_game(){
+  m_log<< "[Game: close_game] closing game" << std::endl;
   m_table.clear();
+  m_log << "[Game: close_game] table cleared"<<std::endl;
   m_countries.clear();
+  m_log << "[Game: close_game] countries cleared" << std::endl;
   m_units.clear();
-  m_log<< "[Game] closing game" << std::endl;
-  m_log.close();
+  m_log << "[Game: close_game] units cleared"<< std::endl;
 };
 
 void Game::render_table(){
-  m_log << "[Game] rendering table"<<std::endl;
+  m_log << "[Game: render_table] rendering table"<<std::endl;
+  m_log << "[Game: render_table] clearing buttons"<< std::endl;
   m_buttons.clear();
+  m_log << "[Game: render_table] resetting rendering"<< std::endl;
   m_window->reset_rendering();
+  m_log << "[Game: render_table] rendering map"<< std::endl;
   m_window->render_copy(m_resources->get_texture(g_MAP),NULL,NULL,m_log);
 
   int w,h;
@@ -177,8 +197,8 @@ void Game::render_table(){
   //   m_buttons.push_back(tile.make_button(m_r,m_resources,rw,rh));
   //   break;
   // }
-
-  Region& tile = m_table.at(3);//alessandria (?)
+  m_log << "[Game: render_table] rendering Alessandria tile"<< std::endl;
+  Region& tile = m_table.at(get_region_ID("ale"));//alessandria (?)
   tile.render_region(m_window,m_resources,rw,rh,m_log);
   m_buttons.push_back(tile.make_button(m_window,m_resources,rw,rh));
 
@@ -187,41 +207,42 @@ void Game::render_table(){
 
   for(auto [id,unit] : m_units)
     m_log << unit << std::endl;
+
   int aux =static_cast<int>(100*rw);
-  std::cout << "aux = "<< aux << std::endl;
+
   SDL_Rect box{aux,aux,2*aux,aux};
   Text back{m_font, "BACK", SDL_Color{0,0,0,255},box,m_window,m_resources};
   // m_exit_button = Button("BACK",box,m_r,[this]()->void {this->close_game();},m_resources);  
-  m_exit_button = Button("BACK",box,m_window,[]()->void{},m_resources);
+  m_exit_button = Button("BACK",box,m_window,[this]()->void{this->close_game();},m_resources);
   m_window->present();
-  get_input();
 }
 
-void Game::get_input(){
-  m_log << "inside game input" << std::endl;      
+bool Game::get_input(){
+  m_log << "[Game: get_input()] Inside game input" << std::endl;
   while(SDL_WaitEvent(&m_event)){
     switch (m_event.type)
-    {
-    case SDL_MOUSEBUTTONDOWN:
-      int x,y;
-      SDL_GetMouseState(&x,&y);
-      if(m_exit_button.pressed(x,y)){
-        close_game();
-        return;
-      } 
-      for(auto b : m_buttons)
-        if(b.pressed(x,y)) b.action(); 
-      // render_table();  
-      break;
-    case SDL_WINDOWEVENT:
-      if (m_event.window.event == SDL_WINDOWEVENT_RESIZED)  
-        render_table();
-      break;
-    case SDL_QUIT:
-      SDL_Quit();
-      break;
-    default:
-      break;
-    }
+      {
+      case SDL_MOUSEBUTTONDOWN:
+        int x,y;
+        SDL_GetMouseState(&x,&y);
+        if(m_exit_button.pressed(x,y)){
+          close_game();
+          return false;
+        }
+        for(auto b : m_buttons){
+          if(b.pressed(x,y))
+            b.action();
+        }
+
+        // render_table();
+        break;
+      case SDL_WINDOWEVENT:
+        if (m_event.window.event == SDL_WINDOWEVENT_RESIZED)
+          render_table();
+        break;
+      default:
+        break;
+      }
   }
+  return true;
 }

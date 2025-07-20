@@ -89,6 +89,7 @@ void App::show(Scene_id scene_id){
     break;
   }
   get_input();
+  m_scenes.pop_back();
 }
 
 void App::get_input(){
@@ -112,9 +113,6 @@ void App::get_input(){
     case SDL_WINDOWEVENT:
       if (m_event.window.event == SDL_WINDOWEVENT_RESIZED)  
         show(m_scenes.back());
-      break;
-    case SDL_QUIT:
-      SDL_Quit();
       break;
     default:
       break;
@@ -204,7 +202,7 @@ void App::render_new_game(){
   box.x=0;
   box.y=0;
   Text back{m_font, "BACK", BLACK,box,m_window,m_resources};
-  m_exit_button = Button("BACK",box,m_window,[this]()->void {m_game.close_game();},m_resources);
+  m_exit_button = Button("BACK",box,m_window,[this]()->void {show(Scene_id::MAIN_MENU);},m_resources);
   m_window->present();
 }
 
@@ -213,11 +211,15 @@ void App::start_game(Game_map game){
   m_scenes.push_back(Scene_id::GAME);
   m_game.start_game(game,m_window,m_resources);
   render_game();
+  m_scenes.pop_back();
+  show(Scene_id::NEW_GAME);
 }
 
 void App::render_game(){
   m_log << "[App: render_game()] rendering game: "<<std::endl;
   reset();
   m_game.render_table();
-  show(Scene_id::MAIN_MENU);
+  while(m_game.get_input()) {
+      // game plying ?
+    }
 }

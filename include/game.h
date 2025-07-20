@@ -25,10 +25,11 @@ public:
   void render_table();
   Region* get_region(ID id){return &m_table.at(id);}
   void set_font(TTF_Font* f){m_font =f;}
-  void get_input();
+  bool get_input();
 
 private:
-  void read_map(std::filesystem::path filename);
+  void read_map(const std::filesystem::path& filename);
+  ID get_region_ID(const std::string & abb);
   std::unordered_map<ID,Region> m_table;
   std::unordered_map<ID,Country> m_countries;
   std::unordered_map<ID,Unit> m_units;
@@ -39,10 +40,8 @@ private:
   std::shared_ptr<Resources_Manager> m_resources = nullptr;
   TTF_Font *m_font = nullptr;
   std::fstream m_log;
-  // 
+  //
   SDL_Event m_event;
   std::vector<Button> m_buttons;
   Button m_exit_button;
 };
-
-
