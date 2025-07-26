@@ -179,22 +179,32 @@ void App::render_main_menu(){
   m_window->set_render_draw_color(BACKGROUND);
   int w=0,h=0;
   m_window->get_window_center(w,h);
-  std::cout << "w = "<< w << " h = " << h <<std::endl;
+  
   // title 
-  SDL_Rect Title_box{w/4,static_cast<int>(h*(1./5 - 1./14)),w/2,h/7};
+  SDL_Rect Title_box{w/2,static_cast<int>(h*(0.25 - 1./14)),w,h/7};
   Text title{m_font,TITLE,BLACK,Title_box,m_window,m_resources};
-  // menu parameters
-  // 
-  // your games
-  // new game
-  // profile <-- this is anchored to the center of the screen
-  // statistic
-  // settings
-  // close
-  int menu_box_w = w/4,menu_box_h=h/30,menu_x = static_cast<int>(w*(0.5-0.125));
-  float my_profile_y = h*(1./2-1./20);
+  /*
+  // menu parameter/
+       your games
+        new game
+        profile  // anchored to the middle:-> middle point is (w,h),
+                 // so the top-left corner is (w - 0.5*box_width, h - 0.5 box_height)
+       statistic
+        settings
+         close
+  */
+
+  float menu_box_w = w/2.0, menu_box_h=h/15.0;
+  float menu_x = w - menu_box_w*0.5;
+  float my_profile_y = h-0.5*menu_box_h;
+  float h_off_set = 0.12;
   // my profile box  
-  SDL_Rect temp_box{menu_x,static_cast<int>(my_profile_y),menu_box_w,menu_box_h};
+  SDL_Rect temp_box{
+    static_cast<int>(menu_x),
+    static_cast<int>(my_profile_y),
+    static_cast<int>(menu_box_w),
+    static_cast<int>(menu_box_h)
+  };
   Text my_profile{m_font,"My Profile",BLACK,temp_box,m_window,m_resources};
   m_buttons.push_back(Button("My Profile",temp_box,m_window,
                              [this]()-> void {
@@ -202,7 +212,7 @@ void App::render_main_menu(){
                                std::cout << "My Profile" << std::endl;
                              },m_resources));
   // new game
-  temp_box.y = static_cast<int>(my_profile_y-h*(0.06));
+  temp_box.y = static_cast<int>(my_profile_y-h*h_off_set);
   Text new_game{m_font,"New Game",BLACK,temp_box,m_window,m_resources};
   m_buttons.push_back(Button("New Game",temp_box,m_window,
                              [this]()->void {
@@ -212,7 +222,7 @@ void App::render_main_menu(){
                              }
                              ,m_resources));
   // your Games
-  temp_box.y = static_cast<int>(my_profile_y-h*(0.12));
+  temp_box.y = static_cast<int>(my_profile_y-h*2*h_off_set);
   Text your_game{m_font,"Your Games",BLACK,temp_box,m_window,m_resources};
   m_buttons.push_back(Button("Your Games",temp_box,m_window,
                              [this]()->void {
@@ -221,7 +231,7 @@ void App::render_main_menu(){
                              },
                              m_resources));
   // statistic
-  temp_box.y = static_cast<int>(my_profile_y+h*(0.06));
+  temp_box.y = static_cast<int>(my_profile_y+h*h_off_set);
   Text statistic{m_font,"Statistics",BLACK,temp_box,m_window,m_resources};
   m_buttons.push_back(Button("Statistics",temp_box,m_window,
                              [this]()->void {
@@ -229,7 +239,7 @@ void App::render_main_menu(){
                                std::cout << "Statistics" << std::endl;
                              },m_resources));
   // settings
-  temp_box.y = static_cast<int>(my_profile_y+h*(0.12));
+  temp_box.y = static_cast<int>(my_profile_y+h*2*h_off_set);
   Text setting{m_font,"Settings",BLACK,temp_box,m_window,m_resources};
   m_buttons.push_back(Button("Settings",temp_box,m_window,
                              [this]()->void {
@@ -237,7 +247,7 @@ void App::render_main_menu(){
                                std::cout << "Settings" << std::endl;
                              },m_resources));
   // close
-  temp_box.y = static_cast<int>(my_profile_y+h*(0.18));
+  temp_box.y = static_cast<int>(my_profile_y+h*3*h_off_set);
   Text close{m_font,"Exit",BLACK,temp_box,m_window,m_resources};
   m_exit_button= Button("Exit",temp_box,m_window,
                         [this]()->void {
