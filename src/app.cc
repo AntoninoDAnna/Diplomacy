@@ -46,6 +46,8 @@ void App::init(){
     m_log << "[App: start()]"<< TTF_GetError()<< std::endl;
     exit(EXIT_FAILURE);
   }
+  m_log << "[App: start()] sharing pointers with game" << std::endl;
+  m_game.set_pointers(m_window,m_resources);
   m_next_scene = Scene_id::MAIN_MENU;
 }
 
@@ -107,7 +109,6 @@ void App::show_scene(){
         break;
       case Scene_id::GAME:
         m_log << "GAME" << std::endl;
-        render_game();
         break;
       case Scene_id::NONE:
         m_log << "Closing game" << std::endl;
@@ -279,17 +280,7 @@ void App::render_new_game(){
 
 void App::start_game(Game_map game){
   m_log << "[App: start_game()] starting game"<< std::endl;
-  m_game.start_game(game,m_window,m_resources);
-  render_game();
-  m_scenes_stack.pop_back();
-  show_scene();
-}
-
-void App::render_game(){
-  m_log << "[App: render_game()] rendering game: "<<std::endl;
-  reset();
-  m_game.render_table();
-  while(m_game.get_input()) {
-      // game plying ?
-    }
+  m_game.start(game);
+  m_log << "[App: start_game()] game ended" << std::endl;
+  m_next_scene = Scene_id::NEW_GAME;
 }

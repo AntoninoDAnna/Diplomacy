@@ -50,7 +50,7 @@ private:
   void new_game();
   void render_new_game();
   void start_game(Game_map game);
-  void render_game();
+
 
 private:
   std::shared_ptr<Window> m_window = std::make_shared<Window>();

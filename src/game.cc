@@ -43,15 +43,17 @@ Game::Game(){
   m_log << "Opening game log"<<std::endl;
 }
 
+void Game::set_pointers(std::shared_ptr<Window>& w, std::shared_ptr<Resources_Manager> &r){
+  m_window = w;
+  m_resources = r;
+}
 Game::~Game(){
   m_log << "closing for destruction of Game instance"<<std::endl;
   m_log.close();
 }
 
-void Game::start_game(Game_map game, std::shared_ptr<Window>& w, std::shared_ptr<Resources_Manager>& r){
+void Game::start(Game_map& game){
   m_log << "[Game: start_game()] starting game" << std::endl;
-  m_window = w;
-  m_resources = r;
   switch(game){
     case Game_map::ANCIENT_MEDITERREAN:
       m_gamename = g_AM;
@@ -70,6 +72,11 @@ void Game::start_game(Game_map game, std::shared_ptr<Window>& w, std::shared_ptr
   m_log << "[Game: start_game()] updatig g_MAP texture in m_resources"<< std::endl;
   m_resources->replace_texture(g_MAP,m_resources->get_file(g_MAP),m_window,m_log);
   read_map(m_resources->get_file(m_gamename,m_log));
+  render_table();
+  m_running = true;
+  while(m_running){
+    get_input();
+  }
 }
 
 ID Game::get_region_ID(const std::string& abb){
@@ -169,6 +176,7 @@ void Game::read_map(const std::filesystem::path& filename){
 }
 
 void Game::close_game(){
+  m_running = false;
   m_log<< "[Game: close_game] closing game" << std::endl;
   m_table.clear();
   m_log << "[Game: close_game] table cleared"<<std::endl;
@@ -217,7 +225,7 @@ void Game::render_table(){
   m_window->present();
 }
 
-bool Game::get_input(){
+void Game::get_input(){
   m_log << "[Game: get_input()] Inside game input" << std::endl;
   while(SDL_WaitEvent(&m_event)){
     switch (m_event.type)
@@ -227,22 +235,24 @@ bool Game::get_input(){
         SDL_GetMouseState(&x,&y);
         if(m_exit_button.pressed(x,y)){
           close_game();
-          return false;
+          return ;
         }
         for(auto b : m_buttons){
-          if(b.pressed(x,y))
+          if(b.pressed(x,y)){
             b.action();
+            return;
+          }
         }
-
-        // render_table();
         break;
       case SDL_WINDOWEVENT:
-        if (m_event.window.event == SDL_WINDOWEVENT_RESIZED)
+        if (m_event.window.event == SDL_WINDOWEVENT_RESIZED){
           render_table();
+          return;
+        }
         break;
       default:
         break;
       }
   }
-  return true;
-}
+  return ;
+};
