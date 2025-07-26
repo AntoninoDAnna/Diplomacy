@@ -14,33 +14,31 @@ constexpr SDL_Color MENU_COLOR{54,121,220,255};
 constexpr SDL_Color WHITE{255,255,255,255};
 constexpr SDL_Color BLACK{0,0,0,255};
 constexpr char TITLE[] = "BETRAYAL"; 
+int g_cshow = 0;
+int g_cgetinput = 0;
 
-void App::start(){
+void App::init(){
   m_log.open("../bin/log/logfile.log",std::ios_base::out);
   if(!m_log.is_open()){
     std::cerr << "cannot open app log file. ABORTING"<<std::endl;
     exit(EXIT_FAILURE);
   }
   m_log << "[App: start()] Opening log file"<< std::endl;
-
   if(SDL_Init(SDL_INIT_VIDEO) <0) {
     std::cerr <<"Error in initiating SDL, aborting" << std::endl;
     m_log << "[App: start()]" << SDL_GetError()<< std::endl;
     exit(EXIT_FAILURE);
   }
-
   if(TTF_Init() == -1){
     std::cerr << "Error in initializing TTF, aborting"<< std::endl;
     m_log << "[App: start()]" << TTF_GetError() << std::endl;
     exit(EXIT_FAILURE);
   };
-
   if(IMG_Init(IMG_INIT_PNG) ==0){
     std::cerr << "Error in initializing PNG, aborting"<< std::endl;
     m_log << "[App: start()]" << IMG_GetError() << std::endl;
     exit(EXIT_FAILURE);
   }
-
   m_window->init();
   m_font = TTF_OpenFont("./fonts/chailce-noggin-font/ChailceNogginRegular.ttf",16 );
   if(m_font==NULL){
@@ -48,51 +46,86 @@ void App::start(){
     m_log << "[App: start()]"<< TTF_GetError()<< std::endl;
     exit(EXIT_FAILURE);
   }
-  show(Scene_id::MAIN_MENU);
+  m_next_scene = Scene_id::MAIN_MENU;
 }
 
 void App::close(){
-  m_log << "[App] closing app" << std::endl;
+  m_running = false;
+  m_log << "[App: close()] closing app" << std::endl;
   reset();
-  m_log << "[App: ~App()] closing font" << std::endl;
+  m_log << "[App: close()] closing font" << std::endl;
   TTF_CloseFont(m_font);
-  m_log << "[App: ~App()] closing window" << std::endl;
+  m_log << "[App: close()] closing window" << std::endl;
   m_window->close(m_log);
-  m_log << "[App: ~App()] calling SDL_Quit()" <<std::endl;
+  m_log << "[App: close()] calling SDL_Quit()" <<std::endl;
   SDL_Quit();
+  m_scenes_stack.clear();
+  m_next_scene = Scene_id::NONE;
+  m_log << "[App: close()] scenes stack cleared" << std::endl;
+  std::cout << "g_cshow     = " << g_cshow << std::endl;
+  std::cout << "g_cgetinput = " << g_cgetinput << std::endl;
   if(m_log.is_open()){
-    m_log << "[App: ~App()] Closing log file"<< std::endl;
-    m_log.close();
+    m_log << "[App: close()] Closing log file"<< std::endl;
+    //m_log.close();
   }
   std::cout << "log file closed" << std::endl;
 }
 
-void App::show(Scene_id scene_id){
-  if(m_scenes.back()!=scene_id) 
-    m_scenes.push_back(scene_id);
+void App::open(){
+  m_running = true;
+  /* running is set to false when App::close() is called. usually within a call of show_scene() */
+  while(m_running){
+    show_scene();
+  }
 
-  m_log << "[App: show()] Showing scene: ";
-  switch (scene_id)
-  {
-  case Scene_id::MAIN_MENU :
-    m_log << "MAIN_MENU" << std::endl;
-    main_menu();
-    break;
-  case Scene_id::NEW_GAME:
-    m_log << "NEW_GAME" << std::endl;
-    new_game();
-    break;
-  case Scene_id::GAME:
-    m_log << "GAME" << std::endl;
-    render_game();
-  default:
-    break;
+}
+
+void App::show_scene(){
+  g_cshow++;
+  m_log << "[App: show_scene()] Current scene" << m_current_scene<< std::endl;
+  m_log << "[App: show_scene()] Next scene   " << m_next_scene << std::endl;
+  if (m_current_scene == m_next_scene)
+    m_log << "[App: show_scene()] No need to update the rendering"<< std::endl;
+  else
+    m_log << "[App: show_scene()] Rendering scene: " << m_next_scene << std::endl;
+  if(m_next_scene ==Scene_id::NONE){
+    close();
+    g_cshow--;
+    return;
+  }
+  if(m_next_scene != m_current_scene){
+    m_current_scene = m_next_scene;
+    switch (m_current_scene)
+      {
+      case Scene_id::MAIN_MENU :
+        m_log << "MAIN_MENU" << std::endl;
+        main_menu();
+        break;
+      case Scene_id::NEW_GAME:
+        m_log << "NEW_GAME" << std::endl;
+        new_game();
+        break;
+      case Scene_id::GAME:
+        m_log << "GAME" << std::endl;
+        render_game();
+        break;
+      case Scene_id::NONE:
+        m_log << "Closing game" << std::endl;
+        close();
+        g_cshow--;
+        return;
+        break;
+      default:
+        break;
+      }
   }
   get_input();
-  m_scenes.pop_back();
+  g_cgetinput--;
+  g_cshow--;
 }
 
 void App::get_input(){
+  g_cgetinput++;
   m_log << "[App: get_input()] Getting input" << std::endl;
   while(SDL_WaitEvent(&m_event)){
     switch (m_event.type)
@@ -103,16 +136,22 @@ void App::get_input(){
       if(m_exit_button.pressed(x,y)){
         m_log << "[App: get_input()] exit button pressed"<< std::endl;
         m_exit_button.action();
-        m_scenes.pop_back();
         return;
-      } 
-      for(auto b : m_buttons)
-        if(b.pressed(x,y)) b.action(); 
-      show(m_scenes.back());  
+      }
+      for(auto b : m_buttons){
+        if(b.pressed(x,y)){
+          b.action();
+          return;
+        }
+      }
       break;
     case SDL_WINDOWEVENT:
-      if (m_event.window.event == SDL_WINDOWEVENT_RESIZED)  
-        show(m_scenes.back());
+      if (m_event.window.event == SDL_WINDOWEVENT_RESIZED)
+      {} // show_scene();
+      else if(m_event.window.event ==SDL_WINDOWEVENT_CLOSE){
+        close();
+        return;
+      }
       break;
     default:
       break;
@@ -151,38 +190,62 @@ void App::render_main_menu(){
   // statistic
   // settings
   // close
-  
+
   int menu_box_w = w/4,menu_box_h=h/30,menu_x = static_cast<int>(w*(0.5-0.125));
   float my_profile_y = h*(1./2-1./20); 
 
   // my profile box  
   SDL_Rect temp_box{menu_x,static_cast<int>(my_profile_y),menu_box_w,menu_box_h};
   Text my_profile{m_font,"My Profile",BLACK,temp_box,m_window,m_resources};
-  m_buttons.push_back(Button("My Profile",temp_box,m_window,[]()-> void {std::cout << "my Profile"<< std::endl;},m_resources));
+  m_buttons.push_back(Button("My Profile",temp_box,m_window,
+                             [this]()-> void {
+                               this->m_log << "My Profile button pressed"<< std::endl;
+                               std::cout << "My Profile" << std::endl;
+                             },m_resources));
   // new game
   temp_box.y = static_cast<int>(my_profile_y-h*(0.06));
   Text new_game{m_font,"New Game",BLACK,temp_box,m_window,m_resources};
-  m_buttons.push_back(Button("New Game",temp_box,m_window, [this]()->void {this->show(Scene_id::NEW_GAME);},m_resources));
+  m_buttons.push_back(Button("New Game",temp_box,m_window,
+                             [this]()->void {
+                               this-> m_log << "New game button pressed"<< std::endl;
+                               this->m_next_scene = Scene_id::NEW_GAME;
+                               this->show_scene();
+                             }
+                             ,m_resources));
 
   // your Games
   temp_box.y = static_cast<int>(my_profile_y-h*(0.12));
   Text your_game{m_font,"Your Games",BLACK,temp_box,m_window,m_resources};
-  m_buttons.push_back(Button("Your Games",temp_box,m_window,[]()->void {std::cout << "Your Game" << std::endl;},m_resources));
-
+  m_buttons.push_back(Button("Your Games",temp_box,m_window,
+                             [this]()->void {
+                               this->m_log << "Your Games button pressed"<< std::endl;
+                               std::cout << "Your Games" << std::endl;
+                             },
+                             m_resources));
   // statistic
   temp_box.y = static_cast<int>(my_profile_y+h*(0.06));
-  Text statistic{m_font,"Statistic",BLACK,temp_box,m_window,m_resources};
-  m_buttons.push_back(Button("Statistic",temp_box,m_window,[]()->void {std::cout << "Statistic" << std::endl;},m_resources));
-
+  Text statistic{m_font,"Statistics",BLACK,temp_box,m_window,m_resources};
+  m_buttons.push_back(Button("Statistics",temp_box,m_window,
+                             [this]()->void {
+                               this->m_log << "Statistics button pressed"<< std::endl;
+                               std::cout << "Statistics" << std::endl;
+                             },m_resources));
   // settings
   temp_box.y = static_cast<int>(my_profile_y+h*(0.12));
   Text setting{m_font,"Settings",BLACK,temp_box,m_window,m_resources};
-  m_buttons.push_back(Button("Settings",temp_box,m_window,[]()->void {std::cout << "Setting" << std::endl;},m_resources));
-
+  m_buttons.push_back(Button("Settings",temp_box,m_window,
+                             [this]()->void {
+                               this-> m_log << "Settings button pressed"<< std::endl;
+                               std::cout << "Settings" << std::endl;
+                             },m_resources));
   // close
   temp_box.y = static_cast<int>(my_profile_y+h*(0.18));
   Text close{m_font,"Exit",BLACK,temp_box,m_window,m_resources};
-  m_exit_button= Button("Exit",temp_box,m_window,[this]()->void {this->close();},m_resources);
+  m_exit_button= Button("Exit",temp_box,m_window,
+                        [this]()->void {
+                          this->m_log << "Exit button pressed" << std::endl;
+                          this->m_next_scene = Scene_id::NONE;
+                        },m_resources);
   m_window->present();
 }   
 
@@ -198,21 +261,28 @@ void App::render_new_game(){
   m_window->get_window_center(w,h);
   SDL_Rect box{w/2-100,h/2-50,200,100};
   Text game{m_font,"Ancient Mediterrean",BLACK,box,m_window,m_resources};
-  m_buttons.push_back(Button("Ancient Mediterrean",box,m_window,[this]()->void {this->start_game(Game_map::ANCIENT_MEDITERREAN);},m_resources));
+  m_buttons.push_back(Button("Ancient Mediterrean",box,m_window,
+                             [this]()->void {
+                               this-> m_log << "Starting Ancient Mediterrean game"<< std::endl;
+                               this-> start_game(Game_map::ANCIENT_MEDITERREAN);
+                             },m_resources));
   box.x=0;
   box.y=0;
   Text back{m_font, "BACK", BLACK,box,m_window,m_resources};
-  m_exit_button = Button("BACK",box,m_window,[this]()->void {show(Scene_id::MAIN_MENU);},m_resources);
+  m_exit_button = Button("BACK",box,m_window,
+                         [this]()->void {
+                           this->m_log << "Back button pressed"<< std::endl;
+                           this-> m_next_scene=Scene_id::MAIN_MENU;
+                         },m_resources);
   m_window->present();
 }
 
 void App::start_game(Game_map game){
   m_log << "[App: start_game()] starting game"<< std::endl;
-  m_scenes.push_back(Scene_id::GAME);
   m_game.start_game(game,m_window,m_resources);
   render_game();
-  m_scenes.pop_back();
-  show(Scene_id::NEW_GAME);
+  m_scenes_stack.pop_back();
+  show_scene();
 }
 
 void App::render_game(){

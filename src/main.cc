@@ -2,6 +2,7 @@
 
 int main(){
   App app;
-  app.start();
+  app.init();
+  app.open();
   return 0;
 }
