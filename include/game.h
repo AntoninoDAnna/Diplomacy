@@ -34,7 +34,7 @@ private:
   std::unordered_map<ID,Country> m_countries;
   std::unordered_map<ID,Unit> m_units;
   std::string m_gamename;
-  int board_w{}, board_h{};
+  int m_board_w{}, m_board_h{}; // size in pixel of the board image.
   std::shared_ptr<Window> m_window = nullptr;
   std::shared_ptr<Resources_Manager> m_resources = nullptr;
   TTF_Font *m_font = nullptr;

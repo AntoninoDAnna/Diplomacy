@@ -161,7 +161,7 @@ void Game::read_map(const std::filesystem::path& filename){
   file.open(m_resources->get_file(g_TILES,m_log),std::ios::in);
   Util::next_line(file);
   int x,y,w,h;
-  file >> x >> x >> board_w >> board_h;
+  file >> x >> x >> m_board_w >> m_board_h;
   std::string abb;
   
   
@@ -197,18 +197,21 @@ void Game::render_table(){
 
   int w,h;
   m_window->get_renderer_size(w,h);
-  
-  double rw = static_cast<double>(w)/board_w;
-  double rh = static_cast<double>(h)/board_h;
+
+  // width and height ratio needed to resize all the tiles
+  double rw = static_cast<double>(w)/m_board_w;
+  double rh = static_cast<double>(h)/m_board_h;
   // for(auto [id,tile] :  m_table){
   //   tile.render_region(m_r,m_resources,rw,rh,m_log);
   //   m_buttons.push_back(tile.make_button(m_r,m_resources,rw,rh));
   //   break;
   // }
   m_log << "[Game: render_table] rendering Alessandria tile"<< std::endl;
-  Region& tile = m_table.at(get_region_ID("ale"));//alessandria (?)
+  Region& tile = m_table.at(get_region_ID("ale"));//alessandria
   tile.render_region(m_window,m_resources,rw,rh,m_log);
   m_buttons.push_back(tile.make_button(m_window,m_resources,rw,rh));
+
+
 
   for(auto [id,country] : m_countries)
     m_log << country << std::endl;
@@ -216,12 +219,10 @@ void Game::render_table(){
   for(auto [id,unit] : m_units)
     m_log << unit << std::endl;
 
-  int aux =static_cast<int>(100*rw);
-
-  SDL_Rect box{aux,aux,2*aux,aux};
-  Text back{m_font, "BACK", SDL_Color{0,0,0,255},box,m_window,m_resources};
-  // m_exit_button = Button("BACK",box,m_r,[this]()->void {this->close_game();},m_resources);  
-  m_exit_button = Button("BACK",box,m_window,[this]()->void{this->close_game();},m_resources);
+  SDL_Rect box{0,0,static_cast<int>(w*0.25),static_cast<int>(h/30.)};
+  Text back{m_font, "Back", SDL_Color{0,0,0,255},box,m_window,m_resources};
+  std::cout << "test" << std::endl;
+  m_exit_button = Button("Back",box,m_window,[this]()->void{this->close_game();},m_resources);
   m_window->present();
 }
 
@@ -248,6 +249,9 @@ void Game::get_input(){
         if (m_event.window.event == SDL_WINDOWEVENT_RESIZED){
           render_table();
           return;
+        }else if(m_event.window.event == SDL_WINDOWEVENT_CLOSE){
+         close_game();
+         return;
         }
         break;
       default:
