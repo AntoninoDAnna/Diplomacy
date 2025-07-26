@@ -197,7 +197,7 @@ void App::render_main_menu(){
   float menu_box_w = w/2.0, menu_box_h=h/15.0;
   float menu_x = w - menu_box_w*0.5;
   float my_profile_y = h-0.5*menu_box_h;
-  float h_off_set = 0.12;
+  float h_off_set = 0.15*h;
   // my profile box  
   SDL_Rect temp_box{
     static_cast<int>(menu_x),
@@ -212,7 +212,7 @@ void App::render_main_menu(){
                                std::cout << "My Profile" << std::endl;
                              },m_resources));
   // new game
-  temp_box.y = static_cast<int>(my_profile_y-h*h_off_set);
+  temp_box.y = static_cast<int>(my_profile_y-h_off_set);
   Text new_game{m_font,"New Game",BLACK,temp_box,m_window,m_resources};
   m_buttons.push_back(Button("New Game",temp_box,m_window,
                              [this]()->void {
@@ -222,7 +222,7 @@ void App::render_main_menu(){
                              }
                              ,m_resources));
   // your Games
-  temp_box.y = static_cast<int>(my_profile_y-h*2*h_off_set);
+  temp_box.y = static_cast<int>(my_profile_y-2*h_off_set);
   Text your_game{m_font,"Your Games",BLACK,temp_box,m_window,m_resources};
   m_buttons.push_back(Button("Your Games",temp_box,m_window,
                              [this]()->void {
@@ -231,7 +231,7 @@ void App::render_main_menu(){
                              },
                              m_resources));
   // statistic
-  temp_box.y = static_cast<int>(my_profile_y+h*h_off_set);
+  temp_box.y = static_cast<int>(my_profile_y+h_off_set);
   Text statistic{m_font,"Statistics",BLACK,temp_box,m_window,m_resources};
   m_buttons.push_back(Button("Statistics",temp_box,m_window,
                              [this]()->void {
@@ -239,7 +239,7 @@ void App::render_main_menu(){
                                std::cout << "Statistics" << std::endl;
                              },m_resources));
   // settings
-  temp_box.y = static_cast<int>(my_profile_y+h*2*h_off_set);
+  temp_box.y = static_cast<int>(my_profile_y+2*h_off_set);
   Text setting{m_font,"Settings",BLACK,temp_box,m_window,m_resources};
   m_buttons.push_back(Button("Settings",temp_box,m_window,
                              [this]()->void {
@@ -247,7 +247,7 @@ void App::render_main_menu(){
                                std::cout << "Settings" << std::endl;
                              },m_resources));
   // close
-  temp_box.y = static_cast<int>(my_profile_y+h*3*h_off_set);
+  temp_box.y = static_cast<int>(my_profile_y+3*h_off_set);
   Text close{m_font,"Exit",BLACK,temp_box,m_window,m_resources};
   m_exit_button= Button("Exit",temp_box,m_window,
                         [this]()->void {
@@ -267,17 +267,29 @@ void App::render_new_game(){
   m_window->set_render_draw_color(BACKGROUND);
   int w,h;
   m_window->get_window_center(w,h);
-  SDL_Rect box{w/2-100,h/2-50,200,100};
+  SDL_Rect Title_box{w/2,static_cast<int>(h*(0.25 - 1./14)),w,h/7};
+  Text title{m_font,"New Game",BLACK,Title_box,m_window,m_resources};
+  float menu_box_w = w/2.0, menu_box_h=h/15.0;
+  float menu_x = w - menu_box_w*0.5;
+  float menu_y = h-0.5*menu_box_h;
+  float h_off_set = 0.15*h;
+  // Centered box
+  SDL_Rect box{
+    static_cast<int>(menu_x),
+    static_cast<int>(menu_y),
+    static_cast<int>(menu_box_w),
+    static_cast<int>(menu_box_h)
+  };
   Text game{m_font,"Ancient Mediterrean",BLACK,box,m_window,m_resources};
   m_buttons.push_back(Button("Ancient Mediterrean",box,m_window,
                              [this]()->void {
                                this-> m_log << "Starting Ancient Mediterrean game"<< std::endl;
                                this-> start_game(Game_map::ANCIENT_MEDITERREAN);
                              },m_resources));
-  box.x=0;
-  box.y=0;
-  Text back{m_font, "BACK", BLACK,box,m_window,m_resources};
-  m_exit_button = Button("BACK",box,m_window,
+
+  box.y = static_cast<int>(menu_y + h_off_set) ;
+  Text back{m_font, "Back", BLACK,box,m_window,m_resources};
+  m_exit_button = Button("Back",box,m_window,
                          [this]()->void {
                            this->m_log << "Back button pressed"<< std::endl;
                            this-> m_next_scene=Scene_id::MAIN_MENU;
