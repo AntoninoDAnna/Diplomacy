@@ -95,31 +95,29 @@ void App::show_scene(){
     g_cshow--;
     return;
   }
-  if(m_next_scene != m_current_scene){
-    m_current_scene = m_next_scene;
-    switch (m_current_scene)
-      {
-      case Scene_id::MAIN_MENU :
-        m_log << "MAIN_MENU" << std::endl;
-        main_menu();
-        break;
-      case Scene_id::NEW_GAME:
-        m_log << "NEW_GAME" << std::endl;
-        new_game();
-        break;
-      case Scene_id::GAME:
-        m_log << "GAME" << std::endl;
-        break;
-      case Scene_id::NONE:
-        m_log << "Closing game" << std::endl;
-        close();
-        g_cshow--;
-        return;
-        break;
-      default:
-        break;
-      }
-  }
+  m_current_scene = m_next_scene;
+  switch (m_current_scene)
+    {
+    case Scene_id::MAIN_MENU :
+      m_log << "MAIN_MENU" << std::endl;
+      main_menu();
+      break;
+    case Scene_id::NEW_GAME:
+      m_log << "NEW_GAME" << std::endl;
+      new_game();
+      break;
+    case Scene_id::GAME:
+      m_log << "GAME" << std::endl;
+      break;
+    case Scene_id::NONE:
+      m_log << "Closing game" << std::endl;
+      close();
+      g_cshow--;
+      return;
+      break;
+    default:
+      break;
+    }
   get_input();
   g_cgetinput--;
   g_cshow--;
@@ -148,7 +146,10 @@ void App::get_input(){
       break;
     case SDL_WINDOWEVENT:
       if (m_event.window.event == SDL_WINDOWEVENT_RESIZED)
-      {} // show_scene();
+      {
+        std::cout << "resizing" <<std::endl;
+        return;
+      } // show_scene();
       else if(m_event.window.event ==SDL_WINDOWEVENT_CLOSE){
         close();
         return;
@@ -176,10 +177,9 @@ void App::render_main_menu(){
   m_log << "[App: render_main_menu] rendering main menu" << std::endl;
   reset();
   m_window->set_render_draw_color(BACKGROUND);
-
-  int w,h;
+  int w=0,h=0;
   m_window->get_window_center(w,h);
-
+  std::cout << "w = "<< w << " h = " << h <<std::endl;
   // title 
   SDL_Rect Title_box{w/4,static_cast<int>(h*(1./5 - 1./14)),w/2,h/7};
   Text title{m_font,TITLE,BLACK,Title_box,m_window,m_resources};
@@ -191,10 +191,8 @@ void App::render_main_menu(){
   // statistic
   // settings
   // close
-
   int menu_box_w = w/4,menu_box_h=h/30,menu_x = static_cast<int>(w*(0.5-0.125));
-  float my_profile_y = h*(1./2-1./20); 
-
+  float my_profile_y = h*(1./2-1./20);
   // my profile box  
   SDL_Rect temp_box{menu_x,static_cast<int>(my_profile_y),menu_box_w,menu_box_h};
   Text my_profile{m_font,"My Profile",BLACK,temp_box,m_window,m_resources};
@@ -213,7 +211,6 @@ void App::render_main_menu(){
                                this->show_scene();
                              }
                              ,m_resources));
-
   // your Games
   temp_box.y = static_cast<int>(my_profile_y-h*(0.12));
   Text your_game{m_font,"Your Games",BLACK,temp_box,m_window,m_resources};
