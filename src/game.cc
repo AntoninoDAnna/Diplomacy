@@ -201,17 +201,12 @@ void Game::render_table(){
   // width and height ratio needed to resize all the tiles
   double rw = static_cast<double>(w)/m_board_w;
   double rh = static_cast<double>(h)/m_board_h;
-  // for(auto [id,tile] :  m_table){
-  //   tile.render_region(m_r,m_resources,rw,rh,m_log);
-  //   m_buttons.push_back(tile.make_button(m_r,m_resources,rw,rh));
-  //   break;
-  // }
-  m_log << "[Game: render_table] rendering Alessandria tile"<< std::endl;
-  Region& tile = m_table.at(get_region_ID("ale"));//alessandria
-  tile.render_region(m_window,m_resources,rw,rh,m_log);
-  m_buttons.push_back(tile.make_button(m_window,m_resources,rw,rh));
 
-
+  for(auto& [id,tile] :  m_table){
+    m_log << "Rendering "<< tile.get_name() << std::endl;
+    tile.render_region(m_window,m_resources,rw,rh,m_log);
+    m_buttons.push_back(tile.make_button(m_window,m_resources,rw,rh));
+  }
 
   for(auto [id,country] : m_countries)
     m_log << country << std::endl;
@@ -241,9 +236,9 @@ void Game::get_input(){
         for(auto b : m_buttons){
           if(b.pressed(x,y)){
             b.action();
-            return;
           }
         }
+        return;
         break;
       case SDL_WINDOWEVENT:
         if (m_event.window.event == SDL_WINDOWEVENT_RESIZED){

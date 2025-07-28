@@ -19,8 +19,7 @@ Region::Region(const std::string& name,const std::string& abb, bool sc, bool lan
 
 }
 
-Region::~Region(){
-}
+Region::~Region(){}
 
 bool Region::operator==(const Region& r){
   return this->m_id == r.m_id;

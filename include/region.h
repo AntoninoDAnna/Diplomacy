@@ -89,5 +89,8 @@ Button Region::make_button(T window, R rm, double rw, double rh){
   static_assert(std::is_pointer_v<T> || Util::is_smart_pointer_v<T>, "Error: window must be a (smart) pointer");
   static_assert(std::is_pointer_v<R> || Util::is_smart_pointer_v<R>, "Error: resource manager must be a (smart) pointer");
   SDL_Rect box = rescale_box(rw,rh);
-  return Button(m_abbr,box,window,[]()-> void {std::cout <<"region" << std::endl;}, rm);
+  return Button(m_abbr,box,window,
+                [this]()-> void {
+                  std::cout <<this->get_name() << std::endl;
+                }, rm);
 }
