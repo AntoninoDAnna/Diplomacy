@@ -2,47 +2,43 @@ OBJECT_DIR= ../bin
 OBJ_DEBUG_DIR = ../bin/Debug
 H_DIR = ../include
 SRC_DIR = .
+IMG_DIR = ../imgui
 
-MAIN = main.cc
-TEST = test.cc
-TEST_APP = test_app.cc
-
-SRC_FILES = app.cc button.cc country.cc game.cc region.cc  unit.cc utilities.cc window.cc
-H_FILES = app.h button.h country.h game.h region.h resources_manager.h text.h  unit.h utilities.h window.h
+MAIN = main.cpp
 
 
-SRC = $(SRC_FILES:%.cc= $(SRC_DIR)/%.cc)
-HRS = $(H_FILES:%.h= $(H_DIR)/%.h)
-OBJ = $(SRC:%.cc= $(OBJECT_DIR)/%.o)
-DOBJ = $(SRC:%.cc= $(OBJ_DEBUG_DIR)/%.o)
+DYP_SRC = $(notdir $(wildcard $(SRC_DIR)/*.cc))
+IMG_SRC = $(notdir $(wildcard $(IMG_DIR)/*.cpp))
+
+SRC = $(DYP_SRC) $(IMG_SRC)
+
+DYP_H = $(wildcard $(H_DIR)*.h)
+IMG_H = $(wildcard $(IMG_DIR)/*.h)
+HRS   = $(DYP_H) $(IMG_H)
+
+DYP_OBJ = $(DYP_SRC:%.cc=$(OBJECT_DIR)/%.o)
+IMG_OBJ = $(IMG_SRC:%.cpp=$(OBJECT_DIR)/%.o)
+
+
 SDL_H = $(H_DIR)/libSDL2.a $(H_DIR)/libSDL2_image.a
 
-CXX = g++
-CFLAGS = -c
-LDFLAGS = -lm -std=c++20 -lSDL2 -lSDL2_image -lSDL2_ttf -O3 -Wall -Wextra -Wpedantic -O0 -finline-functions -funroll-loops  -fsanitize=address
+CXX     = g++
+CFLAGS  = -c
+LDFLAGS = -lm -std=c++20 -lSDL2 -lSDL2_image -lSDL2_ttf -Werror -Wall -Wextra -Wpedantic -fsanitize=address
 
-diplomacy.x: $(MAIN) $(OBJ) $(HRS) $(SDL_H)
-	$(CXX) $(LDFLAGS) $(MAIN) $(OBJ)  -o $@
+diplomacy.x: $(MAIN) $(DYP_OBJ) $(IMG_OBJ) $(HRS) $(SDL_H)
+	$(CXX) $(LDFLAGS) $(MAIN) $(DYP_OBJ) $(IMG_OBH)  -o $@
 
-test.x: $(TEST) $(OBJ) $(HRS) $(SDL_H)
-	$(CXX) $(LDFLAGS) $(TEST) $(OBJ)  -o $@
-
-app.x: $(TEST_APP) $(OBJ) $(HRS) 
-	$(CXX) $(LDFLAGS) $(TEST_APP) $(OBJ)   -o $@
-
-debug_test.x: $(TEST) $(DOBJ) $(HRS) $(SDL_H)
-	$(CXX) -g3 $(LDFLAGS) $(TEST) $(OBJ) $(HRS) $(SDL_H) -o $@ 
-
-debug_test_app.x: $(TEST_APP) $(DOBJ) $(HRS) $(SDL_H)
-	$(CXX) -g3 $(LDFLAGS) $(TEST_APP) $(OBJ) $(HRS) $(SDL_H) -o $@ 
-
-
-$(OBJ): $(OBJECT_DIR)/%.o: %.cc 
+$(DYP_OBJ): $(OBJECT_DIR)/%.o: %.cc
 	@if [ ! -d $(OBJECT_DIR) ]; then mkdir $(OBJECT_DIR); fi
 	$(CXX) $(CFLAGS) $(LDFLAGS)   $< -o $@
 
-$(DOBJ): $(OBJ_DEBUG_DIR)/%.o: %.cc 
-	$(CXX) -g3 $(CFLAGS) $(LDFLAGS) $< -o $@
+$(IMG_OBJ): $(OBJECT_DIR)/%.o: $(IMG_DIR)/%.cpp
+	@if [ ! -d $(OBJECT_DIR) ] ; then mkdir $(OBJECT_DIR); fi
+	$(CXX) $(CFLAGS) $(LDFLAGS)   $< -o $@
+
+test:
+	echo $(SRC) $(OBJ) $(HRS)
 
 fix:
 	sudo sysctl vm.mmap_rnd_bits=28
