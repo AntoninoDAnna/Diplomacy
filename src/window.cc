@@ -1,9 +1,9 @@
 #include "../include/window.h"
 
-void Window::init(std::ostream& log)
+void Window::init(SDL_WindowFlags wf, std::ostream& log)
 {
-  // SDL_CreateWindowAndRenderer(WIDTH*SCALE,HEIGHT*SCALE,0,&window,&renderer);
-  m_window = SDL_CreateWindow("Diplomacy",SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,m_WIDTH*m_SCALE,m_HEIGHT*m_SCALE,SDL_WINDOW_RESIZABLE);
+  m_wf = wf;
+  m_window = SDL_CreateWindow("Diplomacy",SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,m_WIDTH*m_SCALE,m_HEIGHT*m_SCALE,m_wf);
   if(m_window==NULL){
     std::cerr << "Error in creating window, aborting" << std::endl;
     log << SDL_GetError() << std::endl;
@@ -15,8 +15,20 @@ void Window::init(std::ostream& log)
     log << SDL_GetError() << std::endl;
     exit(EXIT_FAILURE);
   }
-
   SDL_RenderSetScale(m_renderer,m_SCALE,m_SCALE);
+
+  if(wf & SDL_WINDOW_OPENGL){
+    m_gl_context = SDL_GL_CreateContext(m_window);
+    if (m_gl_context == NULL){
+      std::cerr << "Error in creating OpenGL context, aborting " << std::endl;
+      log << SDL_GetError() <<std::endl;
+      exit(EXIT_FAILURE);
+      SDL_GL_MakeCurrent(m_window, m_gl_context);
+      SDL_GL_SetSwapInterval(1); // Enable vsync
+    }
+  }else{
+    log << "No OpenGL context requested"<< std::endl;
+  }
 }
 
 void Window::close(std::ostream& log ){
@@ -66,4 +78,12 @@ void Window::render_copy(SDL_Texture* t, const SDL_Rect* src, const SDL_Rect* ds
 
 SDL_Texture* Window::create_texture_from_surface(SDL_Surface *s){
   return SDL_CreateTextureFromSurface(m_renderer,s);
+}
+
+void Window::set_scale(int scale){
+  if(m_window != NULL){
+    std::cerr << "ERROR: Cannot set scale if window is already open" << std::endl;
+    exit(EXIT_FAILURE);
+  }
+  m_SCALE = scale;
 }

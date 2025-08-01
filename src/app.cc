@@ -1,13 +1,13 @@
 #include <iostream>
 #include <vector>
 #include <memory>
-#include "../include/app.h"
-#include "../include/button.h"
-#include "../include/text.h"
+#include "app.h"
+#include "button.h"
+#include "text.h"
 #include "SDL2/SDL_image.h"
 #include "SDL2/SDL_ttf.h"
-#include "../include/log.h"
-#include "../include/resources_manager.h"
+#include "log.h"
+#include "resources_manager.h"
 
 constexpr SDL_Color BACKGROUND{54,220,215,255};
 constexpr SDL_Color MENU_COLOR{54,121,220,255};
