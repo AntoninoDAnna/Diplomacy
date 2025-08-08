@@ -9,7 +9,6 @@ class Window{
  public:
   Window() = default;
   ~Window() = default;
-
   void close(std::ostream& log =std::cout );
   void get_window_center(int& x, int& y);
   void get_window_size(int& w, int& h);
@@ -21,6 +20,8 @@ class Window{
   void render_copy(SDL_Texture* t, const SDL_Rect* src, const SDL_Rect* dst,std::ostream& log = std::cout);
   SDL_Texture* create_texture_from_surface(SDL_Surface* S);
   void set_scale(int scale);
+  uint32_t get_window_id();
+  SDL_WindowFlags get_window_flags(){return m_wf;};
  private:
   SDL_Window *m_window = NULL;
   SDL_Renderer *m_renderer = NULL;
@@ -29,6 +30,12 @@ class Window{
   int m_WIDTH = 1280;
   int m_HEIGHT = 960;
   float m_SCALE = 1.0;
+
+#ifdef DEBUG
+  public:
+  void IMG_init_for_opengl(std::string& glsl_v);
+  void swap_window();
+#endif
 };
 
 

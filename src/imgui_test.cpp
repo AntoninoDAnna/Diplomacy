@@ -1,9 +1,9 @@
-#include "devel_tool.cc"
+#include "devel_tool.h"
 
 
 int main(int, char**){
-
-  Devel_app = devel_app;
+  App app;
+  Devel_app devel_app(app);
   devel_app.init();
   devel_app.start();
   return 0;

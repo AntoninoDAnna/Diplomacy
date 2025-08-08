@@ -22,7 +22,7 @@ Text::Text(TTF_Font* font, const std::string& text, const SDL_Color color, SDL_R
 text(text) {
 
   if(rm->haskey_texture(text)){
-    window->reader_copy(rm->get_texture(text),NULL,&box,log);
+    window->render_copy(rm->get_texture(text),NULL,&box,log);
     return;
   }
 

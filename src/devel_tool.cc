@@ -1,59 +1,50 @@
-//#include "devel_tool.h"
+#include "devel_tool.h"
 #include "app.h"
 #include "window.h"
 #include "imgui.h"
 #include "imgui_impl_sdl2.h"
-#include "imgui_impl_opengl2.h"
+#include "imgui_impl_opengl3.h"
 #include <stdio.h>
 #include <SDL.h>
 #include <SDL_opengl.h>
+#include <memory>
 
-class Devel_app{
-public:
-  Devel_app() = default;
-  ~Devel_app() = default;
-  void init();
-  void start();
-  void init_window();
-  void init_imgui();
-
-private:
-
-  App m_app;
-  Window m_window;
-};
+Devel_app::Devel_app(App &app) :
+  m_app(app){
+}
 
 void Devel_app::init(){
+  std::cout << "Devel_app::init()"<<std::endl;
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER) != 0)
     {
       printf("Error: %s\n", SDL_GetError());
-      return -1;
+      exit(EXIT_FAILURE);
     }
   // Decide GL+GLSL versions
 #if defined(IMGUI_IMPL_OPENGL_ES2)
   // GL ES 2.0 + GLSL 100 (WebGL 1.0)
-  const char* glsl_version = "#version 100";
+  m_glsl_version = "#version 100";
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 #elif defined(IMGUI_IMPL_OPENGL_ES3)
   // GL ES 3.0 + GLSL 300 es (WebGL 2.0)
-  const char* glsl_version = "#version 300 es";
+  m_glsl_version = "#version 300 es";
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 #elif defined(__APPLE__)
   // GL 3.2 Core + GLSL 150
-  const char* glsl_version = "#version 150";
+  m_glsl_version = "#version 150";
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG); // Always required on Mac
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
 #else
   // GL 3.0 + GLSL 130
-  const char* glsl_version = "#version 130";
+  m_glsl_version = "#version 130";
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
@@ -63,11 +54,14 @@ void Devel_app::init(){
 #ifdef SDL_HINT_IME_SHOW_UI
   SDL_SetHint(SDL_HINT_IME_SHOW_UI, "1");
 #endif
-  printf("glsl_version = %s", glsl_vesion);
+
+  /*===========================*/
+ std::cout << "glsl_version = " << m_glsl_version << std::endl;
 
 }
 
 void Devel_app::init_window(){
+  std::cout << "Devel_app::init_window()"<<std::endl;
   SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
   SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
   SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
@@ -78,23 +72,24 @@ void Devel_app::init_window(){
 }
 
 void Devel_app::init_imgui(){
+  std::cout << "Devel_app::init_imgui()"<< std::endl;
   // Setup Dear ImGui context
+  float main_scale = ImGui_ImplSDL2_GetContentScaleForDisplay(0);
   IMGUI_CHECKVERSION();
   ImGui::CreateContext();
-  ImGuiIO& io = ImGui::GetIO(); (void)io;
-  io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-  io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+  m_io = ImGui::GetIO();
+  (void)m_io;
+  m_io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+  m_io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
   // Setup Dear ImGui style
   ImGui::StyleColorsDark();
   //ImGui::StyleColorsLight();
   // Setup scaling
-  ImGuiStyle& style = ImGui::GetStyle();
-  style.ScaleAllSizes(main_scale);        // Bake a fixed style scale. (until we have a solution for dynamic style scaling, changing this requires resetting Style + calling this again)
-  style.FontScaleDpi = main_scale;        // Set initial font scale. (using io.ConfigDpiScaleFonts=true makes this unnecessary. We leave both here for documentation purpose)
+  m_style = ImGui::GetStyle();
+  m_style.ScaleAllSizes(main_scale);        // Bake a fixed style scale. (until we have a solution for dynamic style scaling, changing this requires resetting Style + calling this again)
+  m_style.FontScaleDpi = main_scale;        // Set initial font scale. (using io.ConfigDpiScaleFonts=true makes this unnecessary. We leave both here for documentation purpose)
   // Setup Platform/Renderer backends
-  ImGui_ImplSDL2_InitForOpenGL(window, gl_context);
-  ImGui_ImplOpenGL3_Init(glsl_version);
-
+  m_window.IMG_init_for_opengl(m_glsl_version);
   // Load Fonts
   // - If no fonts are loaded, dear imgui will use the default font. You can also load multiple fonts and use ImGui::PushFont()/PopFont() to select them.
   // - AddFontFromFileTTF() will return the ImFont* so you can store it if you need to select the font among multiple.
@@ -115,9 +110,9 @@ void Devel_app::init_imgui(){
 }
 
 void Devel_app::start(){
+  std::cout << "devel_app::start()"<<std::endl;
   init_window();
   init_imgui();
-
   // Our state
   bool show_demo_window = true;
   bool show_another_window = false;
@@ -138,17 +133,19 @@ void Devel_app::start(){
             ImGui_ImplSDL2_ProcessEvent(&event);
             if (event.type == SDL_QUIT)
               done = true;
-            if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE && event.window.windowID == SDL_GetWindowID(window))
+            if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE && event.window.windowID == m_window.get_window_id())
               done = true;
           }
-        if (SDL_GetWindowFlags(window) & SDL_WINDOW_MINIMIZED)
+        if (m_window.get_window_flags() & SDL_WINDOW_MINIMIZED)
           {
             SDL_Delay(10);
             continue;
           }
 
         // Start the Dear ImGui frame
+        std::cout << "yes" <<std::endl;
         ImGui_ImplOpenGL3_NewFrame();
+        std::cout << "yes" <<std::endl;
         ImGui_ImplSDL2_NewFrame();
         ImGui::NewFrame();
 
@@ -175,7 +172,7 @@ void Devel_app::start(){
           ImGui::SameLine();
           ImGui::Text("counter = %d", counter);
 
-          ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+          ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / m_io.Framerate, m_io.Framerate);
           ImGui::End();
         }
 
@@ -191,11 +188,11 @@ void Devel_app::start(){
 
         // Rendering
         ImGui::Render();
-        glViewport(0, 0, (int)io.DisplaySize.x, (int)io.DisplaySize.y);
+        glViewport(0, 0, (int)m_io.DisplaySize.x, (int)m_io.DisplaySize.y);
         glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
         glClear(GL_COLOR_BUFFER_BIT);
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-        SDL_GL_SwapWindow(window);
+        m_window.swap_window();
       }
 
   // Cleanup
@@ -203,7 +200,6 @@ void Devel_app::start(){
   ImGui_ImplSDL2_Shutdown();
   ImGui::DestroyContext();
 
-  SDL_GL_DeleteContext(gl_context);
-  SDL_DestroyWindow(window);
+  m_window.close();
   SDL_Quit();
 }

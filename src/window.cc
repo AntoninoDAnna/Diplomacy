@@ -1,4 +1,11 @@
 #include "../include/window.h"
+#include <SDL_opengl.h>
+
+#ifdef DEBUG
+#include "imgui.h"
+#include "imgui_impl_sdl2.h"
+#include "imgui_impl_opengl3.h"
+#endif
 
 void Window::init(SDL_WindowFlags wf, std::ostream& log)
 {
@@ -23,9 +30,10 @@ void Window::init(SDL_WindowFlags wf, std::ostream& log)
       std::cerr << "Error in creating OpenGL context, aborting " << std::endl;
       log << SDL_GetError() <<std::endl;
       exit(EXIT_FAILURE);
-      SDL_GL_MakeCurrent(m_window, m_gl_context);
-      SDL_GL_SetSwapInterval(1); // Enable vsync
     }
+    std::cout << "window::Init making context current"<<std::endl;
+    SDL_GL_MakeCurrent(m_window, m_gl_context);
+    SDL_GL_SetSwapInterval(1); // Enable vsync
   }else{
     log << "No OpenGL context requested"<< std::endl;
   }
@@ -39,6 +47,10 @@ void Window::close(std::ostream& log ){
   log << "[Window: close()] calling SDL_DestroyRenderer()"<< std::endl;
   SDL_DestroyRenderer(m_renderer);
   m_renderer = nullptr;
+
+  log << "[Window: close()] calling SDL_GL_DeleteContext()" << std::endl;
+  SDL_GL_DeleteContext(m_gl_context);
+  m_gl_context = nullptr;
 }
 void Window::get_window_center(int& x, int &y){
   int w,h;
@@ -87,3 +99,19 @@ void Window::set_scale(int scale){
   }
   m_SCALE = scale;
 }
+
+uint32_t Window::get_window_id(){
+  return SDL_GetWindowID(m_window);
+}
+
+
+#ifdef DEBUG
+void Window::IMG_init_for_opengl(std::string &glsl_v){
+  ImGui_ImplSDL2_InitForOpenGL(m_window,m_gl_context);
+  ImGui_ImplOpenGL3_Init(glsl_v.c_str());
+}
+
+void Window::swap_window(){
+  SDL_GL_SwapWindow(m_window);
+}
+#endif
