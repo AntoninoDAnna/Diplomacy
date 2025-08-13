@@ -14,15 +14,14 @@ DYP_SRC = 	$(SRC_DIR)/app.cc \
 			$(SRC_DIR)/region.cc \
 			$(SRC_DIR)/unit.cc \
 		  	$(SRC_DIR)/country.cc \
-			$(SRC_DIR)/utilities.cc
+			$(SRC_DIR)/utilities.cc \
+			$(SRC_DIR)/devel_tool.cc
 
 IMG_SRC = 	$(IMG_DIR)/imgui.cpp \
 			$(IMG_DIR)/imgui_demo.cpp \
 			$(IMG_DIR)/imgui_draw.cpp \
 			$(IMG_DIR)/imgui_tables.cpp \
 			$(IMG_DIR)/imgui_widgets.cpp
-
-DEV_SRC = $(SRC_DIR)/devel_tool.cc
 
 
 IMG_BCK_SRC =	$(IMG_DIR)/backends/imgui_impl_sdl2.cpp \
@@ -52,19 +51,17 @@ IMG_H = $(IMG_DIR)/imconfig.h \
 
 DYP_OBJ = $(addprefix $(OBJ_DIR)/, $(addsuffix .o, $(basename $(notdir $(DYP_SRC)))))
 IMG_OBJ = $(addprefix $(OBJ_DIR)/, $(addsuffix .o, $(basename $(notdir $(IMG_SRC)))))
-DEV_OBJ = $(addprefix $(OBJ_DIR)/, $(addsuffix .o, $(basename $(notdir $(DEV_SRC)))))
 IMG_BCK_OBJ =$(addprefix $(OBJ_DIR)/, $(addsuffix .o, $(basename $(notdir $(IMG_BCK_SRC)))))
 
 DYP_DEBUG_OBJ     = $(addprefix $(OBJ_DEBUG_DIR)/, $(addsuffix .o, $(basename $(notdir $(DYP_SRC)))))
 IMG_DEBUG_OBJ     = $(addprefix $(OBJ_DEBUG_DIR)/, $(addsuffix .o, $(basename $(notdir $(IMG_SRC)))))
-DEV_DEBUG_OBJ     = $(addprefix $(OBJ_DEBUG_DIR)/, $(addsuffix .o, $(basename $(notdir $(DEV_SRC)))))
 IMG_BCK_DEBUG_OBJ = $(addprefix $(OBJ_DEBUG_DIR)/, $(addsuffix .o, $(basename $(notdir $(IMG_BCK_SRC)))))
 
 
 LINUX_GL_LIBS = -lGL
 
 CXXFLAGS = -std=c++20 -I$(IMG_DIR) -I$(IMG_DIR)/backends -I$(H_DIR)
-CXXFLAGS += -g -Wall -Wformat -Werror
+CXXFLAGS += -g -Wall -Wformat -Werror -fsanitize=address
 LIBS =
 LIBS =$(LINUX_GL_LIBS) -ldl `sdl2-config --libs` -lSDL2_image -lSDL2_ttf
 CXXFLAGS += `sdl2-config --cflags`
@@ -81,20 +78,23 @@ $(OBJ_DIR)/%.o: $(IMG_DIR)/backends/%.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 $(OBJ_DEBUG_DIR)/%.o: $(SRC_DIR)/%.cc
-	$(CXX) -D DEBUG $(CXXFLAGS) -c -o $@ $<
+	$(CXX) -g -D DEBUG $(CXXFLAGS) -c -o $@ $<
 
 $(OBJ_DEBUG_DIR)/%.o: $(IMG_DIR)/%.cpp
-	$(CXX) -D DEBUG $(CXXFLAGS) -c -o $@ $<
+	$(CXX) -g -D DEBUG $(CXXFLAGS) -c -o $@ $<
 
 $(OBJ_DEBUG_DIR)/%.o: $(IMG_DIR)/backends/%.cpp
-	$(CXX) -D DEBUG $(CXXFLAGS) -c -o $@ $<
+	$(CXX) -g -D DEBUG $(CXXFLAGS) -c -o $@ $<
 
 
 diplomacy.x: $(MAIN) $(DYP_OBJ) $(IMG_OBJ) $(IMG_BCK_OBJ)
 	$(CXX) $(CXXFLAGS) $(MAIN) $(DYP_OBJ) $(IMG_OBJ) $(IMG_BCK_OBJ) $(LIBS) -o $@
 
+diplomacy_debug.x: $(MAIN) $(DYP_OBJ) $(IMG_OBJ) $(IMG_BCK_OBJ)
+	$(CXX) -g -D DEBUG $(CXXFLAGS) $(MAIN) $(DYP_OBJ) $(IMG_OBJ) $(IMG_BCK_OBJ) $(LIBS) -o $@
+
 imgui_test.x: $(TEST) $(DYP_DEBUG_OBJ) $(IMG_DEBUG_OBJ) $(IMG_BCK_DEBUG_OBJ) $(DEV_DEBUG_OBJ)
-	$(CXX) -D DEBUG $(CXXFLAGS) $(TEST) $(DYP_DEBUG_OBJ) $(IMG_DEBUG_OBJ) $(IMG_BCK_DEBUG_OBJ) $(DEV_DEBUG_OBJ) $(LIBS) -o $@
+	$(CXX) -g -D DEBUG $(CXXFLAGS) $(TEST) $(DYP_DEBUG_OBJ) $(IMG_DEBUG_OBJ) $(IMG_BCK_DEBUG_OBJ) $(DEV_DEBUG_OBJ) $(LIBS) -o $@
 
 
 fix:

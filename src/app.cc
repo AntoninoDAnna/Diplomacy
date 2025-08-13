@@ -39,7 +39,7 @@ void App::init(){
     m_log << "[App: start()]" << IMG_GetError() << std::endl;
     exit(EXIT_FAILURE);
   }
-  m_window->init();
+  m_window->init("DIPLOMACY");
   m_font = TTF_OpenFont("./fonts/chailce-noggin-font/ChailceNogginRegular.ttf",16 );
   if(m_font==NULL){
     std::cerr << "Error: Font not loaded. Aborting"<< std::endl;
@@ -49,6 +49,7 @@ void App::init(){
   m_log << "[App: start()] sharing pointers with game" << std::endl;
   m_game.set_pointers(m_window,m_resources);
   m_next_scene = Scene_id::MAIN_MENU;
+  dt.init();
 }
 
 void App::close(){

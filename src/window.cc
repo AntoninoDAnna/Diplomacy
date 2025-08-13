@@ -7,10 +7,11 @@
 #include "imgui_impl_opengl3.h"
 #endif
 
-void Window::init(SDL_WindowFlags wf, std::ostream& log)
+void Window::init(const char* title,SDL_WindowFlags wf,  std::ostream& log)
 {
   m_wf = wf;
-  m_window = SDL_CreateWindow("Diplomacy",SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,m_WIDTH*m_SCALE,m_HEIGHT*m_SCALE,m_wf);
+//  m_title = title;
+  m_window = SDL_CreateWindow(title,SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,m_WIDTH*m_SCALE,m_HEIGHT*m_SCALE,m_wf);
   if(m_window==NULL){
     std::cerr << "Error in creating window, aborting" << std::endl;
     log << SDL_GetError() << std::endl;
@@ -32,12 +33,11 @@ void Window::init(SDL_WindowFlags wf, std::ostream& log)
       exit(EXIT_FAILURE);
     }
     std::cout << "window::Init making context current"<<std::endl;
-    SDL_GL_MakeCurrent(m_window, m_gl_context);
-    SDL_GL_SetSwapInterval(1); // Enable vsync
   }else{
     log << "No OpenGL context requested"<< std::endl;
   }
 }
+
 
 void Window::close(std::ostream& log ){
   log << "[Window: close()]  calling SDL_DestroyWindow()" << std::endl;
@@ -104,11 +104,16 @@ uint32_t Window::get_window_id(){
   return SDL_GetWindowID(m_window);
 }
 
+void Window::make_current(){
+  SDL_GL_MakeCurrent(m_window, m_gl_context);
+  SDL_GL_SetSwapInterval(1); // Enable vsync
+}
 
 #ifdef DEBUG
-void Window::IMG_init_for_opengl(std::string &glsl_v){
-  ImGui_ImplSDL2_InitForOpenGL(m_window,m_gl_context);
-  ImGui_ImplOpenGL3_Init(glsl_v.c_str());
+void Window::IMG_init_for_opengl(const char* glsl_v){
+  ImGui_ImplSDL2_InitForOpenGL(m_window, m_gl_context);
+  ImGui_ImplOpenGL3_Init(glsl_v);
+
 }
 
 void Window::swap_window(){

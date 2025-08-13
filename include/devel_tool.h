@@ -1,25 +1,23 @@
 #pragma once
-#include "app.h"
 #include "window.h"
 #include "imgui.h"
 #include "imgui_impl_sdl2.h"
 #include "imgui_impl_opengl3.h"
-#include <string>
 #include <memory>
+#include <string>
 
-class Devel_app{
+class Devel_tool{
 public:
-  Devel_app(App &app);
-  ~Devel_app() = default;
+  Devel_tool()  = default;
+  ~Devel_tool() = default;
   void init();
-  void start();
   void init_window();
   void init_imgui();
+  void start();
 
 private:
-  App &m_app;
-  Window m_window;
+  bool do_display = false;
   std::string m_glsl_version;
-  ImGuiIO m_io;
-  ImGuiStyle m_style;
+  ImGuiStyle* style;
+  ImGuiIO* io;
 };

@@ -9,6 +9,7 @@
 #include "game.h"
 #include "globals.h"
 #include "window.h"
+#include "devel_tool.h"
 
 enum class Scene_id{NONE, MAIN_MENU, NEW_GAME,GAME};
 
@@ -65,4 +66,5 @@ private:
   std::shared_ptr<Resources_Manager> m_resources = std::make_shared<Resources_Manager>();
   std::fstream m_log;
   bool m_running = false;
+  Devel_tool dt;
 };

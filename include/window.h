@@ -13,7 +13,7 @@ class Window{
   void get_window_center(int& x, int& y);
   void get_window_size(int& w, int& h);
   void get_renderer_size(int &w, int &h);
-  void init(SDL_WindowFlags wf = static_cast<SDL_WindowFlags>( SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE), std::ostream& log=std::cout);
+  void init(const char* title,SDL_WindowFlags wf = static_cast<SDL_WindowFlags>( SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE), std::ostream& log=std::cout);
   void present();
   void reset_rendering(std::ostream& log = std::cout);
   void set_render_draw_color(SDL_Color C);
@@ -22,6 +22,10 @@ class Window{
   void set_scale(int scale);
   uint32_t get_window_id();
   SDL_WindowFlags get_window_flags(){return m_wf;};
+  SDL_Window* get_window(){return m_window;};
+  SDL_Renderer* get_renderer(){return m_renderer;};
+  SDL_GLContext get_glcontex(){return m_gl_context;};
+  void make_current();
  private:
   SDL_Window *m_window = NULL;
   SDL_Renderer *m_renderer = NULL;
@@ -30,10 +34,10 @@ class Window{
   int m_WIDTH = 1280;
   int m_HEIGHT = 960;
   float m_SCALE = 1.0;
-
+  char* m_title;
 #ifdef DEBUG
   public:
-  void IMG_init_for_opengl(std::string& glsl_v);
+  void IMG_init_for_opengl(const char* glsl_v);
   void swap_window();
 #endif
 };
