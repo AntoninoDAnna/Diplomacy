@@ -1,6 +1,6 @@
-#include "devel_tool.h"
-#include "app.h"
-#include "window.h"
+#include "devel_tool.hpp"
+#include "app.hpp"
+#include "window.hpp"
 #include "imgui.h"
 #include "imgui_impl_sdl2.h"
 #include "imgui_impl_opengl3.h"
@@ -12,13 +12,6 @@
 #define IMGUI_IMPL_OPENGL_ES3
 
 void Devel_tool::init(){
-  std::cout << "Devel tool: initializing..." << std::endl;
-  return;
-  if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER) != 0)
-    {
-      printf("Error: %s\n", SDL_GetError());
-      exit(EXIT_FAILURE);
-    }
   // Decide GL+GLSL versions
 #if defined(IMGUI_IMPL_OPENGL_ES2)
   // GL ES 2.0 + GLSL 100 (WebGL 1.0)
@@ -56,13 +49,13 @@ void Devel_tool::init(){
 }
 
 void Devel_tool::init_window(){
- //  // Create window with graphics context
- //  SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
- //  SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
- //  SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
- //  main_scale = ImGui_ImplSDL2_GetContentScaleForDisplay(0);
- //  SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
- //  m_window.init("Dear ImGui SDL2+OpenGL3 example", window_flags);
+  // Create window with graphics context
+  //SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+  //SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+  //SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+  //main_scale = ImGui_ImplSDL2_GetContentScaleForDisplay(0);
+  //SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
+  //m_window.init("Dear ImGui SDL2+OpenGL3 example", window_flags);
 }
 
 void Devel_tool::init_imgui(){

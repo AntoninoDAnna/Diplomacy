@@ -1,8 +1,8 @@
 #pragma once
 #include <string>
 #include <list>
-#include "globals.h"
-#include "unit.h"
+#include "globals.hpp"
+#include "unit.hpp"
 
 class Country{
 public:

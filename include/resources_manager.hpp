@@ -8,9 +8,9 @@
 #include <iostream>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
-#include "../include/log.h"
-#include "../include/globals.h"
-#include "../include/utilities.h"
+#include "log.hpp"
+#include "globals.hpp"
+#include "utilities.hpp"
 
 inline std::filesystem::path map_folder = "maps_info";
 inline std::filesystem::path img_folder = "Images";

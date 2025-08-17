@@ -3,9 +3,9 @@
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_image.h"
 #include "SDL2/SDL_ttf.h"
-#include "resources_manager.h"
-#include "window.h"
-#include "utilities.h"
+#include "resources_manager.hpp"
+#include "window.hpp"
+#include "utilities.hpp"
 #include <string>
 #include <memory>
 

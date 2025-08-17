@@ -4,15 +4,15 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <memory>
-#include "region.h"
+#include "region.hpp"
 #include "string"
 #include "fstream"
-#include "globals.h"
-#include "country.h"
-#include "unit.h"
-#include "button.h"
-#include "resources_manager.h"
-#include "window.h"
+#include "globals.hpp"
+#include "country.hpp"
+#include "unit.hpp"
+#include "button.hpp"
+#include "resources_manager.hpp"
+#include "window.hpp"
 #include <memory>
 
 class Game

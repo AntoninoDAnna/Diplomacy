@@ -1,5 +1,5 @@
 #pragma once
-#include "window.h"
+#include "window.hpp"
 #include "imgui.h"
 #include "imgui_impl_sdl2.h"
 #include "imgui_impl_opengl3.h"

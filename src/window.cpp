@@ -1,11 +1,10 @@
-#include "../include/window.h"
+#include "window.hpp"
 #include <SDL_opengl.h>
-
-#ifdef DEBUG
 #include "imgui.h"
 #include "imgui_impl_sdl2.h"
 #include "imgui_impl_opengl3.h"
-#endif
+
+
 
 void Window::init(const char* title,SDL_WindowFlags wf,  std::ostream& log)
 {

@@ -1,15 +1,15 @@
 #pragma once
 #include <fstream>
 #include <vector>
-#include <memory>   
-#include "button.h" 
+#include <memory>
+#include "button.hpp"
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_ttf.h"
-#include "resources_manager.h"
-#include "game.h"
-#include "globals.h"
-#include "window.h"
-#include "devel_tool.h"
+#include "resources_manager.hpp"
+#include "game.hpp"
+#include "globals.hpp"
+#include "window.hpp"
+#include "devel_tool.hpp"
 
 enum class Scene_id{NONE, MAIN_MENU, NEW_GAME,GAME};
 

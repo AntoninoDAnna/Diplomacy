@@ -5,8 +5,8 @@
 #include <functional>
 #include <memory>
 #include <string>
-#include "resources_manager.h"
-#include "window.h"
+#include "resources_manager.hpp"
+#include "window.hpp"
 
 template <class ReturnType,class... ArgsType>
 class _Button{

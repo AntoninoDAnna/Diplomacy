@@ -5,9 +5,9 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
-#include "globals.h"
-#include "button.h"
-#include "resources_manager.h"
+#include "globals.hpp"
+#include "button.hpp"
+#include "resources_manager.hpp"
 #include <SDL2/SDL.h>
 class Region{
 public:

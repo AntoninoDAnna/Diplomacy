@@ -1,7 +1,7 @@
-#include "../include/region.h"
-#include "../include/log.h"
-#include "../include/resources_manager.h"
-#include "../include/button.h"
+#include "region.hpp"
+#include "log.hpp"
+#include "resources_manager.hpp"
+#include "button.hpp"
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_image.h"
 #include <string>

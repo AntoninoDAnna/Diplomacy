@@ -1,21 +1,20 @@
 #include <iostream>
 #include <vector>
 #include <memory>
-#include "app.h"
-#include "button.h"
-#include "text.h"
-#include "SDL2/SDL_image.h"
-#include "SDL2/SDL_ttf.h"
-#include "log.h"
-#include "resources_manager.h"
+#include "app.hpp"
+#include "SDL_video.h"
+#include "button.hpp"
+#include "text.hpp"
+#include "sdl_wrap.hpp"
+#include "log.hpp"
+#include "resources_manager.hpp"
+#include "SDL2/SDL.h"
 
 constexpr SDL_Color BACKGROUND{54,220,215,255};
 constexpr SDL_Color MENU_COLOR{54,121,220,255};
 constexpr SDL_Color WHITE{255,255,255,255};
 constexpr SDL_Color BLACK{0,0,0,255};
 constexpr char TITLE[] = "BETRAYAL"; 
-int g_cshow = 0;
-int g_cgetinput = 0;
 
 void App::init(){
   m_log.open("../bin/log/logfile.log",std::ios_base::out);
@@ -23,22 +22,9 @@ void App::init(){
     std::cerr << "cannot open app log file. ABORTING"<<std::endl;
     exit(EXIT_FAILURE);
   }
-  m_log << "[App: start()] Opening log file"<< std::endl;
-  if(SDL_Init(SDL_INIT_VIDEO) <0) {
-    std::cerr <<"Error in initiating SDL, aborting" << std::endl;
-    m_log << "[App: start()]" << SDL_GetError()<< std::endl;
-    exit(EXIT_FAILURE);
-  }
-  if(TTF_Init() == -1){
-    std::cerr << "Error in initializing TTF, aborting"<< std::endl;
-    m_log << "[App: start()]" << TTF_GetError() << std::endl;
-    exit(EXIT_FAILURE);
-  };
-  if(IMG_Init(IMG_INIT_PNG) ==0){
-    std::cerr << "Error in initializing PNG, aborting"<< std::endl;
-    m_log << "[App: start()]" << IMG_GetError() << std::endl;
-    exit(EXIT_FAILURE);
-  }
+  m_log << "[App: start()] Opening log file" << std::endl;
+  SDL_WindowFlags flag = static_cast<SDL_WindowFlags>(SDL_INIT_VIDEO | SDL_INIT_TIMER);
+  init_SDL(flag);
   m_window->init("DIPLOMACY");
   m_font = TTF_OpenFont("./fonts/chailce-noggin-font/ChailceNogginRegular.ttf",16 );
   if(m_font==NULL){
@@ -65,8 +51,6 @@ void App::close(){
   m_scenes_stack.clear();
   m_next_scene = Scene_id::NONE;
   m_log << "[App: close()] scenes stack cleared" << std::endl;
-  std::cout << "g_cshow     = " << g_cshow << std::endl;
-  std::cout << "g_cgetinput = " << g_cgetinput << std::endl;
   if(m_log.is_open()){
     m_log << "[App: close()] Closing log file"<< std::endl;
     //m_log.close();
@@ -78,13 +62,13 @@ void App::open(){
   m_running = true;
   /* running is set to false when App::close() is called. usually within a call of show_scene() */
   while(m_running){
+
     show_scene();
   }
 
 }
 
 void App::show_scene(){
-  g_cshow++;
   m_log << "[App: show_scene()] Current scene" << m_current_scene<< std::endl;
   m_log << "[App: show_scene()] Next scene   " << m_next_scene << std::endl;
   if (m_current_scene == m_next_scene)
@@ -93,7 +77,6 @@ void App::show_scene(){
     m_log << "[App: show_scene()] Rendering scene: " << m_next_scene << std::endl;
   if(m_next_scene ==Scene_id::NONE){
     close();
-    g_cshow--;
     return;
   }
   m_current_scene = m_next_scene;
@@ -113,19 +96,15 @@ void App::show_scene(){
     case Scene_id::NONE:
       m_log << "Closing game" << std::endl;
       close();
-      g_cshow--;
-      return;
+          return;
       break;
     default:
       break;
     }
   get_input();
-  g_cgetinput--;
-  g_cshow--;
 }
 
 void App::get_input(){
-  g_cgetinput++;
   m_log << "[App: get_input()] Getting input" << std::endl;
   while(SDL_WaitEvent(&m_event)){
     switch (m_event.type)

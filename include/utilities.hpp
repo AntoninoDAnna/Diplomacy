@@ -2,7 +2,7 @@
 
 #include <filesystem>
 #include <vector>
-#include "globals.h"
+#include "globals.hpp"
 /* 
   parse a tile txt file. the file is a representation in '0' '1' '2' of the tile's pixels.
   it is better to make a png file of the tile and the generate the txt file automatically with
