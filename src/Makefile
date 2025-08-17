@@ -16,7 +16,8 @@ DYP_SRC = 	$(SRC_DIR)/app.cpp \
 		  	$(SRC_DIR)/country.cpp \
 			$(SRC_DIR)/utilities.cpp \
 			$(SRC_DIR)/devel_tool.cpp \
-			$(SRC_DIR)/sdl_wrap.cpp
+			$(SRC_DIR)/sdl_wrap.cpp \
+			$(SRC_DIR)/log.cpp
 
 IMG_SRC = 	$(IMG_DIR)/imgui.cpp \
 			$(IMG_DIR)/imgui_demo.cpp \

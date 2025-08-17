@@ -1,6 +1,5 @@
 #ifndef LOG_HPP_
 #define LOG_HPP_
-#include <iostream>
 #include <fstream>
 #include <string>
 

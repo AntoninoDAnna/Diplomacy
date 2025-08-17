@@ -1,14 +1,15 @@
-#include <iostream>
 #include "button.hpp"
-#include "SDL2/SDL.h"
-#include "SDL2/SDL_image.h"
-#include "log.hpp"
 #include "resources_manager.hpp"
-template <class ReturnType, class... ArgsType>
-_Button<ReturnType,ArgsType...>::_Button(const std::string& key, SDL_Rect& rect, std::shared_ptr<Window>& w, std::function<ReturnType(ArgsType...)> action, std::shared_ptr<Resources_Manager>& rm) :
-  action(action), m_texture_key(key), m_rect(rect){
+#include <memory>
 
-  w->render_copy(rm->get_texture(key),NULL,&m_rect,LOG);
+template <class ReturnType, class... ArgsType>
+_Button<ReturnType, ArgsType...>::_Button(
+    const std::string &key, SDL_Rect &rect, std::shared_ptr<Window> &w,
+    std::function<ReturnType(ArgsType...)> action,
+    std::shared_ptr<Resources_Manager> &rm)
+  : action(action), m_texture_key(key), m_rect(rect){
+
+  w->render_copy(rm->get_texture(key),NULL,&m_rect);
 }
 
 

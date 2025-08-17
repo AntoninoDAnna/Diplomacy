@@ -34,13 +34,13 @@ public:
   void set_neighbors(const std::list<ID>& neigbors_id);
 
   template <class T,class R>
-  void set_region_on_map(int x, int y, int w, int h, T window,R rm, std::ostream &log = std::cout);
+  void set_region_on_map(int x, int y, int w, int h, T window,R rm);
   /* 
    * render the region rescaling the box to the window size. 
    * rw and rh are the scaling factor respectively for width and heigh.  
    */
   template <class T, class R>
-  void render_region(T r, R rm,double rw, double rh,std::ostream &log = std::cout);
+  void render_region(T r, R rm,double rw, double rh);
 
   template <class T, class R>
   Button make_button(T r,R rm,double rw, double rh);
@@ -66,22 +66,22 @@ private:
 
 
 template <class T,class R>
-void Region::set_region_on_map(int x, int y, int w, int h,T window,R rm, std::ostream &log){
+void Region::set_region_on_map(int x, int y, int w, int h,T window,R rm){
   static_assert(std::is_pointer_v<T> || Util::is_smart_pointer_v<T>, "Error: window must be a (smart) pointer");
   static_assert(std::is_pointer_v<R> || Util::is_smart_pointer_v<R>, "Error: resource manager must be a (smart) pointer");
   region_box.x =x;
   region_box.y = y;
   region_box.w = w;
   region_box.h = h;
-  rm->replace_texture(m_abbr,rm->get_file(m_abbr),window, log);
+  rm->replace_texture(m_abbr,rm->get_file(m_abbr),window);
 }
 
 template <class T, class R>
-void Region::render_region(T window,R rm, double rw, double rh,std::ostream&log){
+void Region::render_region(T window,R rm, double rw, double rh){
   static_assert(std::is_pointer_v<T> || Util::is_smart_pointer_v<T>, "Error: window must be a (smart) pointer");
   static_assert(std::is_pointer_v<R> || Util::is_smart_pointer_v<R>, "Error: resource manager must be a (smart) pointer");
   SDL_Rect box = rescale_box(rw,rh);
-  window->render_copy(rm->get_texture(m_abbr,log),NULL,&box);
+  window->render_copy(rm->get_texture(m_abbr),NULL,&box);
 }
 
 template <class T, class R>

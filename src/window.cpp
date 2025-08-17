@@ -1,25 +1,25 @@
 #include "window.hpp"
 #include <SDL_opengl.h>
+#include "log.hpp"
 #include "imgui.h"
 #include "imgui_impl_sdl2.h"
 #include "imgui_impl_opengl3.h"
 
 
-
-void Window::init(const char* title,SDL_WindowFlags wf,  std::ostream& log)
+void Window::init(const char* title,SDL_WindowFlags wf)
 {
   m_wf = wf;
 //  m_title = title;
   m_window = SDL_CreateWindow(title,SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,m_WIDTH*m_SCALE,m_HEIGHT*m_SCALE,m_wf);
   if(m_window==NULL){
     std::cerr << "Error in creating window, aborting" << std::endl;
-    log << SDL_GetError() << std::endl;
+    LOGL(SDL_GetError());
     exit(EXIT_FAILURE);
   }
   m_renderer =SDL_CreateRenderer(m_window,1,0);
   if(m_renderer==NULL){
     std::cerr << "Error in creating renderer, aborting" << std::endl;
-    log << SDL_GetError() << std::endl;
+    LOGL(SDL_GetError())
     exit(EXIT_FAILURE);
   }
   SDL_RenderSetScale(m_renderer,m_SCALE,m_SCALE);
@@ -28,26 +28,26 @@ void Window::init(const char* title,SDL_WindowFlags wf,  std::ostream& log)
     m_gl_context = SDL_GL_CreateContext(m_window);
     if (m_gl_context == NULL){
       std::cerr << "Error in creating OpenGL context, aborting " << std::endl;
-      log << SDL_GetError() <<std::endl;
+      LOGL(SDL_GetError());
       exit(EXIT_FAILURE);
     }
     std::cout << "window::Init making context current"<<std::endl;
   }else{
-    log << "No OpenGL context requested"<< std::endl;
+    LOGL("No OpenGL context requested")
   }
 }
 
 
-void Window::close(std::ostream& log ){
-  log << "[Window: close()]  calling SDL_DestroyWindow()" << std::endl;
+void Window::close(){
+  LOGL("[Window: close()]  calling SDL_DestroyWindow()");
   SDL_DestroyWindow(m_window);
   m_window=nullptr;
 
-  log << "[Window: close()] calling SDL_DestroyRenderer()"<< std::endl;
+  LOGL("[Window: close()] calling SDL_DestroyRenderer()");
   SDL_DestroyRenderer(m_renderer);
   m_renderer = nullptr;
 
-  log << "[Window: close()] calling SDL_GL_DeleteContext()" << std::endl;
+  LOGL("[Window: close()] calling SDL_GL_DeleteContext()");
   SDL_GL_DeleteContext(m_gl_context);
   m_gl_context = nullptr;
 }
@@ -67,9 +67,9 @@ void Window::present(){
   SDL_RenderPresent(m_renderer);
 }
 
-void Window::reset_rendering(std::ostream& log){
+void Window::reset_rendering(){
   if(SDL_RenderClear(m_renderer)<0)
-    log << SDL_GetError() << std::endl;
+    LOGL(SDL_GetError());
 }
 
 void Window::get_window_size(int &w, int &h){
@@ -81,9 +81,9 @@ void Window::get_renderer_size(int& w, int& h){
 }
 
 
-void Window::render_copy(SDL_Texture* t, const SDL_Rect* src, const SDL_Rect* dst,std::ostream& log){
+void Window::render_copy(SDL_Texture* t, const SDL_Rect* src, const SDL_Rect* dst){
   if(SDL_RenderCopy(m_renderer,t,src,dst)!=0)
-    log << SDL_GetError()<< std::endl;
+    LOGL(SDL_GetError());
 
 }
 

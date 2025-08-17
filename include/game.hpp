@@ -27,6 +27,7 @@ public:
   void set_font(TTF_Font* f){m_font =f;}
   void get_input();
   void set_pointers(std::shared_ptr<Window>& w, std::shared_ptr<Resources_Manager> &r);
+
 private:
   void read_map(const std::filesystem::path& filename);
   ID get_region_ID(const std::string & abb);
@@ -38,7 +39,6 @@ private:
   std::shared_ptr<Window> m_window = nullptr;
   std::shared_ptr<Resources_Manager> m_resources = nullptr;
   TTF_Font *m_font = nullptr;
-  std::fstream m_log;
   SDL_Event m_event;
   std::vector<Button> m_buttons;
   Button m_exit_button;
