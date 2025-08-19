@@ -78,7 +78,7 @@ ID Game::get_region_ID(const std::string& abb){
 }
 
 void Game::read_map(const std::filesystem::path& filename){
-  LOGL("[Game: read_map()] reading map in path %s", filename);
+  LOGL("[Game: read_map()] reading map in path %s", filename.string());
   std::ifstream file(filename,std::ios::in);
   int n_tile;
   file >> n_tile;  
@@ -115,7 +115,7 @@ void Game::read_map(const std::filesystem::path& filename){
     current_R->set_neighbors(neighbors);
     neighbors.clear();
   }
-  LOGL("[Game: read_map()] All neighbors set")
+  LOGL("[Game: read_map()] All neighbors set");
   // read the Country
   int n_country;
   file >> n_country;
@@ -187,12 +187,12 @@ void Game::render_table(){
   double rh = static_cast<double>(h)/m_board_h;
 
   for(auto& [id,tile] :  m_table){
-    LOGL("Rendering %s", tile.get_name())
+    LOGL("Rendering %s", tile.get_name());
     tile.render_region(m_window,m_resources,rw,rh);
     m_buttons.push_back(tile.make_button(m_window,m_resources,rw,rh));
   }
 
-  for(auto [id,country] : m_countries) LOGL(country);
+  for(auto [id,country] : m_countries) LOGL(country.string());
 
   //for(auto [id,unit] : m_units) LOGL(unit);
 

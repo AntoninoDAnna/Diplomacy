@@ -8,6 +8,7 @@
 #include <SDL.h>
 #include <SDL_opengl.h>
 #include <memory>
+#include "log.hpp"
 
 #define IMGUI_IMPL_OPENGL_ES3
 
@@ -46,6 +47,7 @@ void Devel_tool::init(){
 #ifdef SDL_HINT_IME_SHOW_UI
   SDL_SetHint(SDL_HINT_IME_SHOW_UI, "1");
 #endif
+  LOGL("glsl version {}", m_glsl_version);
 }
 
 void Devel_tool::init_window(){

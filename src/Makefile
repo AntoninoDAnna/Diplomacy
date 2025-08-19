@@ -17,7 +17,7 @@ DYP_SRC = 	$(SRC_DIR)/app.cpp \
 			$(SRC_DIR)/utilities.cpp \
 			$(SRC_DIR)/devel_tool.cpp \
 			$(SRC_DIR)/sdl_wrap.cpp \
-			$(SRC_DIR)/log.cpp
+			$(SRC_DIR)/color.cpp
 
 IMG_SRC = 	$(IMG_DIR)/imgui.cpp \
 			$(IMG_DIR)/imgui_demo.cpp \
@@ -92,8 +92,8 @@ $(OBJ_DEBUG_DIR)/%.o: $(IMG_DIR)/backends/%.cpp
 diplomacy.x: $(MAIN) $(DYP_OBJ) $(IMG_OBJ) $(IMG_BCK_OBJ)
 	$(CXX) $(CXXFLAGS) $(MAIN) $(DYP_OBJ) $(IMG_OBJ) $(IMG_BCK_OBJ) $(LIBS) -o $@
 
-diplomacy_debug.x: $(MAIN) $(DYP_OBJ) $(IMG_OBJ) $(IMG_BCK_OBJ)
-	$(CXX) -g -D DEBUG $(CXXFLAGS) $(MAIN) $(DYP_OBJ) $(IMG_OBJ) $(IMG_BCK_OBJ) $(LIBS) -o $@
+diplomacy_debug.x: $(MAIN) $(DYP_DEBUG_OBJ) $(IMG_DEBUG_OBJ) $(IMG_BCK_DEBUG_OBJ)
+	$(CXX) -g -D DEBUG $(CXXFLAGS) $(MAIN) $(DYP_DEBUG_OBJ) $(IMG_DEBUG_OBJ) $(IMG_BCK_DEBUG_OBJ) $(LIBS) -o $@
 
 imgui_test.x: $(TEST) $(DYP_DEBUG_OBJ) $(IMG_DEBUG_OBJ) $(IMG_BCK_DEBUG_OBJ) $(DEV_DEBUG_OBJ)
 	$(CXX) -g -D DEBUG $(CXXFLAGS) $(TEST) $(DYP_DEBUG_OBJ) $(IMG_DEBUG_OBJ) $(IMG_BCK_DEBUG_OBJ) $(DEV_DEBUG_OBJ) $(LIBS) -o $@

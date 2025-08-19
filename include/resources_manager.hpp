@@ -8,6 +8,7 @@
 #include <iostream>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <format>
 #include "log.hpp"
 #include "globals.hpp"
 #include "utilities.hpp"
@@ -91,24 +92,24 @@ inline Resources_Manager::~Resources_Manager(){
 
 inline void Resources_Manager::add_file(const std::string& key, const std::filesystem::path& filename){
   if(haskey_file(key)){
-    LOGL("Resource Manager error: file %s already exist, cannot override",keys);
+    LOGL("Resource Manager error: file {} already exist, cannot override",key);
     return;
   }
   if(!std::filesystem::is_regular_file(filename)){
-    LOGL("Resource Manager error: file %s not found: cannot save",filename);
+    LOGL("Resource Manager error: file {} not found: cannot save",filename.string());
     return;
   }
   m_files[key] = filename;
-  LOGL("[Resorce Manager] file %s added", filename);
+  LOGL("[Resorce Manager] file {} added", filename.string());
 }
 
 inline void Resources_Manager::replace_file(const std::string& key, const std::filesystem::path& filename){
   if(!std::filesystem::is_regular_file(filename)){
-    LOGL("Resource Manager error: file %s not found: cannot save",filename);
+    LOGL("Resource Manager error: file {} not found: cannot save",filename.string());
     return;
   }
   m_files[key]=filename;
-  LOGL("[Resorce Manager] file %s added", filename);
+  LOGL("[Resorce Manager] file {} added", filename.string());
 
 }
 
@@ -117,13 +118,13 @@ inline void Resources_Manager::remove_file(const std::string& key){
     return;
   auto it = m_files.find(key);
   m_files.erase(it);
-  LOGL("[Resource Manger]: removed file  at key %s ", key);
+  LOGL("[Resource Manger]: removed file  at key {} ", key);
 }
 
 
 inline std::filesystem::path Resources_Manager::get_file(const std::string& key){
   if (!haskey_file(key)) {
-    LOGL("[Resource Manager]: file %s is not in resource manager", key);
+    LOGL("[Resource Manager]: file {} is not in resource manager", key);
     exit(EXIT_FAILURE);
   }
   return m_files.at(key);
@@ -131,7 +132,7 @@ inline std::filesystem::path Resources_Manager::get_file(const std::string& key)
 
 inline SDL_Texture* Resources_Manager::get_texture(const std::string& key){
   if (!haskey_texture(key)) {
-    LOGL("[Resource Manager]: texture %s is not in resource manager",s);
+    LOGL("[Resource Manager]: texture {} is not in resource manager",key);
     exit(EXIT_FAILURE);
   }
   return m_textures.at(key);
@@ -140,7 +141,7 @@ inline SDL_Texture* Resources_Manager::get_texture(const std::string& key){
 
 inline void Resources_Manager::add_texture(const std::string& key, SDL_Texture* t){
   if (haskey_texture(key)) {
-    LOGL("[Resource Manager]: texture %s already exists. Aborting",key);
+    LOGL("[Resource Manager]: texture {} already exists. Aborting",key);
     exit(EXIT_FAILURE);
   }
   m_textures[key] = t;
@@ -154,18 +155,18 @@ template <class T>
 inline void Resources_Manager::add_texture(const std::string& key,SDL_Surface* s, T& window){
   static_assert(std::is_pointer_v<T> || Util::is_smart_pointer_v<T>, "Error: window must be a (smart) pointer");
   if(haskey_texture(key)){
-    LOGL("[Resource Manager]: texture %s already exists. Aborting",key);
+    LOGL("[Resource Manager]: texture {} already exists. Aborting",key);
     exit(EXIT_FAILURE);
   }
   _add(key,window->create_texture_from_surface(s));
-  LOGL("[Resource Manager]: Added texture %s", key);
+  LOGL("[Resource Manager]: Added texture {}", key);
 }
 
 template <class T>
 inline void Resources_Manager::add_texture(const std::string& key, const std::filesystem::path& filename,T& window){
   static_assert(std::is_pointer_v<T> || Util::is_smart_pointer_v<T>, "Error: window must be a (smart) pointer");
   if(haskey_texture(key)){
-    LOGL("[Resource Manager]: texture %s already exists. Aborting",key);
+    LOGL("[Resource Manager]: texture {} already exists. Aborting",key);
     exit(EXIT_FAILURE);
   }
   SDL_Surface* s = IMG_Load(filename.c_str());
@@ -175,7 +176,7 @@ inline void Resources_Manager::add_texture(const std::string& key, const std::fi
   }
   _add(key,window->create_texture_from_surface(s));
   SDL_FreeSurface(s);
-  LOGL("[Resource Manager]: Added texture %s", key);
+  LOGL("[Resource Manager]: Added texture {}", key);
 }
 
 inline void Resources_Manager::replace_texture(const std::string& key, SDL_Texture* t){
@@ -183,7 +184,7 @@ inline void Resources_Manager::replace_texture(const std::string& key, SDL_Textu
     SDL_DestroyTexture(m_textures.at(key));
   }
   _add(key,t);
-  LOGL("[Resource Manages]: Replaced texture %s", key);
+  LOGL("[Resource Manages]: Replaced texture {}", key);
 }
 
 template <class T>

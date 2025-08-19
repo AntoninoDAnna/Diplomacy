@@ -10,29 +10,7 @@
 #include "globals.hpp"
 #include "window.hpp"
 #include "devel_tool.hpp"
-
-enum class Scene_id{NONE, MAIN_MENU, NEW_GAME,GAME};
-
-inline std::ostream& operator<<(std::ostream& os, Scene_id s){
-  switch(s){
-  case Scene_id::NONE :
-    os << "NONE";
-    break;
-  case Scene_id::MAIN_MENU :
-    os << "MAIN MENU";
-    break;
-  case Scene_id::NEW_GAME :
-    os << "NEW GAME";
-    break;
-  case Scene_id::GAME :
-    os << "GAME";
-    break;
-  default:
-    os << "NOT KNOWN";
-    break;
-  }
-  return os;
-}
+#include "scenes.hpp"
 
 
 class App{

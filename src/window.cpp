@@ -19,7 +19,7 @@ void Window::init(const char* title,SDL_WindowFlags wf)
   m_renderer =SDL_CreateRenderer(m_window,1,0);
   if(m_renderer==NULL){
     std::cerr << "Error in creating renderer, aborting" << std::endl;
-    LOGL(SDL_GetError())
+    LOGL(SDL_GetError());
     exit(EXIT_FAILURE);
   }
   SDL_RenderSetScale(m_renderer,m_SCALE,m_SCALE);
@@ -33,7 +33,7 @@ void Window::init(const char* title,SDL_WindowFlags wf)
     }
     std::cout << "window::Init making context current"<<std::endl;
   }else{
-    LOGL("No OpenGL context requested")
+    LOGL("No OpenGL context requested");
   }
 }
 
