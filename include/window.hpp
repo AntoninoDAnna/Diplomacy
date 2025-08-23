@@ -18,8 +18,8 @@ public:
     WINDOW_MAXIMIZED,
   };
 public:
-  Window() = default;
-  ~Window() = default;
+  Window()=default;
+  ~Window();
 
 
   SDL_Texture* create_texture_from_surface(SDL_Surface* S);

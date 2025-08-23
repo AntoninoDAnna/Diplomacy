@@ -12,6 +12,11 @@ SDL_Texture* Window::create_texture_from_surface(SDL_Surface *s){
   return SDL_CreateTextureFromSurface(m_renderer,s);
 }
 
+Window::~Window() {
+  if (m_open)
+    close();
+}
+
 void Window::close() {
   make_current();
   ImGui_ImplOpenGL3_Shutdown();
@@ -21,6 +26,7 @@ void Window::close() {
   destroy_sdl_renderer();
   destroy_sdl_gl_context();
   m_open = false;
+
 }
 
 void Window::get_renderer_size(int &w, int &h) {
@@ -141,7 +147,6 @@ void Window::init(const char* title,SDL_WindowFlags wf)
   m_open = true;
   m_mouse_focus = true;
   m_keybord_focus = true;
-
 }
 
 void Window::make_current(){
@@ -156,13 +161,17 @@ void Window::minimize() {
 
   SDL_MinimizeWindow(m_window);
   m_minimized = true;
+  m_shown = false;
+  m_keybord_focus = false;
+  m_mouse_focus = false;
+  m_full_screen = false;
 }
 
 void Window::present() { SDL_RenderPresent(m_renderer); }
 
 void Window::render_copy(SDL_Texture* t, const SDL_Rect* src, const SDL_Rect* dst){
   if(SDL_RenderCopy(m_renderer,t,src,dst)!=0)
-    LOGL("y()] Error while render_copy in window {}: {}", m_title,SDL_GetError());
+    LOGL(" Error while render_copy in window {}: {}", m_title,SDL_GetError());
 }
 
 void Window::reset_rendering(){
