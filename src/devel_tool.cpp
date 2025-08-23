@@ -1,5 +1,6 @@
 #include "devel_tool.hpp"
 #include "SDL_keyboard.h"
+#include "SDL_stdinc.h"
 #include "SDL_video.h"
 #include "imgui.h"
 #include "imgui_impl_sdl2.h"
@@ -16,6 +17,8 @@ Devel_tool::~Devel_tool() {
 }
 
 void Devel_tool::close() {
+  if (m_window == nullptr)
+    return;
   if(m_window->is_open())
     m_window->close();
 
@@ -52,7 +55,12 @@ void Devel_tool::init(){
   //IM_ASSERT(font != nullptr);
   // Our state
 void Devel_tool::show() {
-  m_window->restore();
+  if (m_window == nullptr) {
+    init();
+  }
+  if(m_window->is_minimized())
+    m_window->restore();
+
   m_window->make_current();
   ImGui_ImplOpenGL3_NewFrame();
   ImGui_ImplSDL2_NewFrame();
@@ -118,6 +126,14 @@ void Devel_tool::init_window() {
   m_window->init("Developer's Tools", window_flags);
   m_window->set_scale(main_scale);
   m_window->minimize();
+}
+
+Uint32 Devel_tool::get_window_id() {
+  if (m_window == nullptr)
+    return 0;
+  if (!m_window->is_open())
+    return 0;
+  return m_window->get_window_id();
 }
 
 void Devel_tool::init_imgui() {

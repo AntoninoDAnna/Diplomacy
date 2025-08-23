@@ -18,6 +18,8 @@ Window::~Window() {
 }
 
 void Window::close() {
+  if (!m_open)
+    return;
   make_current();
   ImGui_ImplOpenGL3_Shutdown();
   ImGui_ImplSDL2_Shutdown();
@@ -171,7 +173,7 @@ void Window::present() { SDL_RenderPresent(m_renderer); }
 
 void Window::render_copy(SDL_Texture* t, const SDL_Rect* src, const SDL_Rect* dst){
   if(SDL_RenderCopy(m_renderer,t,src,dst)!=0)
-    LOGL(" Error while render_copy in window {}: {}", m_title,SDL_GetError());
+    LOGL("Error while render_copy in window {}: {}", m_title,SDL_GetError());
 }
 
 void Window::reset_rendering(){
@@ -180,9 +182,12 @@ void Window::reset_rendering(){
 }
 
 void Window::restore() {
-  if(!m_minimized) return;
   SDL_RestoreWindow(m_window);
+  present();
   m_minimized = false;
+  m_shown = true;
+  m_mouse_focus = true;
+  m_keybord_focus = true;
 }
 
 void Window::set_render_draw_color(SDL_Color c){

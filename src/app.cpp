@@ -29,8 +29,7 @@ void App::init() {
   LOGL("Sharing pointers with game");
   m_game.set_pointers(m_window,m_resources);
   m_next_scene = Scene_id::MAIN_MENU;
-  //dt.share_window(m_window);
-  dt.init();
+  //dt.init();
 }
 
 void App::close(){
@@ -53,17 +52,18 @@ void App::open(){
   m_running = true;
   /* running is set to false when App::close() is called. usually within a call of show_scene() */
   while (m_running) {
+    while (SDL_PollEvent(&m_event)) {
+      if (m_event.window.windowID == m_window->get_window_id())
+        handle_event();
+      else if (m_event.window.windowID == m_window->get_window_id())
+        dt.handle_event(m_event);
+    }
+
     // render windows
-    if (dt_open)  dt.show();
     show_scene();
 
-    while (SDL_PollEvent(&m_event)) {
-      if( m_event.window.windowID == m_window->get_window_id()){
-        handle_event();
-      }
-      else if (m_event.window.windowID == dt.get_window_id()) {
-        dt.handle_event(m_event);
-      }
+    if (dt_open) {
+      dt.show();
     }
   }
 }
@@ -89,6 +89,7 @@ void App::show_scene(){
       new_game();
       break;
     case Scene_id::GAME:
+      m_game.render_table();
       break;
     case Scene_id::NONE:
       return;
@@ -276,6 +277,4 @@ void App::render_new_game(){
 void App::start_game(Game_map game){
   LOGL("Starting game");
   m_game.start(game);
-  LOGL("Game ended");
-  m_next_scene = Scene_id::NEW_GAME;
 }
