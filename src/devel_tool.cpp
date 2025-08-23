@@ -156,7 +156,7 @@ void Devel_tool::handle_event(SDL_Event &event) {
       close();
       break;
     case Window::Window_Message::WINDOW_OPENED:
-      if (!m_window->is_shown())
+      if (!m_window->is_open())
         init();
       show();
       break;
