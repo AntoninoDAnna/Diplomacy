@@ -35,12 +35,13 @@ void App::init() {
 
 void App::close(){
   m_running = false;
-  LOGL("Closing app");
   reset();
   LOGL("Closing font");
   TTF_CloseFont(m_font);
   LOGL("Closing window");
   m_window->close();
+  LOGL("Closing Developer's tools");
+  dt.close();
   LOGL("Calling SDL_Quit()");
   SDL_Quit();
   m_scenes_stack.clear();
@@ -68,20 +69,16 @@ void App::open(){
 }
 
 void App::show_scene(){
-  LOGL("[Current scene {}", scene2str(m_current_scene));
-  LOGL("[Next scene {}", scene2str(m_next_scene));
-  if (m_current_scene == m_next_scene)
-    LOGL("No need to update the rendering");
-  else
-    LOGL("Rendering scene: {}", scene2str(m_next_scene));
+  if(m_next_scene !=m_current_scene )
+    LOGL("Rendering scene {}",scene2str(m_next_scene));
 
   if(m_next_scene ==Scene_id::NONE){
+    LOGL("Closing app");
     close();
     return;
   }
   m_current_scene = m_next_scene;
 
-  LOGL(scene2str(m_current_scene));
 
   switch (m_current_scene)
     {
@@ -94,9 +91,7 @@ void App::show_scene(){
     case Scene_id::GAME:
       break;
     case Scene_id::NONE:
-      LOGL("Closing game");
-      close();
-          return;
+      return;
       break;
     default:
       break;
@@ -104,7 +99,6 @@ void App::show_scene(){
 }
 
 void App::handle_event() {
-  LOGL("Handeling event");
   if (m_current_scene == Scene_id::GAME){
     m_game.handle_event(m_event);
     return;
@@ -149,18 +143,15 @@ void App::handle_event() {
 }
 
 void App::reset(){
-  LOGL("Resetting window");
   m_buttons.clear();
   m_window->reset_rendering();
 }
 
 void App::main_menu(){
   render_main_menu();
-  LOGL("Main menu renderered");
 }
 
 void App::render_main_menu(){
-  LOGL("Rendering main menu");
   reset();
   m_window->set_render_draw_color(get_color(Color::BACKGROUND));
   int w=0,h=0;
@@ -248,7 +239,6 @@ void App::new_game(){
 }
 
 void App::render_new_game(){
-  LOGL("Rendering new game screen");
   reset();
   m_window->set_render_draw_color(get_color(Color::BACKGROUND));
   int w,h;

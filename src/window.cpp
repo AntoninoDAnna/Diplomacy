@@ -20,6 +20,7 @@ void Window::close() {
   destroy_sdl_window();
   destroy_sdl_renderer();
   destroy_sdl_gl_context();
+  m_open = false;
 }
 
 void Window::get_renderer_size(int &w, int &h) {
@@ -136,6 +137,10 @@ void Window::init(const char* title,SDL_WindowFlags wf)
   create_sdl_gl_context();
   m_minimized = false;
   m_full_screen = false;
+  m_shown = true;
+  m_open = true;
+  m_mouse_focus = true;
+  m_keybord_focus = true;
 
 }
 
@@ -179,7 +184,7 @@ void Window::set_render_draw_color(SDL_Color c){
 void Window::set_scale(float scale){
   m_scale = scale <=0 ? 1.0 : scale;
   if(SDL_RenderSetScale(m_renderer,m_scale,m_scale) !=0)
-    LOGL("le()] Error in setting the scale in window {}: {}", m_title, SDL_GetError());
+    LOGL("Error in setting the scale in window {}: {}", m_title, SDL_GetError());
 }
 
 void Window::swap_window() { SDL_GL_SwapWindow(m_window); }

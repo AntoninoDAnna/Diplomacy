@@ -38,7 +38,9 @@ public:
   void init(const char *title,
             SDL_WindowFlags wf = static_cast<SDL_WindowFlags>(
                 SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE));
-  bool is_minimized(){return m_minimized;};
+  bool is_minimized() { return m_minimized; };
+  bool is_shown() { return m_shown; };
+  bool is_open(){return m_open;};
   void make_current();
   void minimize();
   void present();
@@ -70,18 +72,19 @@ private:
   std::string m_title;
 
   // window position
-  int m_x,m_y;
+  int m_x=0,m_y=0;
   // window dimensions
   int m_width = 1280;
   int m_height = 960;
   float m_scale = 1.0;
 
   //window focus
-  bool m_mouse_focus;
-  bool m_keybord_focus;
-  bool m_full_screen;
-  bool m_minimized;
-  bool m_shown;
+  bool m_mouse_focus = false;
+  bool m_keybord_focus = false;
+  bool m_full_screen = false;
+  bool m_minimized = false;
+  bool m_shown =false;
+  bool m_open = false;;
 
   // GLSL version
   std::string m_glsl_version{};

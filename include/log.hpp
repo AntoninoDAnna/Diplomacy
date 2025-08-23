@@ -47,26 +47,26 @@ inline Logging::~Logging() {
 
 template <class... Args>
 inline void Logging::log(std::source_location src, std::format_string<Args...> fmt, Args &&...args){
-  Log << std::format("[{},{}] {}", src.file_name(), src.function_name(),
+  Log << std::format("[{}: {}] {}", src.file_name(), src.function_name(),
                      std::format(fmt, std::forward<Args>(args)...)
                      );
 };
 
 inline void Logging::log(std::source_location src,const std::string &text) {
-  Log << std::format("[{},{}] {}", src.file_name(), src.function_name(),
+  Log << std::format("[{}: {}] {}", src.file_name(), src.function_name(),
                      text
                      );
 }
 
 template <class... Args>
 inline void Logging::log_line(std::source_location src,std::format_string<Args...> fmt, Args &&...args){
-  Log << std::format("[{},{}] {}", src.file_name(), src.function_name(),
+  Log << std::format("[{}: {}] {}", src.file_name(), src.function_name(),
                      std::format(fmt, std::forward<Args>(args)...)
                      ) << std::endl;
 }
 
 inline void Logging::log_line(std::source_location src,const std::string &text) {
-  Log << std::format("[{},{}] {}", src.file_name(), src.function_name(),
+  Log << std::format("[{}: {}] {}", src.file_name(), src.function_name(),
                      text
                      ) << std::endl;
 }

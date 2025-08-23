@@ -15,6 +15,7 @@ public:
   void init_window();
   void init_imgui();
   void show();
+  void hide();
   void close();
   void handle_event(SDL_Event&);
   Uint32 get_window_id () const {return m_window->get_window_id();};

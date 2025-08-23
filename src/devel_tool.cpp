@@ -8,10 +8,16 @@
 #include <SDL_opengl.h>
 #include <memory>
 #include "log.hpp"
+#include "window.hpp"
 
 
 Devel_tool::~Devel_tool() {
-  m_window->close();
+  close();
+}
+
+void Devel_tool::close() {
+  if(m_window->is_open())
+    m_window->close();
 
 }
 
@@ -94,8 +100,11 @@ void Devel_tool::show() {
   m_window->swap_window();
 }
 
-void Devel_tool::close() {
+void Devel_tool::hide() {
   m_window->minimize();
+  if (!m_window->is_minimized())
+    LOGL("Window is not minimized");
+
 }
 
 void Devel_tool::init_window() {
@@ -106,8 +115,8 @@ void Devel_tool::init_window() {
   SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
   float main_scale = ImGui_ImplSDL2_GetContentScaleForDisplay(0);
   SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
-  m_window->set_scale(main_scale);
   m_window->init("Developer's Tools", window_flags);
+  m_window->set_scale(main_scale);
   m_window->minimize();
 }
 
@@ -132,17 +141,29 @@ void Devel_tool::init_imgui() {
 
 void Devel_tool::handle_event(SDL_Event &event) {
   const Uint8 *key_state;
+  Window::Window_Message m;
   switch (event.type) {
   case SDL_WINDOWEVENT:
-    switch (event.window.event) {
-    case SDL_WINDOWEVENT_CLOSE:
-      m_window->close();
+    m = m_window->handle_window_event(event);
+    switch (m) {
+    case Window::Window_Message::WINDOW_MINIMIZED:
+      hide();
+      break;
+    case Window::Window_Message::WINDOW_MAXIMIZED:
+      show();
+      break;
+    case Window::Window_Message::WINDOW_CLOSED:
       close();
       break;
-    default:
+    case Window::Window_Message::WINDOW_OPENED:
+      if (!m_window->is_shown())
+        init();
+      show();
+      break;
+    case Window::Window_Message::NONE:
       break;
     }
-    break;
+    return;
   case SDL_KEYDOWN:
     key_state = SDL_GetKeyboardState(nullptr);
     if ((key_state[SDL_SCANCODE_LCTRL] || key_state[SDL_SCANCODE_RCTRL]) &&
