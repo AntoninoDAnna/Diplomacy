@@ -10,6 +10,10 @@
 #include "log.hpp"
 
 
+Devel_tool::~Devel_tool() {
+  m_window->close();
+
+}
 
 void Devel_tool::init(){
   init_window();
@@ -48,7 +52,6 @@ void Devel_tool::show() {
   ImGui_ImplSDL2_NewFrame();
   ImGui::NewFrame();
   ImGui::ShowDemoWindow(&show_demo_window);
-  std::cout << "ok 1" << std::endl;
 
   {
     static float f = 0.0f;
@@ -89,11 +92,10 @@ void Devel_tool::show() {
   glClear(GL_COLOR_BUFFER_BIT);
   ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
   m_window->swap_window();
-  std::cout << "Opening developer's tools" << std::endl;
 }
 
 void Devel_tool::close() {
-  std::cout << "Closing developer's tools" << std::endl;
+  m_window->minimize();
 }
 
 void Devel_tool::init_window() {
@@ -103,7 +105,6 @@ void Devel_tool::init_window() {
   SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
   SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
   float main_scale = ImGui_ImplSDL2_GetContentScaleForDisplay(0);
-  std::cout << "main scale" << main_scale << std::endl;
   SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
   m_window->set_scale(main_scale);
   m_window->init("Developer's Tools", window_flags);
@@ -114,7 +115,6 @@ void Devel_tool::init_imgui() {
   float main_scale = 0.0;
   int w=0,h=0;
   m_window->get_window_size(&w, &h, &main_scale);
-  std::cout << "ok1" << std::endl;
   m_window->make_current();
   io = &ImGui::GetIO();
   IMGUI_CHECKVERSION();

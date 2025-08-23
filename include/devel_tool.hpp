@@ -10,7 +10,7 @@
 class Devel_tool{
 public:
   Devel_tool()  = default;
-  ~Devel_tool() = default;
+  ~Devel_tool();
   void init();
   void init_window();
   void init_imgui();

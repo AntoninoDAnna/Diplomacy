@@ -12,7 +12,11 @@ SDL_Texture* Window::create_texture_from_surface(SDL_Surface *s){
   return SDL_CreateTextureFromSurface(m_renderer,s);
 }
 
-void Window::close(){
+void Window::close() {
+  make_current();
+  ImGui_ImplOpenGL3_Shutdown();
+  ImGui_ImplSDL2_Shutdown();
+  ImGui::DestroyContext();
   destroy_sdl_window();
   destroy_sdl_renderer();
   destroy_sdl_gl_context();
