@@ -3,8 +3,8 @@
 #include <format>
 #include "app.hpp"
 #include "color.hpp"
-#include "SDL_video.h"
 #include "button.hpp"
+#include "imgui_impl_opengl2.h"
 #include "text.hpp"
 #include "sdl_wrap.hpp"
 #include "log.hpp"
@@ -16,53 +16,64 @@
 constexpr char TITLE[] = "BETRAYAL";
 
 void App::init() {
+  LOGL("Initializing App");
   SDL_WindowFlags flag = static_cast<SDL_WindowFlags>(SDL_INIT_VIDEO | SDL_INIT_TIMER);
   init_SDL(flag);
+  LOGL("Initiliazing openGL3");
   m_window->init("DIPLOMACY");
   m_font = TTF_OpenFont("./fonts/chailce-noggin-font/ChailceNogginRegular.ttf",16 );
   if(m_font==NULL){
-    std::cerr << "Error: Font not loaded. Aborting"<< std::endl;
-    LOGL("[App: init()] %s",TTF_GetError());
+    LOGL("Error: Font not loaded: {}",TTF_GetError());
     exit(EXIT_FAILURE);
   }
-  LOGL("[App: init()] sharing pointers with game");
+  LOGL("Sharing pointers with game");
   m_game.set_pointers(m_window,m_resources);
   m_next_scene = Scene_id::MAIN_MENU;
+  //dt.share_window(m_window);
   dt.init();
 }
 
 void App::close(){
   m_running = false;
-  LOGL("[App: close()] closing app");
+  LOGL("Closing app");
   reset();
-  LOGL("[App: close()] closing font");
+  LOGL("Closing font");
   TTF_CloseFont(m_font);
-  LOGL("[App: close()] closing window");
+  LOGL("Closing window");
   m_window->close();
-  LOGL("[App: close()] calling SDL_Quit()");
+  LOGL("Calling SDL_Quit()");
   SDL_Quit();
   m_scenes_stack.clear();
   m_next_scene = Scene_id::NONE;
-  LOGL("[App: close()] scenes stack cleared");
+  LOGL("Scenes stack cleared");
 }
 
 void App::open(){
   m_running = true;
   /* running is set to false when App::close() is called. usually within a call of show_scene() */
-  while(m_running){
-
+  while (m_running) {
+    // render windows
+    if (dt_open)  dt.show();
     show_scene();
-  }
 
+    while (SDL_PollEvent(&m_event)) {
+      if( m_event.window.windowID == m_window->get_window_id()){
+        handle_event();
+      }
+      else if (m_event.window.windowID == dt.get_window_id()) {
+        dt.handle_event(m_event);
+      }
+    }
+  }
 }
 
 void App::show_scene(){
-  LOGL("[App: show_scene()] Current scene {}", scene2str(m_current_scene));
-  LOGL("[App: show_scene()] Next scene {}", scene2str(m_next_scene));
+  LOGL("[Current scene {}", scene2str(m_current_scene));
+  LOGL("[Next scene {}", scene2str(m_next_scene));
   if (m_current_scene == m_next_scene)
-    LOGL("[App: show_scene()] No need to update the rendering");
+    LOGL("No need to update the rendering");
   else
-    LOGL("[App: show_scene()] Rendering scene: {}", scene2str(m_next_scene));
+    LOGL("Rendering scene: {}", scene2str(m_next_scene));
 
   if(m_next_scene ==Scene_id::NONE){
     close();
@@ -90,19 +101,23 @@ void App::show_scene(){
     default:
       break;
     }
-  get_input();
 }
 
-void App::get_input(){
-  LOGL("[App: get_input()] Getting input");
-  while(SDL_WaitEvent(&m_event)){
-    switch (m_event.type)
+void App::handle_event() {
+  LOGL("Handeling event");
+  if (m_current_scene == Scene_id::GAME){
+    m_game.handle_event(m_event);
+    return;
+  }
+  const Uint8 *key_state;
+  Window::Window_Message wm = Window::Window_Message::NONE;
+  switch (m_event.type)
     {
     case SDL_MOUSEBUTTONDOWN:
       int x,y;
       SDL_GetMouseState(&x,&y);
       if(m_exit_button.pressed(x,y)){
-        LOGL("[App: get_input()] exit button pressed");
+        LOGL("Exit button pressed");
         m_exit_button.action();
         return;
       }
@@ -114,43 +129,46 @@ void App::get_input(){
       }
       break;
     case SDL_WINDOWEVENT:
-      if (m_event.window.event == SDL_WINDOWEVENT_RESIZED)
-      {
+      wm = m_window->handle_window_event(m_event);
+      if (wm == Window::Window_Message::WINDOW_CLOSED)
+        m_next_scene = Scene_id::NONE;
+    case SDL_KEYDOWN:
+      key_state = SDL_GetKeyboardState(nullptr);
+      if ((key_state[SDL_SCANCODE_LCTRL] || key_state[SDL_SCANCODE_RCTRL]) &&
+          key_state[SDL_SCANCODE_Q]) {
+        m_next_scene = Scene_id::NONE;
         return;
-      } // show_scene();
-      else if(m_event.window.event ==SDL_WINDOWEVENT_CLOSE){
-        close();
+      } else if((key_state[SDL_SCANCODE_LCTRL]||key_state[SDL_SCANCODE_RCTRL]) & key_state[SDL_SCANCODE_D]){
+        dt_open = !dt_open;
         return;
       }
       break;
     default:
       break;
-    }
-  }
+        }
 }
 
-
 void App::reset(){
-  LOGL("[App: reset()] resetting window");
+  LOGL("Resetting window");
   m_buttons.clear();
   m_window->reset_rendering();
 }
 
 void App::main_menu(){
   render_main_menu();
-  LOGL("[App: main_menu()] main menu renderered");
+  LOGL("Main menu renderered");
 }
 
 void App::render_main_menu(){
-  LOGL("[App: render_main_menu] rendering main menu");
+  LOGL("Rendering main menu");
   reset();
   m_window->set_render_draw_color(get_color(Color::BACKGROUND));
   int w=0,h=0;
   m_window->get_window_center(w,h);
-  
+  SDL_Color black = get_color(Color::BLACK);
   // title 
   SDL_Rect Title_box{w/2,static_cast<int>(h*(0.25 - 1./14)),w,h/7};
-  Text title{m_font,TITLE,get_color(Color::BLACK),Title_box,m_window,m_resources};
+  Text title{m_font,TITLE,black,Title_box,m_window,m_resources};
   /*
   // menu parameter/
        your games
@@ -230,7 +248,7 @@ void App::new_game(){
 }
 
 void App::render_new_game(){
-  LOGL("[App: render_new_game] rendering new game screen");
+  LOGL("Rendering new game screen");
   reset();
   m_window->set_render_draw_color(get_color(Color::BACKGROUND));
   int w,h;
@@ -266,8 +284,8 @@ void App::render_new_game(){
 }
 
 void App::start_game(Game_map game){
-  LOGL("[App: start_game()] starting game");
+  LOGL("Starting game");
   m_game.start(game);
-  LOGL("[App: start_game()] game ended");
+  LOGL("Game ended");
   m_next_scene = Scene_id::NEW_GAME;
 }

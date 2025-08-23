@@ -61,10 +61,6 @@ void Game::start(Game_map& game){
   m_resources->replace_texture(g_MAP,m_resources->get_file(g_MAP),m_window);
   read_map(m_resources->get_file(m_gamename));
   render_table();
-  m_running = true;
-  while(m_running){
-    get_input();
-  }
 }
 
 ID Game::get_region_ID(const std::string& abb){
@@ -203,37 +199,34 @@ void Game::render_table(){
   m_window->present();
 }
 
-void Game::get_input(){
+void Game::handle_event(SDL_Event& event){
   LOGL("[Game: get_input()] Inside game input");
-  while(SDL_WaitEvent(&m_event)){
-    switch (m_event.type)
-      {
-      case SDL_MOUSEBUTTONDOWN:
-        int x,y;
-        SDL_GetMouseState(&x,&y);
-        if(m_exit_button.pressed(x,y)){
-          close_game();
-          return ;
-        }
-        for(auto b : m_buttons){
-          if(b.pressed(x,y)){
-            b.action();
-          }
-        }
-        return;
-        break;
-      case SDL_WINDOWEVENT:
-        if (m_event.window.event == SDL_WINDOWEVENT_RESIZED){
-          render_table();
-          return;
-        }else if(m_event.window.event == SDL_WINDOWEVENT_CLOSE){
-         close_game();
-         return;
-        }
-        break;
-      default:
-        break;
+  switch (event.type)
+    {
+    case SDL_MOUSEBUTTONDOWN:
+      int x,y;
+      SDL_GetMouseState(&x,&y);
+      if(m_exit_button.pressed(x,y)){
+        close_game();
+        return ;
       }
-  }
-  return ;
-};
+      for(auto b : m_buttons){
+        if(b.pressed(x,y)){
+          b.action();
+        }
+      }
+      return;
+      break;
+    case SDL_WINDOWEVENT:
+      if (event.window.event == SDL_WINDOWEVENT_RESIZED){
+        render_table();
+        return;
+      }else if(event.window.event == SDL_WINDOWEVENT_CLOSE){
+        close_game();
+        return;
+      }
+      break;
+    default:
+      break;
+    }
+}

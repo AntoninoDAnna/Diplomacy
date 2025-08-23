@@ -59,6 +59,8 @@ DYP_DEBUG_OBJ     = $(addprefix $(OBJ_DEBUG_DIR)/, $(addsuffix .o, $(basename $(
 IMG_DEBUG_OBJ     = $(addprefix $(OBJ_DEBUG_DIR)/, $(addsuffix .o, $(basename $(notdir $(IMG_SRC)))))
 IMG_BCK_DEBUG_OBJ = $(addprefix $(OBJ_DEBUG_DIR)/, $(addsuffix .o, $(basename $(notdir $(IMG_BCK_SRC)))))
 
+IMG_IMPL = -DIMGUI_IMPL_OPENGL_ES3
+
 
 LINUX_GL_LIBS = -lGL
 
@@ -71,32 +73,32 @@ CFLAGS = $(CXXFLAGS)
 CXX = g++
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
+	$(CXX) $(IMG_IMPL) $(CXXFLAGS) -c -o $@ $<
 
 $(OBJ_DIR)/%.o: $(IMG_DIR)/%.cpp
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
+	$(CXX) $(IMG_IMPL) $(CXXFLAGS) -c -o $@ $<
 
 $(OBJ_DIR)/%.o: $(IMG_DIR)/backends/%.cpp
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
+	$(CXX) $(IMG_IMPL) $(CXXFLAGS) -c -o $@ $<
 
 $(OBJ_DEBUG_DIR)/%.o: $(SRC_DIR)/%.cpp
-	$(CXX) -g -D DEBUG $(CXXFLAGS) -c -o $@ $<
+	$(CXX) -g -DDEBUG $(IMG_IMPL) $(CXXFLAGS) -c -o $@ $<
 
 $(OBJ_DEBUG_DIR)/%.o: $(IMG_DIR)/%.cpp
-	$(CXX) -g -D DEBUG $(CXXFLAGS) -c -o $@ $<
+	$(CXX) -g -DDEBUG $(IMG_IMPL) $(CXXFLAGS) -c -o $@ $<
 
 $(OBJ_DEBUG_DIR)/%.o: $(IMG_DIR)/backends/%.cpp
-	$(CXX) -g -D DEBUG $(CXXFLAGS) -c -o $@ $<
+	$(CXX) -g -DDEBUG $(IMG_IMPL) $(CXXFLAGS) -c -o $@ $<
 
 
 diplomacy.x: $(MAIN) $(DYP_OBJ) $(IMG_OBJ) $(IMG_BCK_OBJ)
-	$(CXX) $(CXXFLAGS) $(MAIN) $(DYP_OBJ) $(IMG_OBJ) $(IMG_BCK_OBJ) $(LIBS) -o $@
+	$(CXX) $(IMG_IMPL) $(CXXFLAGS) $(MAIN) $(DYP_OBJ) $(IMG_OBJ) $(IMG_BCK_OBJ) $(LIBS) -o $@
 
 diplomacy_debug.x: $(MAIN) $(DYP_DEBUG_OBJ) $(IMG_DEBUG_OBJ) $(IMG_BCK_DEBUG_OBJ)
-	$(CXX) -g -D DEBUG $(CXXFLAGS) $(MAIN) $(DYP_DEBUG_OBJ) $(IMG_DEBUG_OBJ) $(IMG_BCK_DEBUG_OBJ) $(LIBS) -o $@
+	$(CXX) -g -DDEBUG $(IMG_IMPL) $(CXXFLAGS) $(MAIN) $(DYP_DEBUG_OBJ) $(IMG_DEBUG_OBJ) $(IMG_BCK_DEBUG_OBJ) $(LIBS) -o $@
 
 imgui_test.x: $(TEST) $(DYP_DEBUG_OBJ) $(IMG_DEBUG_OBJ) $(IMG_BCK_DEBUG_OBJ) $(DEV_DEBUG_OBJ)
-	$(CXX) -g -D DEBUG $(CXXFLAGS) $(TEST) $(DYP_DEBUG_OBJ) $(IMG_DEBUG_OBJ) $(IMG_BCK_DEBUG_OBJ) $(DEV_DEBUG_OBJ) $(LIBS) -o $@
+	$(CXX) -g -DDEBUG $(IMG_IMPL) $(CXXFLAGS) $(TEST) $(DYP_DEBUG_OBJ) $(IMG_DEBUG_OBJ) $(IMG_BCK_DEBUG_OBJ) $(DEV_DEBUG_OBJ) $(LIBS) -o $@
 
 
 fix:

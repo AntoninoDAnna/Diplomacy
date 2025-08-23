@@ -21,8 +21,10 @@ public:
   void init();
   void close();
   void open();
+
 private:
-  void get_input();
+  void handle_event();
+  void get_event();
   void main_menu();
   void reset();
   void render_main_menu();
@@ -44,4 +46,5 @@ private:
   std::shared_ptr<Resources_Manager> m_resources = std::make_shared<Resources_Manager>();
   bool m_running = false;
   Devel_tool dt;
+  bool dt_open = false;
 };

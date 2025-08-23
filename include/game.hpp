@@ -6,7 +6,6 @@
 #include <memory>
 #include "region.hpp"
 #include "string"
-#include "fstream"
 #include "globals.hpp"
 #include "country.hpp"
 #include "unit.hpp"
@@ -25,7 +24,7 @@ public:
   void render_table();
   Region* get_region(ID id){return &m_table.at(id);}
   void set_font(TTF_Font* f){m_font =f;}
-  void get_input();
+  void handle_event(SDL_Event&);
   void set_pointers(std::shared_ptr<Window>& w, std::shared_ptr<Resources_Manager> &r);
 
 private:
@@ -39,7 +38,6 @@ private:
   std::shared_ptr<Window> m_window = nullptr;
   std::shared_ptr<Resources_Manager> m_resources = nullptr;
   TTF_Font *m_font = nullptr;
-  SDL_Event m_event;
   std::vector<Button> m_buttons;
   Button m_exit_button;
   bool m_running = false;

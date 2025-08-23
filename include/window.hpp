@@ -4,42 +4,87 @@
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_opengl.h"
 #include <iostream>
+#include "imgui_impl_opengl3.h"
+#include "imgui_impl_sdl2.h"
 
 class Window{
- public:
+
+public:
+  enum class Window_Message {
+    NONE,
+    WINDOW_OPENED,
+    WINDOW_CLOSED,
+    WINDOW_MINIMIZED,
+    WINDOW_MAXIMIZED,
+  };
+public:
   Window() = default;
   ~Window() = default;
-  void close();
-  void get_window_center(int& x, int& y);
-  void get_window_size(int& w, int& h);
-  void get_renderer_size(int &w, int &h);
-  void init(const char* title,SDL_WindowFlags wf = static_cast<SDL_WindowFlags>( SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE));
-  void present();
-  void reset_rendering();
-  void set_render_draw_color(SDL_Color C);
-  void render_copy(SDL_Texture* t, const SDL_Rect* src, const SDL_Rect* dst);
+
+
   SDL_Texture* create_texture_from_surface(SDL_Surface* S);
-  void set_scale(int scale);
-  uint32_t get_window_id();
-  SDL_WindowFlags get_window_flags(){return m_wf;};
-  SDL_Window* get_window(){return m_window;};
-  SDL_Renderer* get_renderer(){return m_renderer;};
+  void close();
+
   SDL_GLContext get_glcontex(){return m_gl_context;};
+  SDL_Renderer* get_renderer(){return m_renderer;};
+  void get_renderer_size(int &w, int &h);
+  SDL_Window* get_window(){return m_window;};
+  void get_window_center(int& x, int& y);
+  SDL_WindowFlags get_window_flags() { return m_wf;};
+  Uint32 get_window_id(){return m_window_id;};
+  void get_window_size(int* w, int* h, float* scale);
+  Window_Message handle_window_event(SDL_Event&);
+  void IMG_init_for_opengl();
+  void init(const char *title,
+            SDL_WindowFlags wf = static_cast<SDL_WindowFlags>(
+                SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE));
+  bool is_minimized(){return m_minimized;};
   void make_current();
- private:
+  void minimize();
+  void present();
+  void render_copy(SDL_Texture* t, const SDL_Rect* src, const SDL_Rect* dst);
+  void reset_rendering();
+  void restore();
+  void set_render_draw_color(SDL_Color C);
+  void set_scale(float scale);
+  void swap_window();
+
+private:
+  // window internal functions
+
+  void create_sdl_window();
+  void create_sdl_renderer();
+  void create_sdl_gl_context();
+  void get_glsl_version();
+  void destroy_sdl_window();
+  void destroy_sdl_renderer();
+  void destroy_sdl_gl_context();
+
+  // window data
+  Uint32 m_window_id;
   SDL_Window *m_window = NULL;
   SDL_Renderer *m_renderer = NULL;
   SDL_GLContext m_gl_context = NULL;
+  ImGuiContext *m_imgui_context = NULL;
   SDL_WindowFlags m_wf;
-  int m_WIDTH = 1280;
-  int m_HEIGHT = 960;
-  float m_SCALE = 1.0;
-  char* m_title;
-#ifdef DEBUG
-  public:
-  void IMG_init_for_opengl(const char* glsl_v);
-  void swap_window();
-#endif
+  std::string m_title;
+
+  // window position
+  int m_x,m_y;
+  // window dimensions
+  int m_width = 1280;
+  int m_height = 960;
+  float m_scale = 1.0;
+
+  //window focus
+  bool m_mouse_focus;
+  bool m_keybord_focus;
+  bool m_full_screen;
+  bool m_minimized;
+  bool m_shown;
+
+  // GLSL version
+  std::string m_glsl_version{};
 };
 
 
