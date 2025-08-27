@@ -21,12 +21,11 @@ void Devel_tool::close() {
     return;
   if(m_window->is_open())
     m_window->close();
-
+  m_window = nullptr;
 }
 
 void Devel_tool::init(){
   init_window();
-  init_imgui();
 }
 
   // Load Fonts
@@ -57,6 +56,7 @@ void Devel_tool::init(){
 void Devel_tool::show() {
   if (m_window == nullptr) {
     init();
+
   }
   if(m_window->is_minimized())
     m_window->restore();
@@ -122,10 +122,11 @@ void Devel_tool::init_window() {
   SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
   SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
   float main_scale = ImGui_ImplSDL2_GetContentScaleForDisplay(0);
-  SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
+  SDL_WindowFlags window_flags =
+      (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE |
+                        SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_MINIMIZED);
   m_window->init("Developer's Tools", window_flags);
   m_window->set_scale(main_scale);
-  m_window->minimize();
 }
 
 Uint32 Devel_tool::get_window_id() {
@@ -137,6 +138,7 @@ Uint32 Devel_tool::get_window_id() {
 }
 
 void Devel_tool::init_imgui() {
+  LOGL("Initializing imgui in developer's tools");
   float main_scale = 0.0;
   int w=0,h=0;
   m_window->get_window_size(&w, &h, &main_scale);
@@ -156,6 +158,7 @@ void Devel_tool::init_imgui() {
 }
 
 void Devel_tool::handle_event(SDL_Event &event) {
+  LOGL("Handleing events");
   const Uint8 *key_state;
   Window::Window_Message m;
   switch (event.type) {
@@ -163,27 +166,33 @@ void Devel_tool::handle_event(SDL_Event &event) {
     m = m_window->handle_window_event(event);
     switch (m) {
     case Window::Window_Message::WINDOW_MINIMIZED:
+      LOGL("Minimizing developer's tools");
       hide();
       break;
     case Window::Window_Message::WINDOW_MAXIMIZED:
       show();
       break;
     case Window::Window_Message::WINDOW_CLOSED:
+      LOGL("Closing developer's tools");
       close();
+
       break;
     case Window::Window_Message::WINDOW_OPENED:
+      LOGL("Opening developer's tools");
       if (!m_window->is_open())
         init();
       show();
       break;
     case Window::Window_Message::NONE:
+      LOGL("None");
       break;
     }
     return;
   case SDL_KEYDOWN:
     key_state = SDL_GetKeyboardState(nullptr);
     if ((key_state[SDL_SCANCODE_LCTRL] || key_state[SDL_SCANCODE_RCTRL]) &&
-          (key_state[SDL_SCANCODE_Q] || key_state[SDL_SCANCODE_D])) {
+        (key_state[SDL_SCANCODE_Q] || key_state[SDL_SCANCODE_D])) {
+      LOGL("minimizing by keybord shortcut");
       m_window->minimize();
     }
     break;

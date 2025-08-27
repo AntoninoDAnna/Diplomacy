@@ -4,6 +4,7 @@
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_opengl.h"
 #include <iostream>
+#include "SDL_stdinc.h"
 #include "imgui_impl_opengl3.h"
 #include "imgui_impl_sdl2.h"
 
@@ -30,11 +31,11 @@ public:
   void get_renderer_size(int &w, int &h);
   SDL_Window* get_window(){return m_window;};
   void get_window_center(int& x, int& y);
-  SDL_WindowFlags get_window_flags() { return m_wf;};
+  Uint32 get_window_flags();
   Uint32 get_window_id(){return m_window_id;};
   void get_window_size(int* w, int* h, float* scale);
   Window_Message handle_window_event(SDL_Event&);
-  void IMG_init_for_opengl();
+  void imgui_init();
   void init(const char *title,
             SDL_WindowFlags wf = static_cast<SDL_WindowFlags>(
                 SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE));
@@ -54,7 +55,7 @@ public:
 private:
   // window internal functions
 
-  void create_sdl_window();
+  void create_sdl_window(SDL_WindowFlags);
   void create_sdl_renderer();
   void create_sdl_gl_context();
   void get_glsl_version();
@@ -68,7 +69,6 @@ private:
   SDL_Renderer *m_renderer = NULL;
   SDL_GLContext m_gl_context = NULL;
   ImGuiContext *m_imgui_context = NULL;
-  SDL_WindowFlags m_wf;
   std::string m_title;
 
   // window position

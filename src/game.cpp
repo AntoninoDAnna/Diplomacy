@@ -60,7 +60,7 @@ void Game::start(Game_map& game){
   LOGL("[Game: start_game()] updatig g_MAP texture in m_resources");
   m_resources->replace_texture(g_MAP,m_resources->get_file(g_MAP),m_window);
   read_map(m_resources->get_file(m_gamename));
-  render_table();
+  //render_table();
 }
 
 ID Game::get_region_ID(const std::string& abb){
@@ -200,7 +200,7 @@ void Game::render_table(){
 }
 
 void Game::handle_event(SDL_Event& event){
-  LOGL("[Game: get_input()] Inside game input");
+  LOGL("Inside game input");
   switch (event.type)
     {
     case SDL_MOUSEBUTTONDOWN:

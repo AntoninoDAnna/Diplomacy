@@ -58,14 +58,15 @@ Window::Window_Message Window::handle_window_event(SDL_Event &event) {
     present();
     break;
   case SDL_WINDOWEVENT_EXPOSED:
+    restore();
     present();
     break;
   case SDL_WINDOWEVENT_SHOWN:
-    m_shown = true;
+    restore();
     present();
     break;
   case SDL_WINDOWEVENT_HIDDEN:
-    m_shown = false;
+    minimize();
   case SDL_WINDOWEVENT_MOVED:
     m_x = event.window.data1;
     m_y = event.window.data2;
@@ -76,17 +77,21 @@ Window::Window_Message Window::handle_window_event(SDL_Event &event) {
     present();
     break;
   case SDL_WINDOWEVENT_MINIMIZED: /**< Window has been minimized */
+    minimize();
     m_minimized = true;
     return Window_Message::WINDOW_MINIMIZED;
     break;
   case SDL_WINDOWEVENT_MAXIMIZED: /**< Window has been maximized */
     m_minimized = false;
+    restore();
     present();
     return Window_Message::WINDOW_MAXIMIZED;
     break;
   case SDL_WINDOWEVENT_RESTORED:
+    restore();
     m_minimized = false;
     return Window_Message::WINDOW_OPENED;
+    restore();
     break;
   case SDL_WINDOWEVENT_ENTER: /**< Window has gained mouse focus */
     m_mouse_focus = true;
@@ -122,26 +127,30 @@ Window::Window_Message Window::handle_window_event(SDL_Event &event) {
   return Window_Message::NONE;
 }
 
-void Window::IMG_init_for_opengl() {
-  LOGL("Initializing ImplSL for OpenGL");
+void Window::imgui_init() {
+  m_imgui_context = ImGui::CreateContext();
+  ImGui::SetCurrentContext(m_imgui_context);
   ImGui_ImplSDL2_InitForOpenGL(m_window, m_gl_context);
-  LOGL("Initlializing implOpenGL3");
   ImGui_ImplOpenGL3_Init(m_glsl_version.c_str());
+  ImGuiIO io = ImGui::GetIO();
+  IMGUI_CHECKVERSION();
+  io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+  ImGui::StyleColorsDark();
+  ImGuiStyle style = ImGui::GetStyle();
+  style.ScaleAllSizes(m_scale);
+  style.FontScaleDpi = m_scale;
 }
 
 void Window::init(const char* title,SDL_WindowFlags wf)
 {
   LOGL("initializing window {}", title);
-  m_wf = wf;
   m_title = std::string(title);
   get_glsl_version();
-  create_sdl_window();
+  create_sdl_window(wf);
   m_window_id = SDL_GetWindowID(m_window);
   create_sdl_renderer();
   set_scale(m_scale);
-  m_imgui_context = ImGui::CreateContext();
-  ImGui::SetCurrentContext(m_imgui_context);
-  IMG_init_for_opengl();
+  imgui_init();
   create_sdl_gl_context();
   m_minimized = false;
   m_full_screen = false;
@@ -157,10 +166,13 @@ void Window::make_current(){
   ImGui::SetCurrentContext(m_imgui_context);
 }
 
+Uint32 Window::get_window_flags() {
+  return SDL_GetWindowID(m_window);
+
+}
 void Window::minimize() {
   if (m_minimized)
     return;
-
   SDL_MinimizeWindow(m_window);
   m_minimized = true;
   m_shown = false;
@@ -205,7 +217,7 @@ void Window::swap_window() { SDL_GL_SwapWindow(m_window); }
 
 
 void Window::create_sdl_gl_context() {
-  if (!(m_wf & SDL_WINDOW_OPENGL)){
+  if (!(get_window_flags() & SDL_WINDOW_OPENGL)){
     LOGL("No OpenGL context requested in window {}", m_title);
     return;
   }
@@ -224,7 +236,7 @@ void Window::create_sdl_renderer() {
   }
 }
 
-void Window::create_sdl_window() {
+void Window::create_sdl_window(SDL_WindowFlags wf) {
   if (m_window != NULL) {
     SDL_DestroyWindow(m_window);
     LOGL("A window is already existing. Replaced");
@@ -232,7 +244,7 @@ void Window::create_sdl_window() {
   m_window = SDL_CreateWindow(m_title.c_str(), SDL_WINDOWPOS_CENTERED,
                               SDL_WINDOWPOS_CENTERED, m_width * m_scale,
                               m_height * m_scale,
-                              m_wf);
+                              wf);
   if(m_window==NULL){
     std::cerr << "Error in creating window, aborting" << std::endl;
     LOGL("Error while creating window {}: {}",m_title,SDL_GetError());

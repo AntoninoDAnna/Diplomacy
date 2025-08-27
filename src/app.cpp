@@ -1,6 +1,5 @@
 #include <iostream>
 #include <vector>
-#include <format>
 #include "app.hpp"
 #include "color.hpp"
 #include "button.hpp"
@@ -29,7 +28,7 @@ void App::init() {
   LOGL("Sharing pointers with game");
   m_game.set_pointers(m_window,m_resources);
   m_next_scene = Scene_id::MAIN_MENU;
-  //dt.init();
+  dt.init();
 }
 
 void App::close(){
@@ -135,6 +134,8 @@ void App::handle_event() {
         return;
       } else if((key_state[SDL_SCANCODE_LCTRL]||key_state[SDL_SCANCODE_RCTRL]) & key_state[SDL_SCANCODE_D]){
         dt_open = !dt_open;
+        if (!dt_open)
+         dt.close();
         return;
       }
       break;
@@ -277,4 +278,5 @@ void App::render_new_game(){
 void App::start_game(Game_map game){
   LOGL("Starting game");
   m_game.start(game);
+  m_next_scene = Scene_id::GAME;
 }
