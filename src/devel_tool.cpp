@@ -7,10 +7,15 @@
 #include "imgui_impl_opengl3.h"
 #include <SDL.h>
 #include <SDL_opengl.h>
+#include <cstdlib>
 #include <memory>
 #include "log.hpp"
 #include "window.hpp"
 
+
+void Devel_tool::set_window(std::shared_ptr<Window> w) {
+  m_window = w;
+}
 
 Devel_tool::~Devel_tool() {
   close();
@@ -24,8 +29,12 @@ void Devel_tool::close() {
   m_window = nullptr;
 }
 
-void Devel_tool::init(){
-  init_window();
+void Devel_tool::init() {
+  if (m_window == NULL) {
+    LOGL("m_window is NULL. You have to share a window to Devel_tool");
+    exit(EXIT_FAILURE);
+  }
+  init_imgui();
 }
 
   // Load Fonts
@@ -54,19 +63,14 @@ void Devel_tool::init(){
   //IM_ASSERT(font != nullptr);
   // Our state
 void Devel_tool::show() {
-  if (m_window == nullptr) {
-    init();
-
-  }
-  if(m_window->is_minimized())
-    m_window->restore();
 
   m_window->make_current();
   ImGui_ImplOpenGL3_NewFrame();
   ImGui_ImplSDL2_NewFrame();
   ImGui::NewFrame();
   ImGui::ShowDemoWindow(&show_demo_window);
-
+  ImVec4 C = static_cast<ImVec4>(get_colour(colour));
+  ImGuiIO *io =  &ImGui::GetIO();
   {
     static float f = 0.0f;
     static int counter = 0;
@@ -81,7 +85,7 @@ void Devel_tool::show() {
     ImGui::Checkbox("Another Window", &show_another_window);
 
     ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-    ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
+    ImGui::ColorEdit3("background color", (float*) &C); // Edit 3 floats representing a color
 
     if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
       counter++;
@@ -102,7 +106,7 @@ void Devel_tool::show() {
 
   ImGui::Render();
   glViewport(0, 0, (int)io->DisplaySize.x, (int)io->DisplaySize.y);
-  glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
+  glClearColor(C.x * C.w, C.y * C.w, C.z *C.w,C.w);
   glClear(GL_COLOR_BUFFER_BIT);
   ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
   m_window->swap_window();
@@ -112,7 +116,6 @@ void Devel_tool::hide() {
   m_window->minimize();
   if (!m_window->is_minimized())
     LOGL("Window is not minimized");
-
 }
 
 void Devel_tool::init_window() {
@@ -143,7 +146,7 @@ void Devel_tool::init_imgui() {
   int w=0,h=0;
   m_window->get_window_size(&w, &h, &main_scale);
   m_window->make_current();
-  io = &ImGui::GetIO();
+  ImGuiIO *io = &ImGui::GetIO();
   IMGUI_CHECKVERSION();
 
   (void)io;
@@ -152,7 +155,7 @@ void Devel_tool::init_imgui() {
 
   ImGui::StyleColorsDark();
 
-  style = &ImGui::GetStyle();
+  ImGuiStyle* style = &ImGui::GetStyle();
   style->ScaleAllSizes(main_scale);
   style->FontScaleDpi = main_scale;
 }
@@ -208,7 +211,7 @@ void Devel_tool::handle_event(SDL_Event &event) {
 //  //
 //  bool = show_demo_show_demo_window = false;
 //  bool m_open = false;
-//  ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+//  ImVec4C = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 //  bool done = false;
 //
 //  while (!done)

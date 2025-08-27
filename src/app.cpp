@@ -27,8 +27,9 @@ void App::init() {
   }
   LOGL("Sharing pointers with game");
   m_game.set_pointers(m_window,m_resources);
-  m_next_scene = Scene_id::MAIN_MENU;
+  dt.set_window(m_window);
   dt.init();
+  m_next_scene = Scene_id::MAIN_MENU;
 }
 
 void App::close(){
@@ -155,10 +156,10 @@ void App::main_menu(){
 
 void App::render_main_menu(){
   reset();
-  m_window->set_render_draw_color(get_color(Color::BACKGROUND));
+  m_window->set_render_draw_color(get_colour(Colours::BACKGROUND));
   int w=0,h=0;
   m_window->get_window_center(w,h);
-  SDL_Color black = get_color(Color::BLACK);
+  SDL_Color black = get_colour(Colours::BLACK);
   // title 
   SDL_Rect Title_box{w/2,static_cast<int>(h*(0.25 - 1./14)),w,h/7};
   Text title{m_font,TITLE,black,Title_box,m_window,m_resources};
@@ -184,7 +185,7 @@ void App::render_main_menu(){
     static_cast<int>(menu_box_w),
     static_cast<int>(menu_box_h)
   };
-  Text my_profile{m_font,"My Profile",get_color(Color::BLACK),temp_box,m_window,m_resources};
+  Text my_profile{m_font,"My Profile",get_colour(Colours::BLACK),temp_box,m_window,m_resources};
   m_buttons.push_back(Button("My Profile",temp_box,m_window,
                              []()-> void {
                               LOGL("My Profile button pressed");
@@ -192,7 +193,7 @@ void App::render_main_menu(){
                              },m_resources));
   // new game
   temp_box.y = static_cast<int>(my_profile_y-h_off_set);
-  Text new_game{m_font,"New Game",get_color(Color::BLACK),temp_box,m_window,m_resources};
+  Text new_game{m_font,"New Game",get_colour(Colours::BLACK),temp_box,m_window,m_resources};
   m_buttons.push_back(Button("New Game",temp_box,m_window,
                              [this]()->void {
                                LOGL("New game button pressed");
@@ -202,7 +203,7 @@ void App::render_main_menu(){
                              ,m_resources));
   // your Games
   temp_box.y = static_cast<int>(my_profile_y-2*h_off_set);
-  Text your_game{m_font,"Your Games",get_color(Color::BLACK),temp_box,m_window,m_resources};
+  Text your_game{m_font,"Your Games",get_colour(Colours::BLACK),temp_box,m_window,m_resources};
   m_buttons.push_back(Button("Your Games",temp_box,m_window,
                              []()->void {
                                LOGL("Your Games button pressed");
@@ -211,7 +212,7 @@ void App::render_main_menu(){
                              m_resources));
   // statistic
   temp_box.y = static_cast<int>(my_profile_y+h_off_set);
-  Text statistic{m_font,"Statistics",get_color(Color::BLACK),temp_box,m_window,m_resources};
+  Text statistic{m_font,"Statistics",get_colour(Colours::BLACK),temp_box,m_window,m_resources};
   m_buttons.push_back(Button("Statistics",temp_box,m_window,
                              []()->void {
                                LOGL("Statistics button pressed");
@@ -219,7 +220,7 @@ void App::render_main_menu(){
                              },m_resources));
   // settings
   temp_box.y = static_cast<int>(my_profile_y+2*h_off_set);
-  Text setting{m_font,"Settings",get_color(Color::BLACK),temp_box,m_window,m_resources};
+  Text setting{m_font,"Settings",get_colour(Colours::BLACK),temp_box,m_window,m_resources};
   m_buttons.push_back(Button("Settings",temp_box,m_window,
                              []()->void {
                                LOGL("Settings button pressed");
@@ -227,7 +228,7 @@ void App::render_main_menu(){
                              },m_resources));
   // close
   temp_box.y = static_cast<int>(my_profile_y+3*h_off_set);
-  Text close{m_font,"Exit",get_color(Color::BLACK),temp_box,m_window,m_resources};
+  Text close{m_font,"Exit",get_colour(Colours::BLACK),temp_box,m_window,m_resources};
   m_exit_button= Button("Exit",temp_box,m_window,
                         [this]()->void {
                           LOGL("Exit button pressed");
@@ -242,11 +243,11 @@ void App::new_game(){
 
 void App::render_new_game(){
   reset();
-  m_window->set_render_draw_color(get_color(Color::BACKGROUND));
+  m_window->set_render_draw_color(get_colour(Colours::BACKGROUND));
   int w,h;
   m_window->get_window_center(w,h);
   SDL_Rect Title_box{w/2,static_cast<int>(h*(0.25 - 1./14)),w,h/7};
-  Text title{m_font,"New Game",get_color(Color::BLACK),Title_box,m_window,m_resources};
+  Text title{m_font,"New Game",get_colour(Colours::BLACK),Title_box,m_window,m_resources};
   float menu_box_w = w/2.0, menu_box_h=h/15.0;
   float menu_x = w - menu_box_w*0.5;
   float menu_y = h-0.5*menu_box_h;
@@ -258,7 +259,7 @@ void App::render_new_game(){
     static_cast<int>(menu_box_w),
     static_cast<int>(menu_box_h)
   };
-  Text game{m_font,"Ancient Mediterrean",get_color(Color::BLACK),box,m_window,m_resources};
+  Text game{m_font,"Ancient Mediterrean",get_colour(Colours::BLACK),box,m_window,m_resources};
   m_buttons.push_back(Button("Ancient Mediterrean",box,m_window,
                              [this]()->void {
                                LOGL("Starting Ancient Mediterrean game");
@@ -266,7 +267,7 @@ void App::render_new_game(){
                              },m_resources));
 
   box.y = static_cast<int>(menu_y + h_off_set) ;
-  Text back{m_font, "Back", get_color(Color::BLACK),box,m_window,m_resources};
+  Text back{m_font, "Back", get_colour(Colours::BLACK),box,m_window,m_resources};
   m_exit_button = Button("Back",box,m_window,
                          [this]()->void {
                            LOGL("Back button pressed");
