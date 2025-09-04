@@ -1,11 +1,12 @@
 #include "window.hpp"
 #include <SDL_opengl.h>
 #include <cstdlib>
+#include "SDL_render.h"
 #include "SDL_video.h"
 #include "log.hpp"
 #include "imgui.h"
 #include "imgui_impl_sdl2.h"
-#include "imgui_impl_opengl3.h"
+#include "imgui_impl_sdlrenderer2.h"
 
 
 SDL_Texture* Window::create_texture_from_surface(SDL_Surface *s){
@@ -21,14 +22,13 @@ void Window::close() {
   if (!m_open)
     return;
   make_current();
-  ImGui_ImplOpenGL3_Shutdown();
+//  ImGui_ImplOpenGL3_Shutdown();
+  ImGui_ImplSDLRenderer2_Shutdown();
   ImGui_ImplSDL2_Shutdown();
   ImGui::DestroyContext();
   destroy_sdl_window();
   destroy_sdl_renderer();
-  destroy_sdl_gl_context();
   m_open = false;
-
 }
 
 void Window::get_renderer_size(int &w, int &h) {
@@ -51,77 +51,99 @@ void Window::get_window_size(int *w, int *h, float *scale) {
 }
 
 Window::Window_Message Window::handle_window_event(SDL_Event &event) {
+  LOG("Handling window event ");
   switch (event.window.event) {
   case SDL_WINDOWEVENT_RESIZED:
+    LOGL("resized");
     m_width = event.window.data1;
     m_height = event.window.data2;
     present();
     break;
   case SDL_WINDOWEVENT_EXPOSED:
+    LOGL("exposed");
     restore();
     present();
     break;
   case SDL_WINDOWEVENT_SHOWN:
+    LOGL("shown");
     restore();
     present();
     break;
   case SDL_WINDOWEVENT_HIDDEN:
+    LOGL("hidden");
     minimize();
   case SDL_WINDOWEVENT_MOVED:
+    LOGL("moved");
     m_x = event.window.data1;
     m_y = event.window.data2;
     present();
   case SDL_WINDOWEVENT_SIZE_CHANGED:
+    LOGL("size changed");
     m_width = event.window.data1;
     m_height = event.window.data2;
     present();
     break;
   case SDL_WINDOWEVENT_MINIMIZED: /**< Window has been minimized */
+    LOGL("minimized");
     minimize();
     m_minimized = true;
     return Window_Message::WINDOW_MINIMIZED;
     break;
   case SDL_WINDOWEVENT_MAXIMIZED: /**< Window has been maximized */
+    LOGL("maximazed");
     m_minimized = false;
     restore();
     present();
     return Window_Message::WINDOW_MAXIMIZED;
     break;
   case SDL_WINDOWEVENT_RESTORED:
+    LOGL("restored");
     restore();
     m_minimized = false;
     return Window_Message::WINDOW_OPENED;
     restore();
     break;
   case SDL_WINDOWEVENT_ENTER: /**< Window has gained mouse focus */
+    LOGL("enter");
     m_mouse_focus = true;
     break;
   case SDL_WINDOWEVENT_LEAVE: /**< Window has lost mouse focus */
+    LOGL("leave");
     m_mouse_focus = false;
     break;
   case SDL_WINDOWEVENT_FOCUS_GAINED: /**< Window has gained keyboard focus */
+    LOGL("focus Gained");
     m_keybord_focus = true;
     break;
   case SDL_WINDOWEVENT_FOCUS_LOST: /**< Window has lost keyboard focus */
+    LOGL("lost focus");
     m_keybord_focus = false;
     break;
   case SDL_WINDOWEVENT_CLOSE: /**< The window manager requests that the window
                                  be closed */
+    LOGL("close");
     close();
     return Window_Message::WINDOW_CLOSED;
     break;
   case SDL_WINDOWEVENT_TAKE_FOCUS: /**< Window is being offered a focus (should
                                       SetWindowInputFocus() on itself or a
                                       subwindow, or ignore) */
+    LOGL("take focus");
     break;
-  case SDL_WINDOWEVENT_HIT_TEST:       /**< Window had a hit test that wasn't SDL_HITTEST_NORMAL. */
+  case SDL_WINDOWEVENT_HIT_TEST: /**< Window had a hit test that wasn't
+                                    SDL_HITTEST_NORMAL. */
+    LOGL("hit test");
     break;
   case SDL_WINDOWEVENT_ICCPROF_CHANGED: /**< The ICC profile of the window's
                                            display has changed. */
+    LOGL("iccprof changed");
     break;
-  case SDL_WINDOWEVENT_DISPLAY_CHANGED: /**< Window has been moved to display data1. */
+  case SDL_WINDOWEVENT_DISPLAY_CHANGED: /**< Window has been moved to display
+                                           data1. */
+    LOGL("display changed");
     break;
   default:
+    LOGL("missing");
     break;
   }
   return Window_Message::NONE;
@@ -130,8 +152,11 @@ Window::Window_Message Window::handle_window_event(SDL_Event &event) {
 void Window::imgui_init() {
   m_imgui_context = ImGui::CreateContext();
   ImGui::SetCurrentContext(m_imgui_context);
-  ImGui_ImplSDL2_InitForOpenGL(m_window, m_gl_context);
-  ImGui_ImplOpenGL3_Init(m_glsl_version.c_str());
+  //ImGui_ImplSDL2_InitForOpenGL(m_window, m_gl_context);
+  //ImGui_ImplOpenGL3_Init(m_glsl_version.c_str());
+  ImGui_ImplSDL2_InitForSDLRenderer(m_window,m_renderer);
+  ImGui_ImplSDLRenderer2_Init(m_renderer);
+
   ImGuiIO io = ImGui::GetIO();
   IMGUI_CHECKVERSION();
   io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
@@ -145,19 +170,20 @@ void Window::init(const char* title,SDL_WindowFlags wf)
 {
   LOGL("initializing window {}", title);
   m_title = std::string(title);
-  get_glsl_version();
+//  get_glsl_version();
   create_sdl_window(wf);
   m_window_id = SDL_GetWindowID(m_window);
   create_sdl_renderer();
   set_scale(m_scale);
   imgui_init();
-  create_sdl_gl_context();
-  m_minimized = false;
-  m_full_screen = false;
-  m_shown = true;
+//  create_sdl_gl_context();
+  wf = static_cast<SDL_WindowFlags>(SDL_GetWindowFlags(m_window));
+  m_minimized = wf & SDL_WINDOW_MINIMIZED;
+  m_full_screen = wf & SDL_WINDOW_FULLSCREEN;
+  m_shown = wf & SDL_WINDOW_SHOWN;
+  m_mouse_focus = wf & SDL_WINDOW_MOUSE_GRABBED;
+  m_keybord_focus = wf & SDL_WINDOW_KEYBOARD_GRABBED;
   m_open = true;
-  m_mouse_focus = true;
-  m_keybord_focus = true;
 }
 
 void Window::make_current(){
@@ -171,6 +197,7 @@ Uint32 Window::get_window_flags() {
 
 }
 void Window::minimize() {
+  LOGL("Hiding window {}", m_title);
   if (m_minimized)
     return;
   SDL_MinimizeWindow(m_window);
@@ -229,11 +256,11 @@ void Window::create_sdl_gl_context() {
 }
 
 void Window::create_sdl_renderer() {
-   m_renderer  = SDL_CreateRenderer(m_window,1,0);
-  if(m_renderer==NULL){
-    LOGL("Error while creating renderer for window {}: {}",m_title,SDL_GetError());
-    exit(EXIT_FAILURE);
-  }
+   m_renderer  = SDL_CreateRenderer(m_window,1,SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED);
+   if(m_renderer==NULL){
+     LOGL("Error while creating renderer for window {}: {}",m_title,SDL_GetError());
+     exit(EXIT_FAILURE);
+   }
 }
 
 void Window::create_sdl_window(SDL_WindowFlags wf) {

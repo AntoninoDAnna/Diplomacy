@@ -1,9 +1,15 @@
 #include <iostream>
 #include <vector>
 #include "app.hpp"
+#include "SDL_events.h"
+#include "SDL_render.h"
+#include "SDL_shape.h"
+#include "SDL_video.h"
 #include "color.hpp"
 #include "button.hpp"
+#include "imgui.h"
 #include "imgui_impl_opengl2.h"
+#include "imgui_impl_sdlrenderer2.h"
 #include "text.hpp"
 #include "sdl_wrap.hpp"
 #include "log.hpp"
@@ -11,15 +17,16 @@
 #include "SDL2/SDL.h"
 #include "scenes.hpp"
 #include "color.hpp"
+#include "window.hpp"
 
 constexpr char TITLE[] = "BETRAYAL";
 
 void App::init() {
   LOGL("Initializing App");
-  SDL_WindowFlags flag = static_cast<SDL_WindowFlags>(SDL_INIT_VIDEO | SDL_INIT_TIMER);
-  init_SDL(flag);
+  init_SDL(SDL_INIT_VIDEO | SDL_INIT_TIMER);
   LOGL("Initiliazing openGL3");
-  m_window->init("DIPLOMACY");
+  m_window->init("DIPLOMACY",
+                 static_cast<SDL_WindowFlags>( SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_MAXIMIZED));
   m_font = TTF_OpenFont("./fonts/chailce-noggin-font/ChailceNogginRegular.ttf",16 );
   if(m_font==NULL){
     LOGL("Error: Font not loaded: {}",TTF_GetError());
@@ -48,26 +55,42 @@ void App::close(){
   LOGL("Scenes stack cleared");
 }
 
+
 void App::open(){
   m_running = true;
-  /* running is set to false when App::close() is called. usually within a call of show_scene() */
+  Window::Window_Message m = Window::Window_Message::NONE;
+  /* running is set to false when App::close() is called.
+     Usually within a call of show_scene() */
+
   while (m_running) {
     while (SDL_PollEvent(&m_event)) {
-      if (m_event.window.windowID == m_window->get_window_id())
-        handle_event();
-      else if (m_event.window.windowID == m_window->get_window_id())
-        dt.handle_event(m_event);
+      //if (m_event.window.windowID == m_window->get_window_id())
+      //  handle_event();
+      //else if (m_event.window.windowID == m_window->get_window_id())
+      //  dt.handle_event(m_event);
+      if (m_event.type == SDL_WINDOWEVENT) {
+        m =  m_window->handle_window_event(m_event);
+        if (m == Window::Window_Message::WINDOW_CLOSED)
+          close();
+      }
+      handle_event();
     }
-
     // render windows
     show_scene();
+//
+//    m_window->present();
+    m_window->present();
 
     if (dt_open) {
+     //std::cout << "Open"<< std::endl;
+      ImGui_ImplSDLRenderer2_NewFrame();
+      ImGui_ImplSDL2_NewFrame();
+      ImGui::NewFrame();
       dt.show();
+      ImGui::Render();
     }
   }
 }
-
 void App::show_scene(){
   if(m_next_scene !=m_current_scene )
     LOGL("Rendering scene {}",scene2str(m_next_scene));
@@ -97,6 +120,7 @@ void App::show_scene(){
     default:
       break;
     }
+  SDL_RenderFlush(m_window->get_renderer());
 }
 
 void App::handle_event() {
@@ -234,7 +258,7 @@ void App::render_main_menu(){
                           LOGL("Exit button pressed");
                           this->m_next_scene = Scene_id::NONE;
                         },m_resources);
-  m_window->present();
+//  m_window->present();
 }   
 
 void App::new_game(){
@@ -273,7 +297,8 @@ void App::render_new_game(){
                            LOGL("Back button pressed");
                            this-> m_next_scene=Scene_id::MAIN_MENU;
                          },m_resources);
-  m_window->present();
+//
+//  m_window->present();
 }
 
 void App::start_game(Game_map game){

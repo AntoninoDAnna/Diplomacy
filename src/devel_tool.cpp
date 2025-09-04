@@ -14,6 +14,7 @@
 
 
 void Devel_tool::set_window(std::shared_ptr<Window> w) {
+  LOGL("Shared window with Developer's tools");
   m_window = w;
 }
 
@@ -24,8 +25,8 @@ Devel_tool::~Devel_tool() {
 void Devel_tool::close() {
   if (m_window == nullptr)
     return;
-  if(m_window->is_open())
-    m_window->close();
+  // if(m_window->is_open())
+  //   m_window->close();
   m_window = nullptr;
 }
 
@@ -37,38 +38,18 @@ void Devel_tool::init() {
   init_imgui();
 }
 
-  // Load Fonts
-  // - If no fonts are loaded, dear imgui will use the default font.
-  //   You can also load multiple fonts and use ImGui::PushFont()/PopFont()
-  //   to select them.
-  // - AddFontFromFileTTF() will return the ImFont* so you can store it if you
-  //   need to select the font among multiple.
-  // - If the file cannot be loaded, the function will return a nullptr.
-  //   Please handle those errors in your application (e.g. use an assertion,
-  //   or display an error and quit).
-  // - Use '#define IMGUI_ENABLE_FREETYPE' in your imconfig file to use
-  //   Freetype for higher quality font rendering.
-  // - Read 'docs/FONTS.md' for more instructions and details.
-  // - Remember that in C/C++ if you want to include a backslash
-  //   \ in a string literal you need to write a double backslash \\ !
-  // - Our Emscripten build process allows embedding fonts to be
-  //   accessible at runtime from the "fonts/" folder. See Makefile.emscripten for details.
-  //style.FontSizeBase = 20.0f;
-  //io.Fonts->AddFontDefault();
-  //io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\segoeui.ttf");
-  //io.Fonts->AddFontFromFileTTF("../../misc/fonts/DroidSans.ttf");
-  //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Roboto-Medium.ttf");
-  //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf");
-  //ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf");
-  //IM_ASSERT(font != nullptr);
-  // Our state
-void Devel_tool::show() {
+void Devel_tool::open_windget() {
+  //std::cout << "Opening Windget" << std::endl;
+  bool t = true;
+  ImGui::Begin("Windget",&t,ImGuiWindowFlags_NoCollapse);
+  ImGui::Text("Windget");
+  ImGui::End();
+}
 
-  m_window->make_current();
-  ImGui_ImplOpenGL3_NewFrame();
-  ImGui_ImplSDL2_NewFrame();
-  ImGui::NewFrame();
-  ImGui::ShowDemoWindow(&show_demo_window);
+void Devel_tool::show() {
+  open_windget();
+  return ;
+
   ImVec4 C = static_cast<ImVec4>(get_colour(colour));
   ImGuiIO *io =  &ImGui::GetIO();
   {
@@ -113,6 +94,7 @@ void Devel_tool::show() {
 }
 
 void Devel_tool::hide() {
+  std::cout << "Minimized" << std::endl;
   m_window->minimize();
   if (!m_window->is_minimized())
     LOGL("Window is not minimized");
@@ -204,95 +186,3 @@ void Devel_tool::handle_event(SDL_Event &event) {
   }
 
 }
-
-//void Devel_tool::start(){
-//  init_window();
-//  init_imgui();
-//  //
-//  bool = show_demo_show_demo_window = false;
-//  bool m_open = false;
-//  ImVec4C = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-//  bool done = false;
-//
-//  while (!done)
-//    {
-//      // Poll and handle events (inputs, window resize, etc.)
-//      // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
-//      // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application, or clear/overwrite your copy of the mouse data.
-//      // - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application, or clear/overwrite your copy of the keyboard data.
-//      // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
-//      SDL_Event event;
-//      while (SDL_PollEvent(&event))
-//        {
-//          ImGui_ImplSDL2_ProcessEvent(&event);
-//          if (event.type == SDL_QUIT)
-//            done = true;
-//          if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE && event.window.windowID == SDL_GetWindowID(m_window.get_window()))
-//            done = true;
-//        }
-//      if (m_window.get_window_flags() & SDL_WINDOW_MINIMIZED)
-//        {
-//          SDL_Delay(10);
-//          continue;
-//        }
-//
-//      // Start the Dear ImGui frame
-//
-//      ImGui_ImplOpenGL3_NewFrame();
-//      ImGui_ImplSDL2_NewFrame();
-//      ImGui::NewFrame();
-//
-//      // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about
-//      bool = show_demo_(show_demo_window){
-//        ImGui::ShowDemoWindow(&show_demo_window);
-//      }
-//      // 2. Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
-//      {
-//        static float f = 0.0f;
-//        static int counter = 0;
-//
-//        ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
-//
-//        ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-//        ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-//        ImGui::Checkbox("Another Window", &show_another_window);
-//
-//        ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-//        ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
-//
-//        if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-//          counter++;
-//        ImGui::SameLine();
-//        ImGui::Text("counter = %d", counter);
-//
-//        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io->Framerate, io->Framerate);
-//        ImGui::End();
-//      }
-//
-//      // 3. Show another simple window.
-//      if (show_another_window)
-//        {
-//          ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-//          ImGui::Text("Hello from another window!");
-//          if (ImGui::Button("Close Me"))
-//            show_another_window = false;
-//          ImGui::End();
-//        }
-//
-//      // Rendering
-//      ImGui::Render();
-//      glViewport(0, 0, (int)io->DisplaySize.x, (int)io->DisplaySize.y);
-//      glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
-//      glClear(GL_COLOR_BUFFER_BIT);
-//      ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-//      m_window.swap_window();
-//    }
-//  // Cleanup
-//  ImGui_ImplOpenGL3_Shutdown();
-//  ImGui_ImplSDL2_Shutdown();
-//  ImGui::DestroyContext();
-//  m_window.close();
-//  SDL_Quit();
-//
-
-//}

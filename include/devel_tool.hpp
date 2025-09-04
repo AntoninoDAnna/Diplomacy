@@ -24,6 +24,8 @@ public:
 private:
   void init_window();
   void init_imgui();
+  void open_windget();
+
 
 private:
   bool do_display = false;

@@ -4,8 +4,8 @@
 #include "SDL2/SDL_image.h"
 #include "log.hpp"
 
-void init_SDL(SDL_WindowFlags wf) {
-    if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0) {
+void init_SDL(Uint32 wf) {
+    if(SDL_Init(wf) != 0) {
     LOGL("Error in initializing SDL: {}", SDL_GetError());
     exit(EXIT_FAILURE);
   }

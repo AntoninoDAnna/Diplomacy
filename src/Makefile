@@ -27,7 +27,8 @@ IMG_SRC = 	$(IMG_DIR)/imgui.cpp \
 
 
 IMG_BCK_SRC =	$(IMG_DIR)/backends/imgui_impl_sdl2.cpp \
-				$(IMG_DIR)/backends/imgui_impl_opengl3.cpp
+				$(IMG_DIR)/backends/imgui_impl_opengl3.cpp \
+				$(IMG_DIR)/backends/imgui_impl_sdlrenderer2.cpp
 
 DYP_H = $(H_DIR)/app.hpp \
 		$(H_DIR)/button.hpp \
