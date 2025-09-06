@@ -71,12 +71,13 @@ Window::Window_Message Window::handle_window_event(SDL_Event &event) {
     break;
   case SDL_WINDOWEVENT_HIDDEN:
     LOGL("hidden");
-    minimize();
+    break;
   case SDL_WINDOWEVENT_MOVED:
     LOGL("moved");
     m_x = event.window.data1;
     m_y = event.window.data2;
     present();
+    break;
   case SDL_WINDOWEVENT_SIZE_CHANGED:
     LOGL("size changed");
     m_width = event.window.data1;
@@ -85,7 +86,6 @@ Window::Window_Message Window::handle_window_event(SDL_Event &event) {
     break;
   case SDL_WINDOWEVENT_MINIMIZED: /**< Window has been minimized */
     LOGL("minimized");
-    minimize();
     m_minimized = true;
     return Window_Message::WINDOW_MINIMIZED;
     break;

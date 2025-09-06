@@ -82,7 +82,7 @@ void App::open(){
     m_window->present();
 
     if (dt_open) {
-     //std::cout << "Open"<< std::endl;
+      //std::cout << "Open"<< std::endl;
       ImGui_ImplSDLRenderer2_NewFrame();
       ImGui_ImplSDL2_NewFrame();
       ImGui::NewFrame();
