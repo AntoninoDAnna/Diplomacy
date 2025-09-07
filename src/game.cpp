@@ -24,20 +24,27 @@ class ID_gen{
     ID operator()(){
       ID old = m_seed;
       m_seed++;// update id generator
-      return old; 
+      return old;
     }
+  void reset(){m_seed = 1;};
   private:
   ID m_seed = 1;
 };
 
-ID_gen g_id = ID_gen();
+static ID_gen g_id = ID_gen();
 
 Game::Game() {}
 
-void Game::set_pointers(std::shared_ptr<Window>& w, std::shared_ptr<Resources_Manager> &r){
-  m_window = w;
+void Game::set_window(std::shared_ptr<Window> &w) { m_window = w; }
+
+void Game::set_resources_manager(std::shared_ptr<Resources_Manager>& r){
   m_resources = r;
 }
+
+void Game::set_buttons_vector(std::vector<Button> *v) { m_buttons = v; }
+
+void Game::set_exit_button(Button *exit) { m_exit_button = exit; }
+
 Game::~Game(){}
 
 void Game::start(Game_map& game){
@@ -164,12 +171,13 @@ void Game::close_game(){
   LOGL("[Game: close_game] countries cleared");
   m_units.clear();
   LOGL("[Game: close_game] units cleared");
+  g_id.reset();
 };
 
 void Game::render_table(){
   LOGL("[Game: render_table] rendering table");
   LOGL("[Game: render_table] clearing buttons");
-  m_buttons.clear();
+  m_buttons->clear();
   LOGL("[Game: render_table] resetting rendering");
   m_window->reset_rendering();
   LOGL("[Game: render_table] rendering map");
@@ -185,7 +193,7 @@ void Game::render_table(){
   for(auto& [id,tile] :  m_table){
     LOGL("Rendering %s", tile.get_name());
     tile.render_region(m_window,m_resources,rw,rh);
-    m_buttons.push_back(tile.make_button(m_window,m_resources,rw,rh));
+    m_buttons->push_back(tile.make_button(m_window,m_resources,rw,rh));
   }
 
   for(auto [id,country] : m_countries) LOGL(country.string());
@@ -194,39 +202,5 @@ void Game::render_table(){
 
   SDL_Rect box{0,0,static_cast<int>(w*0.25),static_cast<int>(h/30.)};
   Text back{m_font, "Back", SDL_Color{0,0,0,255},box,m_window,m_resources};
-  std::cout << "test" << std::endl;
-  m_exit_button = Button("Back",box,m_window,[this]()->void{this->close_game();},m_resources);
-  m_window->present();
-}
-
-void Game::handle_event(SDL_Event& event){
-  LOGL("Inside game input");
-  switch (event.type)
-    {
-    case SDL_MOUSEBUTTONDOWN:
-      int x,y;
-      SDL_GetMouseState(&x,&y);
-      if(m_exit_button.pressed(x,y)){
-        close_game();
-        return ;
-      }
-      for(auto b : m_buttons){
-        if(b.pressed(x,y)){
-          b.action();
-        }
-      }
-      return;
-      break;
-    case SDL_WINDOWEVENT:
-      if (event.window.event == SDL_WINDOWEVENT_RESIZED){
-        render_table();
-        return;
-      }else if(event.window.event == SDL_WINDOWEVENT_CLOSE){
-        close_game();
-        return;
-      }
-      break;
-    default:
-      break;
-    }
+  *m_exit_button = Button("Back",box,m_window,[this]()->void{this->close_game();},m_resources);
 }

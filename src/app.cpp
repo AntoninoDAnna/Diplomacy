@@ -28,7 +28,10 @@ void App::init() {
     exit(EXIT_FAILURE);
   }
   LOGL("Sharing pointers with game");
-  m_game.set_pointers(m_window,m_resources);
+  m_game.set_window(m_window);
+  m_game.set_resources_manager(m_resources);
+  m_game.set_buttons_vector(&m_buttons);
+  m_game.set_exit_button(&m_exit_button);
   dt.set_window(m_window);
   dt.init();
   m_next_scene = Scene_id::MAIN_MENU;
@@ -98,8 +101,6 @@ void App::show_scene(){
     return;
   }
   m_current_scene = m_next_scene;
-
-
   switch (m_current_scene)
     {
     case Scene_id::MAIN_MENU :
@@ -121,10 +122,6 @@ void App::show_scene(){
 }
 
 void App::handle_event() {
-  if (m_current_scene == Scene_id::GAME){
-    m_game.handle_event(m_event);
-    return;
-  }
   const Uint8 *key_state;
   Window::Window_Message wm = Window::Window_Message::NONE;
   switch (m_event.type)
@@ -135,6 +132,8 @@ void App::handle_event() {
       if(m_exit_button.pressed(x,y)){
         LOGL("Exit button pressed");
         m_exit_button.action();
+        if (m_current_scene == Scene_id::GAME)
+          m_next_scene = Scene_id::NEW_GAME;
         return;
       }
       for(auto b : m_buttons){

@@ -108,4 +108,5 @@ fix:
 clean:
 	@rm -f $(OBJ_DIR)/*.o
 	@rm -f $(OBJ_DEBUG_DIR)/*.o
+	@rm -f $(SRC_DIR)/*.x
 	@echo make clean: done

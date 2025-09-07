@@ -25,7 +25,10 @@ public:
   Region* get_region(ID id){return &m_table.at(id);}
   void set_font(TTF_Font* f){m_font =f;}
   void handle_event(SDL_Event&);
-  void set_pointers(std::shared_ptr<Window>& w, std::shared_ptr<Resources_Manager> &r);
+  void set_window(std::shared_ptr<Window> &w);
+  void set_resources_manager( std::shared_ptr<Resources_Manager> &r);
+  void set_buttons_vector(std::vector<Button>* );
+  void set_exit_button(Button*);
 
 private:
   void read_map(const std::filesystem::path& filename);
@@ -37,8 +40,8 @@ private:
   int m_board_w{}, m_board_h{}; // size in pixel of the board image.
   std::shared_ptr<Window> m_window = nullptr;
   std::shared_ptr<Resources_Manager> m_resources = nullptr;
-  TTF_Font *m_font = nullptr;
-  std::vector<Button> m_buttons;
-  Button m_exit_button;
+  TTF_Font *m_font = nullptr; //non owning
+  std::vector<Button>* m_buttons; //non owning
+  Button* m_exit_button; // non owining
   bool m_running = false;
 };
