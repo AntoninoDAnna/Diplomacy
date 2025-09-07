@@ -1,12 +1,9 @@
 #ifndef WINDOW_H_
 #define WINDOW_H_
 
-#include "SDL2/SDL.h"
-#include "SDL2/SDL_opengl.h"
-#include <iostream>
-#include "SDL_stdinc.h"
-#include "imgui_impl_opengl3.h"
 #include "imgui_impl_sdl2.h"
+#include "SDL2/SDL.h"
+#include <string>
 
 class Window{
 
@@ -34,17 +31,20 @@ public:
   Uint32 get_window_flags();
   Uint32 get_window_id(){return m_window_id;};
   void get_window_size(int* w, int* h, float* scale);
-  Window_Message handle_window_event(SDL_Event&);
+  Window_Message handle_window_event(SDL_Event &);
   void imgui_init();
+  void imgui_new_frame();
+  void imgui_render();
   void init(const char *title,
             SDL_WindowFlags wf = static_cast<SDL_WindowFlags>(
                 SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE));
-  bool is_minimized() { return m_minimized; };
-  bool is_shown() { return m_shown; };
-  bool is_open(){return m_open;};
+  bool is_minimized();
+  bool is_shown();
+  bool is_open();
   void make_current();
   void minimize();
   void present();
+  void render_flush();
   void render_copy(SDL_Texture* t, const SDL_Rect* src, const SDL_Rect* dst);
   void reset_rendering();
   void restore();
@@ -78,13 +78,8 @@ private:
   int m_height = 960;
   float m_scale = 1.0;
 
-  //window focus
-  bool m_mouse_focus = false;
-  bool m_keybord_focus = false;
-  bool m_full_screen = false;
-  bool m_minimized = false;
-  bool m_shown =false;
-  bool m_open = false;;
+  //window state
+  bool m_open=false;
 
   // GLSL version
   std::string m_glsl_version{};

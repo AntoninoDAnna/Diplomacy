@@ -1,19 +1,13 @@
 #include <iostream>
 #include <vector>
 #include "app.hpp"
-#include "SDL_events.h"
-#include "SDL_render.h"
-#include "SDL_shape.h"
-#include "SDL_video.h"
 #include "color.hpp"
 #include "button.hpp"
 #include "imgui.h"
-#include "imgui_impl_opengl2.h"
 #include "imgui_impl_sdlrenderer2.h"
 #include "text.hpp"
 #include "sdl_wrap.hpp"
 #include "log.hpp"
-#include "resources_manager.hpp"
 #include "SDL2/SDL.h"
 #include "scenes.hpp"
 #include "color.hpp"
@@ -58,38 +52,38 @@ void App::close(){
 
 void App::open(){
   m_running = true;
-  Window::Window_Message m = Window::Window_Message::NONE;
+ // Window::Window_Message m = Window::Window_Message::NONE;
   /* running is set to false when App::close() is called.
      Usually within a call of show_scene() */
 
   while (m_running) {
     while (SDL_PollEvent(&m_event)) {
-      //if (m_event.window.windowID == m_window->get_window_id())
-      //  handle_event();
-      //else if (m_event.window.windowID == m_window->get_window_id())
-      //  dt.handle_event(m_event);
       if (m_event.type == SDL_WINDOWEVENT) {
-        m =  m_window->handle_window_event(m_event);
-        if (m == Window::Window_Message::WINDOW_CLOSED)
-          close();
+        m_window->handle_window_event(m_event);
       }
-      handle_event();
+      else
+        handle_event();
     }
+
+    if (!m_window->is_open()) {
+      LOGL("window has been closed");
+      close();
+      break;
+    }
+
+    LOGL("still running");
     // render windows
     show_scene();
-//
-//    m_window->present();
-    m_window->present();
 
     if (dt_open) {
-      //std::cout << "Open"<< std::endl;
-      ImGui_ImplSDLRenderer2_NewFrame();
-      ImGui_ImplSDL2_NewFrame();
-      ImGui::NewFrame();
+      m_window->imgui_new_frame();
       dt.show();
-      ImGui::Render();
+      m_window->imgui_render();
     }
+    m_window->present();
   }
+
+  LOGL("stop running");
 }
 void App::show_scene(){
   if(m_next_scene !=m_current_scene )

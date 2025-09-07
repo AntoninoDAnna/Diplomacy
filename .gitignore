@@ -3,4 +3,5 @@ bin/
 obj/
 *.x
 *.o
+*.ini
 .cache/
