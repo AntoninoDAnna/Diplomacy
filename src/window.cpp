@@ -128,6 +128,7 @@ void Window::imgui_init() {
   ImGuiIO& io = ImGui::GetIO();
   IMGUI_CHECKVERSION();
   io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+  io.ConfigFlags |= ImGuiConfigFlags_NavEnableSetMousePos;
   ImGui::StyleColorsDark();
   ImGuiStyle& style = ImGui::GetStyle();
   style.ScaleAllSizes(m_scale);

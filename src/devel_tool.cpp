@@ -1,5 +1,6 @@
 #include "devel_tool.hpp"
 #include "SDL_keyboard.h"
+#include "SDL_messagebox.h"
 #include "SDL_stdinc.h"
 #include "SDL_video.h"
 #include "imgui.h"
@@ -47,9 +48,6 @@ void Devel_tool::open_windget() {
 }
 
 void Devel_tool::show() {
-  open_windget();
-  return ;
-
   ImVec4 C = static_cast<ImVec4>(get_colour(colour));
   ImGuiIO *io =  &ImGui::GetIO();
   {
@@ -84,13 +82,6 @@ void Devel_tool::show() {
         show_another_window = false;
       ImGui::End();
   }
-
-  ImGui::Render();
-  glViewport(0, 0, (int)io->DisplaySize.x, (int)io->DisplaySize.y);
-  glClearColor(C.x * C.w, C.y * C.w, C.z *C.w,C.w);
-  glClear(GL_COLOR_BUFFER_BIT);
-  ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-  m_window->swap_window();
 }
 
 void Devel_tool::hide() {

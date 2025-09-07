@@ -4,6 +4,7 @@
 #include "color.hpp"
 #include "button.hpp"
 #include "imgui.h"
+#include "imgui_impl_sdl2.h"
 #include "imgui_impl_sdlrenderer2.h"
 #include "text.hpp"
 #include "sdl_wrap.hpp"
@@ -61,8 +62,12 @@ void App::open(){
       if (m_event.type == SDL_WINDOWEVENT) {
         m_window->handle_window_event(m_event);
       }
-      else
+      else{
+        if (dt_open)
+          ImGui_ImplSDL2_ProcessEvent(&m_event);
         handle_event();
+      }
+
     }
 
     if (!m_window->is_open()) {
@@ -71,8 +76,7 @@ void App::open(){
       break;
     }
 
-    LOGL("still running");
-    // render windows
+    // rendering window
     show_scene();
 
     if (dt_open) {
@@ -82,7 +86,6 @@ void App::open(){
     }
     m_window->present();
   }
-
   LOGL("stop running");
 }
 void App::show_scene(){
