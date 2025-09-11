@@ -88,18 +88,22 @@ void Game::read_map(const std::filesystem::path& filename){
   Util::next_line(file,2);  
   std::string file_line;
   std::vector<std::string> fields_name;
-  bool sc,land,sea;
   ID id;
+  uint32_t flag=0x0;
   // fill the table
   for(int i=0; i<n_tile; i++){
     std::getline(file,file_line); 
     // name abbreviation sc land sea   
     fields_name = Util::split_line(file_line);
     id = g_id();
-    sc = std::stoi(fields_name[2]);
-    land = std::stoi(fields_name[3]);
-    sea  = std::stoi(fields_name[4]);
-    m_table.emplace(id,Region(fields_name[0],fields_name[1],sc,land,sea,id));
+    if (std::stoi(fields_name[2]))
+      flag |= Region_Flags::SC;
+    if (std::stoi(fields_name[3]))
+      flag |= Region_Flags::LAND;
+    if (std::stoi(fields_name[4]))
+      flag |= Region_Flags::SEA;
+
+    m_table.emplace(id,Region(fields_name[0],fields_name[1],flag,id));
 
     m_resources->add_file(fields_name[1],img_folder/m_gamename/tiles_folder/(fields_name[0]+".png"));
   }

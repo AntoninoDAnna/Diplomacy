@@ -3,61 +3,82 @@
 #include <list>
 #include <iostream>
 #include <string>
-#include <vector>
-#include <unordered_map>
 #include "globals.hpp"
 #include "button.hpp"
-#include "resources_manager.hpp"
 #include <SDL2/SDL.h>
-class Region{
+
+enum  Region_Flags {
+  LAND = 0x01,
+  SEA = 0x02,
+  SC = 0x04,
+  OCCUPIED = 0x08,
+};
+
+class Region {
 public:
-  Region(const std::string& name,const std::string& abb, bool sc, bool land, bool sea, ID id);
+  Region(const std::string& name, const std::string& abb, uint32_t f,  ID id);
   Region(const Region & R) = default;
   ~Region();
-  std::string get_name()const{return m_name;};
-  int get_id()const{return m_id;};
-  int get_country_id()const{return m_country_id;};
-  const std::list<int>& get_neighborlist()const{return m_neighbors;};
-  std::string get_abbreviation()const{return m_abbr;};
-  bool is_occupied()const{return m_occupied;};
-  bool is_sea()const {return m_sea;};
-  bool is_land()const{return m_land;};
-  bool is_coast()const{return m_land && m_sea;};
-  int get_unit_id()const{return m_unit_id;};
+
+  // getters
+public:
+  std::string get_abbreviation() const;
+  SDL_Rect get_box() const;
+  int get_country_id() const;
+  std::string get_details() const;
+  int get_id() const;
+  std::string get_name() const;
+  const std::list<int> &get_neighborlist() const;
+  int get_unit_id() const;
+
+  // setter
+public:
+  void set_neighbors(const std::list<ID> neigbhors);
+  // state query
+public:
+  bool is_sea() const;
+  bool is_land() const;
+  bool is_coast() const;
+  bool is_free() const;
+  bool is_occupied() const;
+  bool is_sc() const;
+
+  // update region state
   void occupy(ID unit_id);
-  void liberate(); 
-  void update_unit_id(ID id){m_unit_id = id;};
-  void update_country_id(ID id){m_country_id = id;};
+  void freed();
+  void conquered(ID country_id);
+
+  // operator overloading
   bool operator==(const Region& r);
   bool operator!=(const Region& r);
   friend std::ostream& operator<<(std::ostream & os, const Region&);
-  void set_neighbors(const std::list<ID>& neigbors_id);
 
+  // rendering functioons
   template <class T,class R>
   void set_region_on_map(int x, int y, int w, int h, T window,R rm);
-  /* 
-   * render the region rescaling the box to the window size. 
-   * rw and rh are the scaling factor respectively for width and heigh.  
+  /*
+   * render the region rescaling the box to the window size.
+   * rw and rh are the scaling factor respectively for width and heigh.
    */
   template <class T, class R>
-  void render_region(T r, R rm,double rw, double rh);
+  void render_region(T r, R rm, double rw, double rh);
 
   template <class T, class R>
-  Button make_button(T r,R rm,double rw, double rh);
-  bool is_selected(int& x, int& y);
+  Button make_button(T r, R rm, double rw, double rh);
+
+  // interactions
+  bool is_selected(int x, int y) const;
   void pressed();
-  SDL_Rect get_box();
-private: 
+
+private: // private functions
   SDL_Rect rescale_box(double rw, double rh);
-private:
+
+private: // Region data
   const int NONE = 0;
   const std::string m_abbr;
   ID m_country_id = NONE;
   const ID m_id;
-  const bool m_land;
-  bool m_occupied = NONE;
-  const bool m_sc;
-  const bool m_sea;
+  uint32_t m_flag;
   const std::string m_name;
   std::list<ID> m_neighbors;
   ID m_unit_id = NONE;
