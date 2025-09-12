@@ -7,7 +7,8 @@
 #include <memory>
 #include <string>
 #include "color.hpp"
-
+#include "game.hpp"
+#include "region.hpp"
 class Devel_tool{
 public:
   Devel_tool()  = default;
@@ -16,14 +17,15 @@ public:
   void show();
   void close();
   void set_window(std::shared_ptr<Window>);
-
+  void set_game(Game* game);
   // private methods
+
 private:
   void init_imgui();
-
-
+  void region_edit();
+  void region_info(Region &region);
+  void write_notes();
 private:
   std::shared_ptr<Window> m_window;
-
-
+  Game *m_game;
 };

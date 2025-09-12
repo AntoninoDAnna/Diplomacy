@@ -33,6 +33,7 @@ void App::init() {
   m_game.set_buttons_vector(&m_buttons);
   m_game.set_exit_button(&m_exit_button);
   dt.set_window(m_window);
+  dt.set_game(&m_game);
   dt.init();
   m_next_scene = Scene_id::MAIN_MENU;
 }

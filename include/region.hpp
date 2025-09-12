@@ -7,11 +7,12 @@
 #include "button.hpp"
 #include <SDL2/SDL.h>
 
-enum  Region_Flags {
+enum Region_Flags {
   LAND = 0x01,
   SEA = 0x02,
   SC = 0x04,
   OCCUPIED = 0x08,
+  RENDER = 0x10
 };
 
 class Region {
@@ -34,6 +35,8 @@ public:
   // setter
 public:
   void set_neighbors(const std::list<ID> neigbhors);
+  void set_render_flag();
+  void unset_render_flag();
   // state query
 public:
   bool is_sea() const;
@@ -42,6 +45,7 @@ public:
   bool is_free() const;
   bool is_occupied() const;
   bool is_sc() const;
+  bool is_rendered() const;
 
   // update region state
   void occupy(ID unit_id);
@@ -69,9 +73,11 @@ public:
   // interactions
   bool is_selected(int x, int y) const;
   void pressed();
-
+  friend class Devel_tool;
 private: // private functions
   SDL_Rect rescale_box(double rw, double rh);
+  void set_flag(uint32_t flag);
+  void unset_flag(uint32_t flag);
 
 private: // Region data
   const int NONE = 0;
@@ -101,7 +107,7 @@ template <class T, class R>
 void Region::render_region(T window,R rm, double rw, double rh){
   static_assert(std::is_pointer_v<T> || Util::is_smart_pointer_v<T>, "Error: window must be a (smart) pointer");
   static_assert(std::is_pointer_v<R> || Util::is_smart_pointer_v<R>, "Error: resource manager must be a (smart) pointer");
-  SDL_Rect box = rescale_box(rw,rh);
+  SDL_Rect box{rescale_box(rw,rh)};
   window->render_copy(rm->get_texture(m_abbr),NULL,&box);
 }
 
@@ -109,7 +115,7 @@ template <class T, class R>
 Button Region::make_button(T window, R rm, double rw, double rh){
   static_assert(std::is_pointer_v<T> || Util::is_smart_pointer_v<T>, "Error: window must be a (smart) pointer");
   static_assert(std::is_pointer_v<R> || Util::is_smart_pointer_v<R>, "Error: resource manager must be a (smart) pointer");
-  SDL_Rect box = rescale_box(rw,rh);
+  SDL_Rect box{rescale_box(rw,rh)};
   return Button(m_abbr,box,window,
                 [this]()-> void {
                   std::cout <<this->get_name() << std::endl;

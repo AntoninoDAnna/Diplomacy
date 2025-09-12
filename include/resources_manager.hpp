@@ -67,7 +67,6 @@ public:
   template <class T>
   inline void replace_texture(const std::string& key, const std::filesystem::path& filename, T& window);
 
-
 private:
   std::unordered_map<std::string,std::filesystem::path> m_files;
   std::unordered_map<std::string,SDL_Texture*> m_textures;

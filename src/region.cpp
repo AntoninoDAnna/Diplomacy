@@ -4,6 +4,7 @@
 #include "button.hpp"
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_image.h"
+#include <immintrin.h>
 #include <pthread.h>
 #include <string>
 #include <list>
@@ -12,11 +13,9 @@
 
 Region::Region(const std::string &name, const std::string &abb, uint32_t f,
                ID id)
-    : m_abbr(abb), m_id(id), m_flag(f), m_name(name) {}
-
+    : m_abbr(abb), m_id(id), m_flag(f | Region_Flags::RENDER), m_name(name) {}
 
 Region::~Region() {}
-
 
 bool Region::operator==(const Region &r) { return this->m_id == r.m_id; }
 
@@ -51,7 +50,13 @@ std::string Region::get_details() const {
   if(!is_free())
     str<< "The region is ocupied by: " << m_unit_id << std::endl;
   else
-    str<< "The region is free"<< std::endl;
+    str << "The region is free" << std::endl;
+
+  str << "The region is ";
+  if (!is_rendered())
+    str << "not ";
+  str << "rendered" << std::endl;
+
   return str.str();
 }
 
@@ -61,12 +66,12 @@ std::ostream &operator<<(std::ostream &os, const Region &R) {
 }
 
 void Region::occupy(ID id) {
-  m_flag |= Region_Flags::OCCUPIED;
+  set_flag(Region_Flags::OCCUPIED);
   m_unit_id = id;
 }
 
 void Region::freed(){
-  m_flag &= ~Region_Flags::OCCUPIED;
+  unset_flag(Region_Flags::OCCUPIED);
   m_unit_id=NONE;
 }
 
@@ -124,3 +129,9 @@ void Region::set_neighbors(std::list<ID> neighbors) {
     LOGL("HEY! your resetting the neighbor list of {}, m_name");
   m_neighbors.swap(neighbors);
 }
+
+bool Region::is_rendered() const { return m_flag & Region_Flags::RENDER; }
+void Region::set_render_flag() { m_flag |= Region_Flags::RENDER; }
+void Region::unset_render_flag() {m_flag &= ~Region_Flags::RENDER; }
+void Region::set_flag(uint32_t flag) { m_flag |= flag; }
+void Region::unset_flag(uint32_t flag) { m_flag &= ~flag; }

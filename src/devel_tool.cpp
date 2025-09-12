@@ -12,7 +12,7 @@
 #include <memory>
 #include "log.hpp"
 #include "window.hpp"
-
+#include "game.hpp"
 
 Devel_tool::~Devel_tool() {
   close();
@@ -23,13 +23,68 @@ void Devel_tool::init() {
     LOGL("m_window is NULL. You have to share a window to Devel_tool");
     exit(EXIT_FAILURE);
   }
+  if (m_game == NULL) {
+    LOGL("m_game is NULL. You have to share a game to Devel_tool");
+    exit(EXIT_FAILURE);
+  }
+
   init_imgui();
 }
 
-void Devel_tool::show() {
-  ImGui::Begin("  ",NULL);
-  ImGui::Text("WORKING IN PROGRESS");
+void Devel_tool::region_info(Region &region) {
+  static SDL_Rect *rect = NULL;
+  static int step = 1;
+  static int step_fast = 5;
+  ImGui::Begin("Region Info", NULL);
+  ImGui::Text("Name: %s\n", region.get_name().c_str());
+  ImGui::Text("Abbr: %s\n", region.get_abbreviation().c_str());
+  if (ImGui::CollapsingHeader("Box data")) {
+    rect = &region.region_box;
+    ImGui::InputScalar("x", ImGuiDataType_S32, &rect->x, &step,&step_fast);
+    ImGui::InputScalar("y", ImGuiDataType_S32, &rect->y, &step,&step_fast);
+    ImGui::InputScalar("w", ImGuiDataType_S32, &rect->w, &step,&step_fast);
+    ImGui::InputScalar("h", ImGuiDataType_S32, &rect->h, &step,&step_fast);
+  }
   ImGui::End();
+}
+
+void Devel_tool::region_edit() {
+  static ID selected = 0; // Id can't be 0'
+  ImGui::Begin("Region Edit", NULL);
+  if (ImGui::CollapsingHeader("Regions list")) {
+    for (auto &[id, R] : m_game->m_table) {
+      if (ImGui::Selectable(R.get_name().c_str(), id == selected)) {
+        if(selected == id) selected = 0;
+        else selected = id;
+      }
+      if(selected ==id){
+        R.set_render_flag();
+        region_info(R);
+      } else {
+        R.unset_render_flag();
+      }
+    }
+  }
+  ImGui::End();
+}
+
+void Devel_tool::write_notes() {
+  static char text[20000];
+  ImGui::Begin("Notes",NULL);
+  ImGui::InputTextMultiline("Notes",text,20000);
+  ImGui::End();
+}
+
+void Devel_tool::show() {
+  static bool regions_tool=false;
+  ImGui::Begin("Developer's Tool",NULL);
+  ImGui::Checkbox("Region's tools", &regions_tool);
+  if (regions_tool) {
+    region_edit();
+  }
+  write_notes();
+  ImGui::End();
+
 }
 
 void Devel_tool::close() {
@@ -43,6 +98,10 @@ void Devel_tool::close() {
 void Devel_tool::set_window(std::shared_ptr<Window> w) {
   LOGL("Shared window with Developer's tools");
   m_window = w;
+}
+
+void Devel_tool::set_game(Game *g) {
+  m_game = g;
 }
 
 void Devel_tool::init_imgui() {

@@ -29,7 +29,9 @@ public:
   void set_resources_manager( std::shared_ptr<Resources_Manager> &r);
   void set_buttons_vector(std::vector<Button>* );
   void set_exit_button(Button*);
+  bool is_running() const{return m_running;};
 
+  friend class Devel_tool;
 private:
   void read_map(const std::filesystem::path& filename);
   ID get_region_ID(const std::string & abb);
@@ -44,4 +46,5 @@ private:
   std::vector<Button>* m_buttons; //non owning
   Button* m_exit_button; // non owining
   bool m_running = false;
+
 };

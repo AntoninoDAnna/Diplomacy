@@ -68,6 +68,7 @@ void Game::start(Game_map& game){
   m_resources->replace_texture(g_MAP,m_resources->get_file(g_MAP),m_window);
   read_map(m_resources->get_file(m_gamename));
   //render_table();
+  m_running = true;
 }
 
 ID Game::get_region_ID(const std::string& abb){
@@ -196,8 +197,10 @@ void Game::render_table(){
 
   for(auto& [id,tile] :  m_table){
     LOGL("Rendering %s", tile.get_name());
-    tile.render_region(m_window,m_resources,rw,rh);
-    m_buttons->push_back(tile.make_button(m_window,m_resources,rw,rh));
+    if(tile.is_rendered()){
+      tile.render_region(m_window,m_resources,rw,rh);
+      m_buttons->push_back(tile.make_button(m_window, m_resources, rw, rh));
+    }
   }
 
   for(auto [id,country] : m_countries) LOGL(country.string());
