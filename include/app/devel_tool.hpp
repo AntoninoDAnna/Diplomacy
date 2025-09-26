@@ -1,0 +1,29 @@
+#pragma once
+#include "imgui.h"
+#include "imgui_impl_sdl2.h"
+#include <memory>
+#include <string>
+#include "game.hpp"
+#include "region.hpp"
+#include "core.hpp"
+
+class Devel_tool{
+public:
+  Devel_tool()  = default;
+  ~Devel_tool();
+  void init();
+  void show();
+  void close();
+  void set_window(std::shared_ptr<Core::Window>);
+  void set_game(Game* game);
+  // private methods
+
+private:
+  void init_imgui();
+  void region_edit();
+  void region_info(Region &region);
+  void write_notes();
+private:
+  std::shared_ptr<Core::Window> m_window;
+  Game *m_game;
+};
