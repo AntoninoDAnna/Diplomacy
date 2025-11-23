@@ -6,6 +6,8 @@
 #include "SDL2/SDL.h"
 #include "core.hpp"
 
+typedef int ID;
+
 enum Region_Flags {
   LAND = 0x01,
   SEA = 0x02,
@@ -57,17 +59,14 @@ public:
   friend std::ostream& operator<<(std::ostream & os, const Region&);
 
   // rendering functioons
-  template <class T,class R>
-  void set_region_on_map(int x, int y, int w, int h, T window,R rm);
+  void set_region_on_map(int x, int y, int w, int h, Core::Context *ctx);
   /*
    * render the region rescaling the box to the window size.
    * rw and rh are the scaling factor respectively for width and heigh.
    */
-  template <class T, class R>
-  void render_region(T r, R rm, double rw, double rh);
+  void render_region(double rw, double rh, Core::Context *ctx);
 
-  template <class T, class R>
-  Core::Button make_button(T r, R rm, double rw, double rh);
+  Core::Button make_button(double rw, double rh,Core::Context *ctx);
 
   // interactions
   bool is_selected(int x, int y) const;
@@ -91,32 +90,3 @@ private: // Region data
 };
 
 
-template <class T,class R>
-void Region::set_region_on_map(int x, int y, int w, int h,T window,R rm){
-  static_assert(std::is_pointer_v<T> || Util::is_smart_pointer_v<T>, "Error: window must be a (smart) pointer");
-  static_assert(std::is_pointer_v<R> || Util::is_smart_pointer_v<R>, "Error: resource manager must be a (smart) pointer");
-  region_box.x =x;
-  region_box.y = y;
-  region_box.w = w;
-  region_box.h = h;
-  rm->replace_texture(m_abbr,rm->get_file(m_abbr),window);
-}
-
-template <class T, class R>
-void Region::render_region(T window,R rm, double rw, double rh){
-  static_assert(std::is_pointer_v<T> || Util::is_smart_pointer_v<T>, "Error: window must be a (smart) pointer");
-  static_assert(std::is_pointer_v<R> || Util::is_smart_pointer_v<R>, "Error: resource manager must be a (smart) pointer");
-  SDL_Rect box{rescale_box(rw,rh)};
-  window->render_copy(rm->get_texture(m_abbr),NULL,&box);
-}
-
-template <class T, class R>
-Core::Button Region::make_button(T window, R rm, double rw, double rh){
-  static_assert(std::is_pointer_v<T> || Util::is_smart_pointer_v<T>, "Error: window must be a (smart) pointer");
-  static_assert(std::is_pointer_v<R> || Util::is_smart_pointer_v<R>, "Error: resource manager must be a (smart) pointer");
-  SDL_Rect box{rescale_box(rw,rh)};
-  return Core::Button(m_abbr,box,window,
-                [this]()-> void {
-                  std::cout <<this->get_name() << std::endl;
-                }, rm);
-}

@@ -19,8 +19,8 @@ Devel_tool::~Devel_tool() {
 }
 
 void Devel_tool::init() {
-  if (m_window == NULL) {
-    LOGL("m_window is NULL. You have to share a window to Devel_tool");
+  if (ctx == NULL) {
+    LOGL("ctx is NULL. You have to share a window to Devel_tool");
     exit(EXIT_FAILURE);
   }
   if (m_game == NULL) {
@@ -68,6 +68,12 @@ void Devel_tool::region_edit() {
   ImGui::End();
 }
 
+void Devel_tool::share_ctx(Core::Context* ctx){
+  this->ctx = ctx;
+  if (ctx == nullptr)
+    LOGL("Core::Context is a null pointer");
+}
+
 void Devel_tool::write_notes() {
   static char text[20000];
   ImGui::Begin("Notes",NULL);
@@ -88,16 +94,11 @@ void Devel_tool::show() {
 }
 
 void Devel_tool::close() {
-  if (m_window == nullptr)
+  if (ctx == nullptr)
     return;
   // if(m_window->is_open())
   //   m_window->close();
-  m_window = nullptr;
-}
-
-void Devel_tool::set_window(std::shared_ptr<Core::Window> w) {
-  LOGL("Shared window with Developer's tools");
-  m_window = w;
+  ctx = nullptr;
 }
 
 void Devel_tool::set_game(Game *g) {
@@ -108,8 +109,8 @@ void Devel_tool::init_imgui() {
   LOGL("Initializing imgui in developer's tools");
   float main_scale = 0.0;
   int w=0,h=0;
-  m_window->get_window_size(&w, &h, &main_scale);
-  m_window->make_current();
+  ctx->m_window.get_window_size(&w, &h, &main_scale);
+  ctx->m_window.make_current();
   ImGuiIO *io = &ImGui::GetIO();
   IMGUI_CHECKVERSION();
 

@@ -1,7 +1,5 @@
-.vscode/
-bin/
-obj/
+/.cache/
+/bin/
+/src/.cache/
 *.x
-*.o
 *.ini
-.cache/

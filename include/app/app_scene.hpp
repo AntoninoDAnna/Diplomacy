@@ -1,55 +1,81 @@
 #ifndef APP_SCENE_HPP
 #define APP_SCENE_HPP
+#include <array>
 #include "core.hpp"
-#include <memory>
 
-enum class Scene_id{NONE, MAIN_MENU, NEW_GAME,GAME};
-std::unique_ptr<Core::Scene> make_scene(Scene_id);
+enum class Scene_id{NONE, MAIN_MENU, NEW_GAME,GAME,MY_PROFILE,YOUR_GAMES,STATISTICS,SETTINGS};
+enum class Map{NONE, ANCIENT_MEDITERREAN};
 
-class MainMenu : Core::Scene{
+struct App_State{
+  Scene_id current = Scene_id::NONE;
+  Scene_id next = Scene_id::NONE;
+  Map map = Map::NONE;
+  bool running = false;
+  bool dt_open = false;
+};
+
+
+std::unique_ptr<Core::Scene> make_scene(Scene_id,Core::Context* ctx,App_State* as);
+
+
+
+class Main_Menu : public Core::Scene{
 public:
-  MainMenu() : Core::Scene("Main Menu"){}
-  void on_event(Core::Event& e) ;
+  Main_Menu(Core::Context* ctx, App_State* as) : Core::Scene("Main Menu",ctx), state(as){}
+  //  void on_event(Core::Event& e) override;
   void on_render() override;
+private:
 
 private:
-  std::vector<Core::Button> m_button;
-  std::shared_ptr<Core::Window> m_window;
+  std::array<std::unique_ptr<Core::BButton<void>>,6> buttons;
+  App_State* state;
 };
 
-class NewGame : Core::Scene{
+
+class New_Game : public Core::Scene{
 public:
-  NewGame() : Core::Scene("New Game"){}
-  void on_event(Core::Event& e) override;
-  void on_render() override;
+  New_Game(Core::Context* ctx, App_State* as) : Core::Scene("New Game",ctx), state(as){}
+  // void on_event(Core::Event& e) override;
+  // void on_render() override;
+private:
+  std::vector<std::unique_ptr<Core::BButton<void>>> buttons;
+  App_State* state;
 };
 
-class MyProfile : Core::Scene{
+class My_Profile : public Core::Scene{
 public:
-  MyProfile() : Core::Scene("My Profile"){}
-  void on_event(Core::Event& e) override;
-  void on_render() override;
+  My_Profile(Core::Context* ctx, App_State* as) : Core::Scene("My Profile",ctx), state(as){}
+  // void on_event(Core::Event& e) override;
+  // void on_render() override;
+private:
+  App_State* state;
 };
 
-class YourGames : Core::Scene{
+class Your_Games : public Core::Scene{
 public:
-  YourGames() : Core::Scene("Your Games") {}
-  void on_event(Core::Event& e) override;
-  void on_render() override;
+  Your_Games(Core::Context* ctx, App_State* as) : Core::Scene("Your Games",ctx) , state(as){}
+  // void on_event(Core::Event& e) override;
+  // void on_render() override;
+private:
+  App_State* state;
 };
 
-class Statistics : Core::Scene{
+class Statistics : public Core::Scene{
 public:
-  Statistics() : Core::Scene("Statistics") {};
-  void on_event(Core::Event& e) override;
-  void on_render() override;
+  Statistics(Core::Context* ctx, App_State* as) : Core::Scene("Statistics",ctx) , state(as){};
+  // void on_event(Core::Event& e) override;
+  // void on_render() override;
+private:
+  App_State* state;
 };
 
-class Settings : Core::Scene{
+class Settings : public Core::Scene{
 public:
-  Settings() : Core::Scene("Settings"){};
-  void on_event(Core::Event& e) override {};
-  void on_render() override;
+  Settings(Core::Context* ctx, App_State* as) : Core::Scene("Settings",ctx), state(as){};
+  // void on_event(Core::Event& e) override {};
+  // void on_render() override;
+private:
+  App_State* state;
 };
 
 

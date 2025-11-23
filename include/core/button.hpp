@@ -1,34 +1,43 @@
 
+
 #pragma once 
 #include "SDL2/SDL.h"
-#include "SDL2/SDL_image.h"
-#include "SDL2/SDL_ttf.h"
 #include <functional>
-#include <memory>
 #include <string>
 #include "window.hpp"
 #include "manager.hpp"
+#include "context.hpp"
 
 namespace Core{ 
-  
-  template <class ReturnType,class... ArgsType>
-  class _Button{
+
+  template <class RetT, class... ArgsT>
+  class BButton{
   public:
-    _Button(const std::string& key, SDL_Rect& rect, std::shared_ptr<Window>& w, std::function<ReturnType(ArgsType...)> action, std::shared_ptr<Manager>& rm);
-    
-    //_Button(const std::string& key, SDL_Rect& rect, SDL_Renderer* r, ReturnType (*action)(ArgsType...), Manager& rm);
-    //_Button(const std::string& key, SDL_Rect& rect, SDL_Renderer* r, ReturnType (*action)(ArgsType...), Manager *rm);
-    _Button() = default;
-    _Button(const _Button<ReturnType,ArgsType...>& B);
-    void operator=(const _Button<ReturnType,ArgsType...>& B);
-    bool pressed(int mous_x, int mouse_y);
-    std::function<ReturnType(ArgsType...)> action;
-  private:
+    BButton(const std::string& key, SDL_Rect& rect,std::function<RetT(ArgsT...)> fun, Context* ctx);
+    BButton(const BButton<RetT,ArgsT...>& B) = default;
+    virtual ~BButton()=default;
+    virtual bool pressed(int, int)=0;    
+    std::function<RetT(ArgsT...)> action;
+
+  protected:
     std::string m_texture_key{};
-    SDL_Rect m_rect{}; 
+    SDL_Rect m_rect{};
+  };
+  
+  template <class RetT,class... ArgsT>
+  class Rect_Button : public BButton<RetT, ArgsT...>{
+  public:
+    Rect_Button(const std::string& key, SDL_Rect& rect, std::function<RetT(ArgsT...)> fun, Context* ctx) : BButton<RetT,ArgsT...>(key,rect,fun,ctx) {};
+    Rect_Button() = default;
+    Rect_Button(const Rect_Button<RetT,ArgsT...>& B);
+    
+    bool pressed(int mous_x, int mouse_y) override;
+    std::function<RetT(ArgsT...)> action;
   };
 
-  typedef _Button<void> Button;
+  template class Rect_Button<void>;
+  typedef Rect_Button<void> Button;
+  
 
 }
 

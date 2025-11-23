@@ -14,7 +14,7 @@ public:
   void init();
   void show();
   void close();
-  void set_window(std::shared_ptr<Core::Window>);
+  void share_ctx(Core::Context* ctx);
   void set_game(Game* game);
   // private methods
 
@@ -24,6 +24,6 @@ private:
   void region_info(Region &region);
   void write_notes();
 private:
-  std::shared_ptr<Core::Window> m_window;
-  Game *m_game;
+  Core::Context* ctx = nullptr;
+  *m_game = nullptr;
 };

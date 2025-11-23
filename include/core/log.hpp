@@ -1,6 +1,6 @@
 #ifndef LOG_HPP_
 #define LOG_HPP_
-#include "SDL_stdinc.h"
+
 #include <format>
 #include <fstream>
 #include <string>

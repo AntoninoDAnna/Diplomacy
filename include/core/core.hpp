@@ -8,6 +8,9 @@
 #include "manager.hpp"
 #include "utilities.hpp"
 #include "sdl_wrap.hpp"
+#include "context.hpp"
 #ifdef DEBUG
 #include "log.hpp"
 #endif
+
+

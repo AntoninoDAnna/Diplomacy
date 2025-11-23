@@ -36,10 +36,9 @@ namespace Core{
     void imgui_init();
     void imgui_new_frame();
     void imgui_render();
-    void init(const char *title,
-	      SDL_WindowFlags wf = static_cast<SDL_WindowFlags>(
-								SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE));
-       bool is_minimized();
+    void init(const char *title,uint32_t flag = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+
+    bool is_minimized();
     bool is_shown();
     bool is_open();
     void make_current();
@@ -56,7 +55,7 @@ namespace Core{
   private:
     // window internal functions
 
-    void create_sdl_window(SDL_WindowFlags);
+    void create_sdl_window(uint32_t);
     void create_sdl_renderer();
     void create_sdl_gl_context();
     void get_glsl_version();

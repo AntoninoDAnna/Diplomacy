@@ -1,6 +1,0 @@
-#pragma once
-
-#include "SDL2/SDL_event.h"
-namespace Core{
-  typedef SDL_Event Event;
-}

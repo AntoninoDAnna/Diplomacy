@@ -150,7 +150,7 @@ namespace Core{
     ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(),m_renderer);
   }
 
-  void Window::init(const char* title,SDL_WindowFlags wf)
+  void Window::init(const char* title,uint32_t wf)
   {
     LOGL("initializing window {}", title);
     m_title = std::string(title);
@@ -249,7 +249,7 @@ namespace Core{
     }
   }
 
-  void Window::create_sdl_window(SDL_WindowFlags wf) {
+  void Window::create_sdl_window(uint32_t wf) {
     if (m_window != NULL) {
       SDL_DestroyWindow(m_window);
       LOGL("A window is already existing. Replaced");

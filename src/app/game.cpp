@@ -1,22 +1,16 @@
+
 #include "game.hpp"
 #include "region.hpp"
 #include "country.hpp"
-#include "manager.hpp"
-#include "log.hpp"
-#include "utilities.hpp"
 #include "unit.hpp"
 #include "globals.hpp"
-#include "button.hpp"
-#include "text.hpp"
-#include "window.hpp"
-//#include "SDL2/SDL_ttf.h"
+#include "core.hpp"
 #include <string>
 #include <fstream>
 #include <filesystem>
 #include <iostream>
 #include <vector>
-#include <functional>
-// #include <print>
+
 class ID_gen{
   public:
     ID_gen(int seed) : m_seed(seed){}
@@ -33,42 +27,51 @@ class ID_gen{
 
 static ID_gen g_id = ID_gen();
 
-Game::Game() {}
-
-void Game::set_window(std::shared_ptr<Core::Window> &w) { m_window = w; }
-
-void Game::set_manager(std::shared_ptr<Core::Manager>& r){
-  m_resources = r;
+Game::Game(Core::Context* ctx, App_State* as) : Core::Scene("Game",ctx), state(as)  {
+  start();
 }
 
-void Game::set_buttons_vector(std::vector<Core::Button> *v) { m_buttons = v; }
+Game::~Game(){
+  close_game();
+}
 
-void Game::set_exit_button(Core::Button *exit) { m_exit_button = exit; }
+void Game::on_event(Core::Event& e){
+  
+}
 
-Game::~Game(){}
+void Game::on_render(){
+  render_table();
+}
 
-void Game::start(Game_map& game){
+void Game::on_update(){
+  
+}
+
+void Game::start(){
+  Core::Context *ctx = get_context();
   LOGL("[Game: start_game()] starting game");
-  switch(game){
-    case Game_map::ANCIENT_MEDITERREAN:
-      m_gamename = g_AM;
-      break;
-    default:
-      std::cerr<<"Game error: Undefined game map"<<std::endl;
-      LOGL("Game error: Undefined game map");
-      exit(1);
-      break;
+  switch(state->map){
+  case Map::NONE :
+    LOGL("Initialising game but no map has been provided");
+    exit(EXIT_FAILURE);
+    break;
+  case Map::ANCIENT_MEDITERREAN:
+    m_gamename = g_AM;
+    break;
+  default:
+    std::cerr<<"Game error: Undefined game map"<<std::endl;
+    LOGL("Game error: Undefined game map");
+    exit(1);
+    break;
   }
   LOGL("[Game: start_game()] game: %s ", m_gamename);
   LOGL("[Game: start_game()] updatig g_TILES file in m_resources");
-  m_resources->replace_file(g_TILES,img_folder/m_gamename/tiles_file);
+  ctx->m_manager.replace_file(g_TILES,img_folder/m_gamename/tiles_file);
   LOGL("[Game: start_game()] updatig g_MAP file in m_resources");
-  m_resources->replace_file(g_MAP,img_folder/m_gamename/(m_gamename+".png"));
+  ctx->m_manager.replace_file(g_MAP,img_folder/m_gamename/(m_gamename+".png"));
   LOGL("[Game: start_game()] updatig g_MAP texture in m_resources");
-  m_resources->replace_texture(g_MAP,m_resources->get_file(g_MAP),m_window);
-  read_map(m_resources->get_file(m_gamename));
-  //render_table();
-  m_running = true;
+  ctx->m_manager.replace_texture(g_MAP,ctx->m_manager.get_file(g_MAP),ctx);
+  read_map(ctx->m_manager.get_file(m_gamename));
 }
 
 ID Game::get_region_ID(const std::string& abb){
@@ -82,6 +85,7 @@ ID Game::get_region_ID(const std::string& abb){
 }
 
 void Game::read_map(const std::filesystem::path& filename){
+  Core::Context *ctx = get_context();
   LOGL("[Game: read_map()] reading map in path %s", filename.string());
   std::ifstream file(filename,std::ios::in);
   int n_tile;
@@ -106,7 +110,7 @@ void Game::read_map(const std::filesystem::path& filename){
 
     m_table.emplace(id,Region(fields_name[0],fields_name[1],flag,id));
 
-    m_resources->add_file(fields_name[1],img_folder/m_gamename/tiles_folder/(fields_name[0]+".png"));
+    ctx->m_manager.add_file(fields_name[1],img_folder/m_gamename/tiles_folder/(fields_name[0]+".png"));
   }
   LOGL("[Game: read_map()] All Regions read");
   // read the neigbhors.
@@ -152,7 +156,7 @@ void Game::read_map(const std::filesystem::path& filename){
   LOGL("[Game: read_map()] All Countries set");
 
   file.close();
-  file.open(m_resources->get_file(g_TILES),std::ios::in);
+  file.open(ctx->m_manager.get_file(g_TILES),std::ios::in);
   Util::next_line(file);
   int x,y,w,h;
   file >> x >> x >> m_board_w >> m_board_h;
@@ -161,14 +165,13 @@ void Game::read_map(const std::filesystem::path& filename){
   while(!file.eof()){
     file >> abb >> x >> y >> w >> h;
     id = get_region_ID(abb);
-    m_table.at(id).set_region_on_map(x,y,w,h,m_window,m_resources);
+    m_table.at(id).set_region_on_map(x,y,w,h,ctx);
   }
   file.close();
   return;
 }
 
 void Game::close_game(){
-  m_running = false;
   LOGL("[Game: close_game] closing game");
   m_table.clear();
   LOGL("[Game: close_game] table cleared");
@@ -180,16 +183,17 @@ void Game::close_game(){
 };
 
 void Game::render_table(){
+  Core::Context* ctx = get_context();
   LOGL("[Game: render_table] rendering table");
   LOGL("[Game: render_table] clearing buttons");
-  m_buttons->clear();
+  m_buttons.clear();
   LOGL("[Game: render_table] resetting rendering");
-  m_window->reset_rendering();
+  ctx->m_window.reset_rendering();
   LOGL("[Game: render_table] rendering map");
-  m_window->render_copy(m_resources->get_texture(g_MAP),NULL,NULL);
+  ctx->m_window.render_copy(ctx->m_manager.get_texture(g_MAP),NULL,NULL);
 
   int w,h;
-  m_window->get_renderer_size(w,h);
+  ctx->m_window.get_renderer_size(w,h);
 
   // width and height ratio needed to resize all the tiles
   double rw = static_cast<double>(w)/m_board_w;
@@ -198,8 +202,8 @@ void Game::render_table(){
   for(auto& [id,tile] :  m_table){
     LOGL("Rendering %s", tile.get_name());
     if(tile.is_rendered()){
-      tile.render_region(m_window,m_resources,rw,rh);
-      m_buttons->push_back(tile.make_button(m_window, m_resources, rw, rh));
+      tile.render_region(rw,rh,ctx);
+      m_buttons.push_back(std::make_unique<Core::Button>(tile.make_button(rw, rh,ctx)));
     }
   }
 
@@ -208,6 +212,6 @@ void Game::render_table(){
   //for(auto [id,unit] : m_units) LOGL(unit);
 
   SDL_Rect box{0,0,static_cast<int>(w*0.25),static_cast<int>(h/30.)};
-  Core::Text back{m_font, "Back", SDL_Color{0,0,0,255},box,m_window,m_resources};
-  *m_exit_button = Core::Button("Back",box,m_window,[this]()->void{this->close_game();},m_resources);
+  Core::Text back{"Back", SDL_Color{0,0,0,255},box,ctx};
+  m_buttons.push_back(std::make_unique<Core::Button>("Back",box,[this]()->void{this->close_game();},ctx));
 }

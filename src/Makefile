@@ -10,17 +10,22 @@ IMG_DIR = ../imgui
 
 MAIN = main.cpp
 
-DYP_SRC=$(APP_DIR)/app.cpp \
-	$(APP_DIR)/game.cpp \
-	$(CORE_DIR)/window.cpp \
+DYP_SRC=$(CORE_DIR)/scene.cpp \
 	$(CORE_DIR)/button.cpp \
-	$(APP_DIR)/region.cpp \
-	$(APP_DIR)/unit.cpp \
-	$(APP_DIR)/country.cpp \
-	$(CORE_DIR)/utilities.cpp \
-	$(APP_DIR)/devel_tool.cpp \
+	$(CORE_DIR)/color.cpp \
+	$(CORE_DIR)/context.cpp \
+	$(CORE_DIR)/manager.cpp \
 	$(CORE_DIR)/sdl_wrap.cpp \
-	$(CORE_DIR)/color.cpp
+	$(CORE_DIR)/text.cpp \
+	$(CORE_DIR)/utilities.cpp \
+	$(CORE_DIR)/window.cpp \
+	$(APP_DIR)/app.cpp \
+	$(APP_DIR)/app_scene.cpp \
+	$(APP_DIR)/country.cpp \
+	$(APP_DIR)/devel_tool.cpp \
+	$(APP_DIR)/game.cpp \
+	$(APP_DIR)/region.cpp \
+	$(APP_DIR)/unit.cpp 
 
 IMG_SRC = 	$(IMG_DIR)/imgui.cpp \
 		$(IMG_DIR)/imgui_demo.cpp \
@@ -75,6 +80,43 @@ LIBS =$(LINUX_GL_LIBS) -ldl `sdl2-config --libs` -lSDL2_image -lSDL2_ttf
 CFLAGS = $(CXXFLAGS)
 CXX = g++
 
+
+$(OBJ_DIR)/%.o: $(APP_DIR)/%.cpp
+	@ mkdir $(OBJ_DIR)
+	$(CXX) $(IMG_IMPL) $(CXXFLAGS) -c -o $@ $<
+
+$(OBJ_DIR)/%.o: $(CORE_DIR)/%.cpp 
+	@ mkdir $(OBJ_DIR)
+	$(CXX) $(IMG_IMPL) $(CXXFLAGS) -c -o $@ $<
+
+$(OBJ_DIR)/%.o: $(IMG_DIR)/%.cpp 
+	@ mkdir $(OBJ_DIR)
+	$(CXX) $(IMG_IMPL) $(CXXFLAGS) -c -o $@ $<
+
+$(OBJ_DIR)/%.o: $(IMG_DIR)/backends/%.cpp
+	@ mkdir $(OBJ_DIR)
+	$(CXX) $(IMG_IMPL) $(CXXFLAGS) -c -o $@ $<
+
+$(OBJ_DEBUG_DIR)/%.o: $(APP_DIR)/%.cpp
+	@ mkdir -p $(OBJ_DEBUG_DIR)
+	@ mkdir -p $(OBJ_DIR)/log
+	$(CXX) -g -DDEBUG $(IMG_IMPL) $(CXXFLAGS) -c -o $@ $<
+
+$(OBJ_DEBUG_DIR)/%.o: $(CORE_DIR)/%.cpp
+	@ mkdir -p $(OBJ_DEBUG_DIR)
+	@ mkdir -p $(OBJ_DIR)/log
+	$(CXX) -g -DDEBUG $(IMG_IMPL) $(CXXFLAGS) -c -o $@ $<
+
+$(OBJ_DEBUG_DIR)/%.o: $(IMG_DIR)/%.cpp
+	@ mkdir -p $(OBJ_DEBUG_DIR)
+	@ mkdir -p $(OBJ_DIR)/log
+	$(CXX) -g -DDEBUG $(IMG_IMPL) $(CXXFLAGS) -c -o $@ $<
+
+$(OBJ_DEBUG_DIR)/%.o: $(IMG_DIR)/backends/%.cpp
+	@ mkdir -p $(OBJ_DEBUG_DIR)
+	@ mkdir -p $(OBJ_DIR)/log
+	$(CXX) -g -DDEBUG $(IMG_IMPL) $(CXXFLAGS) -c -o $@ $<
+
 diplomacy.x: $(MAIN) $(DYP_OBJ) $(IMG_OBJ) $(IMG_BCK_OBJ)
 	$(CXX) $(IMG_IMPL) $(CXXFLAGS) $(MAIN) $(DYP_OBJ) $(IMG_OBJ) $(IMG_BCK_OBJ) $(LIBS) -o $@
 
@@ -83,28 +125,6 @@ diplomacy_debug.x: $(MAIN) $(DYP_DEBUG_OBJ) $(IMG_DEBUG_OBJ) $(IMG_BCK_DEBUG_OBJ
 
 imgui_test.x: $(TEST) $(DYP_DEBUG_OBJ) $(IMG_DEBUG_OBJ) $(IMG_BCK_DEBUG_OBJ) $(DEV_DEBUG_OBJ)
 	$(CXX) -g -DDEBUG $(IMG_IMPL) $(CXXFLAGS) $(TEST) $(DYP_DEBUG_OBJ) $(IMG_DEBUG_OBJ) $(IMG_BCK_DEBUG_OBJ) $(DEV_DEBUG_OBJ) $(LIBS) -o $@
-
-
-$(OBJ_DIR)/%.o: $(APP_DIR)/%.cpp $(OBJ_DIR)
-	$(CXX) $(IMG_IMPL) $(CXXFLAGS) -c -o $@ $<
-
-$(OBJ_DIR)/%.o: $(CORE_DIR)/%.cpp $(OBJ_DIR)
-	$(CXX) $(IMG_IMPL) $(CXXFLAGS) -c -o $@ $<
-
-$(OBJ_DIR)/%.o: $(IMG_DIR)/%.cpp $(OBJ_DIR)
-	$(CXX) $(IMG_IMPL) $(CXXFLAGS) -c -o $@ $<
-
-$(OBJ_DIR)/%.o: $(IMG_DIR)/backends/%.cpp $(OBJ_DIR)
-	$(CXX) $(IMG_IMPL) $(CXXFLAGS) -c -o $@ $<
-
-$(OBJ_DEBUG_DIR)/%.o: $(SRC_DIR)/%.cpp $(OBJ_DEBUG_DIR)
-	$(CXX) -g -DDEBUG $(IMG_IMPL) $(CXXFLAGS) -c -o $@ $<
-
-$(OBJ_DEBUG_DIR)/%.o: $(IMG_DIR)/%.cpp $(OBJ_DEBUG_DIR)
-	$(CXX) -g -DDEBUG $(IMG_IMPL) $(CXXFLAGS) -c -o $@ $<
-
-$(OBJ_DEBUG_DIR)/%.o: $(IMG_DIR)/backends/%.cpp $(OBJ_DEBUG_DIR)
-	$(CXX) -g -DDEBUG $(IMG_IMPL) $(CXXFLAGS) -c -o $@ $<
 
 $(OBJ_DIR):
 	@ mkdir $(OBJ_DIR)
@@ -117,5 +137,4 @@ fix:
 
 clean:
 	@ rm -rf $(OBJ_DIR)
-	@ rm -f $(SRC_DIR)/*.x
 	@echo make clean: done

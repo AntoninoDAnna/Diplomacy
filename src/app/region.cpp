@@ -1,7 +1,4 @@
 #include "region.hpp"
-#include "log.hpp"
-#include "manager.hpp"
-#include "button.hpp"
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_image.h"
 #include <immintrin.h>
@@ -10,6 +7,7 @@
 #include <list>
 #include <fstream>
 #include <sstream>
+#include "core.hpp"
 
 Region::Region(const std::string &name, const std::string &abb, uint32_t f,
                ID id)
@@ -135,3 +133,26 @@ void Region::set_render_flag() { m_flag |= Region_Flags::RENDER; }
 void Region::unset_render_flag() {m_flag &= ~Region_Flags::RENDER; }
 void Region::set_flag(uint32_t flag) { m_flag |= flag; }
 void Region::unset_flag(uint32_t flag) { m_flag &= ~flag; }
+
+
+void Region::set_region_on_map(int x, int y, int w, int h,Core::Context *ctx){
+  region_box.x =x;
+  region_box.y = y;
+  region_box.w = w;
+  region_box.h = h;
+  ctx->m_manager.replace_texture(m_abbr,ctx->m_manager.get_file(m_abbr),ctx);
+}
+
+
+void Region::render_region(double rw, double rh,Core::Context *ctx){
+  SDL_Rect box{rescale_box(rw,rh)};
+  ctx->m_window.render_copy(ctx->m_manager.get_texture(m_abbr),NULL,&box);
+}
+
+Core::Button Region::make_button(double rw, double rh, Core::Context *ctx){
+  SDL_Rect box{rescale_box(rw,rh)};
+  return Core::Button(m_abbr,box,
+                [this]()-> void {
+                  std::cout <<this->get_name() << std::endl;
+                }, ctx);
+}

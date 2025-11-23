@@ -1,39 +1,27 @@
 #include "button.hpp"
 #include "manager.hpp"
-#include <memory>
+#include "window.hpp"
+#include "context.hpp"
 
 namespace Core{
-  template <class ReturnType, class... ArgsType>
-  _Button<ReturnType, ArgsType...>::_Button(
-					    const std::string &key, SDL_Rect &rect, std::shared_ptr<Window> &w,
-					    std::function<ReturnType(ArgsType...)> action,
-					    std::shared_ptr<Manager> &rm)
-    : action(action), m_texture_key(key), m_rect(rect){
 
-    w->render_copy(rm->get_texture(key),NULL,&m_rect);
-  }
+  template <class RetT, class... ArgsT>
+  BButton<RetT,ArgsT...>::BButton(const std::string& key, SDL_Rect& rect,std::function<RetT(ArgsT...)> fun, Context* ctx) :
+    action(fun), m_texture_key(key), m_rect(rect){
+    ctx->m_window.render_copy(ctx->m_manager.get_texture(m_texture_key),
+			      NULL,&m_rect );  
+  }  
 
-
-  template <class ReturnType,class... ArgsType>
-  _Button<ReturnType,ArgsType...>::_Button(const _Button<ReturnType,ArgsType...>& B) :
-    action(B.action),m_texture_key(B.m_texture_key),m_rect(B.m_rect){}
-
-  template <class ReturnType,class... ArgsType>
-  void _Button<ReturnType,ArgsType...>::operator=(const _Button<ReturnType,ArgsType...>& B){
-    this->m_texture_key = B.m_texture_key;
-    this->m_rect = B.m_rect;
-    this->action = B.action;
-  }
-
-
-  template <class ReturnType,class... ArgsType>
-  bool _Button<ReturnType,ArgsType...>::pressed(int mouse_x, int mouse_y){
-    if(mouse_x< m_rect.x) return false;
-    if(mouse_x> m_rect.x+m_rect.w) return false;
-    if(mouse_y< m_rect.y) return false;
-    if(mouse_y> m_rect.y+ m_rect.h) return false;
+  template <class RetT, class... ArgsT>
+  Rect_Button<RetT,ArgsT...>::Rect_Button(const Rect_Button<RetT,ArgsT...>& B)
+    : BButton<RetT,ArgsT...>(B){}
+  
+  template <class RetT,class... ArgsT>
+  bool Rect_Button<RetT,ArgsT...>::pressed(int mouse_x, int mouse_y){
+    if(mouse_x< this->m_rect.x) return false;
+    if(mouse_x> this->m_rect.x + this->m_rect.w) return false;
+    if(mouse_y< this->m_rect.y) return false;
+    if(mouse_y> this->m_rect.y + this->m_rect.h) return false;
     return true;
   }
-
-  template class _Button<void>;
 }
